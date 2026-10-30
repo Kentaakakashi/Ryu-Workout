@@ -10,7 +10,7 @@ if (manifest.includes('android:scheme="' + scheme + '"')) {
   process.exit(0);
 }
 
-const activityMatch = manifest.match(/<activity\\b[^>]*>/);
+const activityMatch = manifest.match(/<activity\b[^>]*>/);
 if (!activityMatch || activityMatch.index === undefined) {
   throw new Error('Could not find the Capacitor MainActivity in AndroidManifest.xml');
 }
