@@ -10,7 +10,7 @@ import {
   ShieldCheck, Sparkles, Target, Timer, Trophy, TrendingUp, Waves, X, Zap
 } from 'lucide-react';
 
-type Tab = 'home' | 'train' | 'progress' | 'discover' | 'profile';
+type Tab = 'home' | 'train' | 'progress' | 'discover' | 'profile' | 'auth';
 type Exercise = { id: string; name: string; detail: string; target: number; unit: string; rest: number; done: number };
 type Session = { id: string; title: string; date: string; duration: number; xp: number; sets: number };
 type Notice = { id: number; title: string; subtitle: string; kind: 'success' | 'achievement' | 'info'; priority: number; persistent?: boolean };
@@ -43,6 +43,10 @@ export default function App() {
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [username, setUsername] = useState('');
+  const [profileUsername, setProfileUsername] = useState('');
+  const [profileBusy, setProfileBusy] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [authMessage, setAuthMessage] = useState('');
   const [authError, setAuthError] = useState('');
   const [sessions, setSessions] = useState<Session[]>(() => readStore('ryu.sessions', []));
@@ -81,6 +85,32 @@ export default function App() {
     return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
 
+  useEffect(() => {
+    if (!account) { setProfileUsername(''); return; }
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase.from('profiles').select('username,display_name').eq('id', account.id).maybeSingle();
+      if (cancelled) return;
+      if (error) { setAuthError('Your account is connected, but your Ryu profile could not be loaded.'); return; }
+      if (data) {
+        const savedUsername = data.username ?? '';
+        setProfileUsername(savedUsername);
+        if (savedUsername) setUsername(savedUsername);
+        if (data.display_name) setDisplayName(data.display_name);
+        if (!savedUsername) setTab('profile');
+        return;
+      }
+      const metadata = account.user_metadata ?? {};
+      const metadataUsername = typeof metadata.username === 'string' ? metadata.username.toLowerCase() : '';
+      const metadataName = typeof metadata.display_name === 'string' ? metadata.display_name : typeof metadata.full_name === 'string' ? metadata.full_name : typeof metadata.name === 'string' ? metadata.name : '';
+      const { error: createError } = await supabase.from('profiles').upsert({ id: account.id, username: /^[a-z0-9][a-z0-9_]{2,19}$/.test(metadataUsername) ? metadataUsername : null, display_name: metadataName || account.email?.split('@')[0] || 'Ryu member', updated_at: new Date().toISOString() }, { onConflict: 'id' });
+      if (cancelled) return;
+      if (createError) { setAuthError(createError.code === '23505' ? 'That username is already taken. Choose another one in your profile.' : 'Your Ryu profile could not be created yet.'); setTab('profile'); }
+      else if (!metadataUsername) setTab('profile');
+      else { setProfileUsername(metadataUsername); setUsername(metadataUsername); }
+    })();
+    return () => { cancelled = true; };
+  }, [account?.id]);
   useEffect(() => {
     if (!account) return;
     let cancelled = false;
@@ -158,53 +188,72 @@ export default function App() {
   const recent = sessions.slice(0, 4);
   const weeklyCount = useMemo(() => sessions.filter(s => Date.now() - new Date(s.date).getTime() < 7 * 86400000).length, [sessions]);
   const totalMinutes = Math.round(sessions.reduce((sum, s) => sum + s.duration, 0) / 60);
+  const normalizedUsername = username.trim().toLowerCase();
+  const usernameValid = /^[a-z0-9][a-z0-9_]{2,19}$/.test(normalizedUsername);
+  const passwordCriteria = [
+    { label: 'At least 12 characters', valid: authPassword.length >= 12 },
+    { label: 'Lowercase letter', valid: /[a-z]/.test(authPassword) },
+    { label: 'Uppercase letter', valid: /[A-Z]/.test(authPassword) },
+    { label: 'Number', valid: /[0-9]/.test(authPassword) },
+    { label: 'Symbol', valid: /[^A-Za-z0-9]/.test(authPassword) },
+  ];
+  const passwordScore = passwordCriteria.filter(item => item.valid).length;
+  const passwordStrong = passwordCriteria.every(item => item.valid);
+  const passwordStrengthLabel = passwordScore <= 2 ? 'Weak' : passwordScore === 3 ? 'Fair' : passwordScore === 4 ? 'Good' : 'Strong';
 
   async function submitAuth(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setAuthBusy(true);
-    setAuthError('');
-    setAuthMessage('');
+    setAuthBusy(true); setAuthError(''); setAuthMessage('');
     try {
       if (authMode === 'signup') {
+        if (!usernameValid) throw new Error('Choose a username with 3–20 characters: lowercase letters, numbers or underscores. Start with a letter or number.');
+        if (!passwordStrong) throw new Error('Your password must meet all five strength checks before you can create an account.');
+        const cleanDisplayName = displayName.trim() || normalizedUsername;
         const { data, error } = await supabase.auth.signUp({
-          email: authEmail.trim(),
-          password: authPassword,
-          options: { data: { display_name: displayName.trim() || authEmail.split('@')[0] } },
+          email: authEmail.trim(), password: authPassword,
+          options: { data: { username: normalizedUsername, display_name: cleanDisplayName }, emailRedirectTo: window.location.origin + window.location.pathname },
         });
-        if (error) throw error;
-        if (data.session) {
-          setAccount(data.session.user);
-          setAuthMessage('Account created. Your Ryu account is ready.');
-          await supabase.from('profiles').upsert({
-            id: data.session.user.id,
-            display_name: displayName.trim() || authEmail.split('@')[0],
-            updated_at: new Date().toISOString(),
-          });
-        } else {
-          setAuthMessage('Check your email for the confirmation link, then sign in.');
+        if (error) {
+          if (error.code === '23505' || error.message.toLowerCase().includes('profiles_username_lower_uidx')) throw new Error('That username is already taken. Try another handle.');
+          throw error;
         }
+        if (data.session) {
+          setAccount(data.session.user); setProfileUsername(normalizedUsername);
+          const { error: profileError } = await supabase.from('profiles').upsert({ id: data.session.user.id, username: normalizedUsername, display_name: cleanDisplayName, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+          if (profileError) throw profileError;
+          setAuthMessage('Account created. Your unique Ryu username is ready.');
+        } else setAuthMessage('Account created. Check your email to confirm it; your username is reserved.');
       } else {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: authEmail.trim(),
-          password: authPassword,
-        });
+        const { data, error } = await supabase.auth.signInWithPassword({ email: authEmail.trim(), password: authPassword });
         if (error) throw error;
-        setAccount(data.user);
-        setAuthMessage('Signed in. Welcome back.');
-        await supabase.from('profiles').upsert({
-          id: data.user.id,
-          display_name: displayName.trim() || data.user.user_metadata?.display_name || authEmail.split('@')[0],
-          updated_at: new Date().toISOString(),
-        });
+        setAccount(data.user); setAuthMessage('Signed in. Welcome back.');
       }
-      setAuthPassword('');
-    } catch (error) {
-      setAuthError(error instanceof Error ? error.message : 'Could not complete sign-in. Please try again.');
-    } finally {
-      setAuthBusy(false);
-    }
+      setAuthPassword(''); setPasswordVisible(false);
+    } catch (error) { setAuthError(error instanceof Error ? error.message : 'Could not complete sign-in. Please try again.'); }
+    finally { setAuthBusy(false); }
   }
 
+  async function signInWithGoogle() {
+    setAuthBusy(true); setAuthError(''); setAuthMessage('');
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + window.location.pathname, queryParams: { prompt: 'select_account' } } });
+      if (error) throw error;
+    } catch (error) { setAuthError(error instanceof Error ? error.message : 'Google sign-in could not be started.'); setAuthBusy(false); }
+  }
+
+  async function saveUsername() {
+    if (!account) return;
+    if (!usernameValid) { setAuthError('Choose a username with 3–20 characters: lowercase letters, numbers or underscores.'); return; }
+    setProfileBusy(true); setAuthError(''); setAuthMessage('');
+    try {
+      const cleanDisplayName = displayName.trim() || account.user_metadata?.display_name || normalizedUsername;
+      const { error } = await supabase.from('profiles').upsert({ id: account.id, username: normalizedUsername, display_name: cleanDisplayName, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+      if (error?.code === '23505') throw new Error('That username is already taken. Choose another one.');
+      if (error) throw error;
+      setProfileUsername(normalizedUsername); setAuthMessage('Your Ryu username has been saved.');
+    } catch (error) { setAuthError(error instanceof Error ? error.message : 'Could not save your username.'); }
+    finally { setProfileBusy(false); }
+  }
   async function signOut() {
     setAuthError('');
     const { error } = await supabase.auth.signOut();
@@ -321,7 +370,7 @@ export default function App() {
         <div className="topbar-right">
           <div className="streak-chip"><Flame size={15} fill="currentColor" /><span>{streak} DAY STREAK</span></div>
           <button className="icon-button" aria-label="Show notification" onClick={() => pushNotice('You’re on track', 'Small sessions build strong habits.', 'info')}><Bell size={18} /></button>
-          <button className="avatar" onClick={() => setTab('profile')} aria-label="Open profile">R<span /></button>
+          {account ? <button className="avatar" onClick={() => setTab('profile')} aria-label="Open profile">{(displayName || account.email || 'R').slice(0, 1).toUpperCase()}<span /></button> : <button className="topbar-auth" onClick={() => { setAuthMode('signin'); setTab('auth'); }}>Sign in <ArrowRight size={15} /></button>}
         </div>
       </header>
 
@@ -405,19 +454,65 @@ export default function App() {
               <div className="principle-panel discover-principle"><span className="principle-index">A NOTE ON PROGRESS</span><h3>Start easy.<br /><em>Stay consistent.</em></h3><p>Training should challenge you, not punish you. Choose a pace you can recover from and increase difficulty gradually.</p></div>
             </motion.div>}
 
+            {tab === 'auth' && <motion.div key="auth" className="page auth-page" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: .22 }}>
+              <div className="eyebrow"><span className="live-dot" /> RYU MEMBER ACCESS <span className="eyebrow-line" /> <span>YOUR PROGRESS, YOURS</span></div>
+              <div className="auth-page-grid">
+                <div className="auth-intro">
+                  <p className="kicker">YOUR NEXT CHAPTER STARTS HERE.</p>
+                  <h1>Make every<br /><span>rep count.</span></h1>
+                  <p>Sign in to carry your training history across devices, keep your sessions together and build a profile with a name that is yours.</p>
+                  <div className="auth-points"><span><ShieldCheck size={16} /> Private account</span><span><Activity size={16} /> Cloud workout sync</span><span><Target size={16} /> Your own @username</span></div>
+                </div>
+                <div className="panel auth-card">
+                  <div className="section-head-small"><div><span className="micro-label">RYU ACCOUNT</span><h3>{authMode === 'signup' ? 'Create your account' : 'Welcome back'}</h3></div><ShieldCheck size={18} /></div>
+                  <button type="button" className="google-button" onClick={() => void signInWithGoogle()} disabled={authBusy}><span className="google-mark" aria-hidden="true">G</span><span>Continue with Google</span><ArrowRight size={16} /></button>
+                  <div className="auth-divider"><span>OR CONTINUE WITH EMAIL</span></div>
+                  <form className="account-form" onSubmit={submitAuth}>
+                    {authMode === 'signup' && <>
+                      <label className="account-field">Username
+                        <div className="username-input-wrap"><span>@</span><input autoComplete="username" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20))} placeholder="your_handle" minLength={3} maxLength={20} required /></div>
+                        <small className={username.length === 0 || usernameValid ? 'field-hint' : 'field-hint invalid'}>Unique handle · 3–20 characters · letters, numbers, underscores</small>
+                      </label>
+                      <label className="account-field">Display name<input autoComplete="name" value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="What should Ryu call you?" maxLength={40} /></label>
+                    </>}
+                    <label className="account-field">Email<input type="email" autoComplete="email" value={authEmail} onChange={e => setAuthEmail(e.target.value)} placeholder="you@example.com" required /></label>
+                    <label className="account-field">Password
+                      <div className="password-input-wrap"><input type={passwordVisible ? 'text' : 'password'} autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'} value={authPassword} onChange={e => setAuthPassword(e.target.value)} minLength={authMode === 'signup' ? 12 : undefined} placeholder={authMode === 'signup' ? 'Create a strong password' : 'Your password'} required /><button type="button" onClick={() => setPasswordVisible(value => !value)} aria-label={passwordVisible ? 'Hide password' : 'Show password'}>{passwordVisible ? 'Hide' : 'Show'}</button></div>
+                    </label>
+                    {authMode === 'signup' && <div className="password-strength">
+                      <div className="strength-heading"><span>Password strength</span><strong className={'strength-' + passwordScore}>{authPassword ? passwordStrengthLabel : 'Not checked'}</strong></div>
+                      <div className="strength-track"><span className={'strength-fill strength-fill-' + passwordScore} /></div>
+                      <div className="password-checks">{passwordCriteria.map(item => <span key={item.label} className={item.valid ? 'passed' : ''}>{item.valid ? '✓' : '○'} {item.label}</span>)}</div>
+                    </div>}
+                    {authError && <p className="account-error" role="alert">{authError}</p>}
+                    {authMessage && <p className="account-status" role="status">{authMessage}</p>}
+                    <button className="lime-button account-submit" type="submit" disabled={authBusy || (authMode === 'signup' && (!usernameValid || !passwordStrong))}>{authBusy ? 'One sec…' : authMode === 'signup' ? 'Create account' : 'Sign in'} <ArrowRight size={16} /></button>
+                    <button className="text-action account-mode" type="button" onClick={() => { setAuthMode(value => value === 'signin' ? 'signup' : 'signin'); setAuthError(''); setAuthMessage(''); }}>{authMode === 'signin' ? 'New to Ryu? Create an account' : 'Already have an account? Sign in'}</button>
+                  </form>
+                </div>
+              </div>
+            </motion.div>}
             {tab === 'profile' && <motion.div key="profile" className="page" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: .22 }}>
               <div className="eyebrow"><span className="live-dot" /> YOUR SETTINGS <span className="eyebrow-line" /> <span>MADE PERSONAL</span></div><div className="page-title-row"><div><p className="kicker">YOUR PACE. YOUR RULES.</p><h1>Make it yours.</h1><p className="page-subtitle">A training space should work for you, not the other way around.</p></div></div>
-              <div className="profile-hero panel"><div className="profile-avatar">{(account?.user_metadata?.display_name || account?.email || 'R').slice(0, 1).toUpperCase()}<span /></div><div className="profile-hero-copy"><span className="micro-label">{account ? 'RYU CLOUD MEMBER' : 'RYU MEMBER'}</span><h2>{account?.user_metadata?.display_name || 'The journey is yours.'}</h2><p>Level {level} · {xp.toLocaleString()} XP earned</p>{account && <p>{account.email}</p>}</div><div className="profile-badge"><ShieldCheck size={19} /><span>{account ? 'ACCOUNT<br />ACTIVE' : 'DEVICE<br />PROFILE'}</span></div></div>
-              <div className="panel settings-panel account-panel"><div className="section-head-small"><div><span className="micro-label">RYU ACCOUNT</span><h3>{account ? 'You’re signed in' : 'Your training, across devices'}</h3></div><ShieldCheck size={18} /></div>
-                {authLoading ? <p className="account-status">Checking your secure session…</p> : account ? <><p className="account-status">Signed in as <strong>{account.email}</strong>. New workouts sync to your account. Older local-only workouts remain on this device until you choose to migrate them.</p><button className="outline-button full-width" onClick={() => void signOut()}>Sign out</button></> : <form className="account-form" onSubmit={submitAuth}>
-                  {authMode === 'signup' && <label className="account-field">Display name<input autoComplete="nickname" value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="What should Ryu call you?" maxLength={40} /></label>}
-                  <label className="account-field">Email<input type="email" autoComplete="email" value={authEmail} onChange={e => setAuthEmail(e.target.value)} placeholder="you@example.com" required /></label>
-                  <label className="account-field">Password<input type="password" autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'} value={authPassword} onChange={e => setAuthPassword(e.target.value)} minLength={6} placeholder="At least 6 characters" required /></label>
+              <div className="profile-hero panel"><div className="profile-avatar">{(account?.user_metadata?.display_name || account?.email || 'R').slice(0, 1).toUpperCase()}<span /></div><div className="profile-hero-copy"><span className="micro-label">{account ? 'RYU CLOUD MEMBER' : 'RYU MEMBER'}</span><h2>{displayName || account?.user_metadata?.full_name || 'The journey is yours.'}</h2><p>Level {level} · {xp.toLocaleString()} XP earned</p>{account && <p>{profileUsername ? '@' + profileUsername + ' · ' : ''}{account.email}</p>}</div><div className="profile-badge"><ShieldCheck size={19} /><span>{account ? 'ACCOUNT<br />ACTIVE' : 'DEVICE<br />PROFILE'}</span></div></div>
+              <div className="panel settings-panel account-panel"><div className="section-head-small"><div><span className="micro-label">RYU ACCOUNT</span><h3>{account ? 'Your member profile' : 'Your training, across devices'}</h3></div><ShieldCheck size={18} /></div>
+                {authLoading ? <p className="account-status">Checking your secure session…</p> : account ? <>
+                  <p className="account-status">Signed in as <strong>{account.email}</strong>. New workouts sync to your Ryu account.</p>
+                  <p className="profile-handle-line">{profileUsername ? <>Your username <strong>@{profileUsername}</strong></> : 'Choose your unique username to finish setting up your Ryu profile.'}</p>
+                  {!profileUsername && <form className="account-form" onSubmit={event => { event.preventDefault(); void saveUsername(); }}>
+                    <label className="account-field">Unique username
+                      <div className="username-input-wrap"><span>@</span><input autoComplete="username" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20))} placeholder="your_handle" minLength={3} maxLength={20} required /></div>
+                      <small className={username.length === 0 || usernameValid ? 'field-hint' : 'field-hint invalid'}>3–20 characters · letters, numbers, underscores</small>
+                    </label>
+                    <button className="lime-button account-submit" type="submit" disabled={profileBusy || !usernameValid}>{profileBusy ? 'Saving…' : 'Save username'} <ArrowRight size={16} /></button>
+                  </form>}
                   {authError && <p className="account-error" role="alert">{authError}</p>}
                   {authMessage && <p className="account-status" role="status">{authMessage}</p>}
-                  <button className="lime-button account-submit" type="submit" disabled={authBusy}>{authBusy ? 'One sec…' : authMode === 'signup' ? 'Create account' : 'Sign in'} <ArrowRight size={16} /></button>
-                  <button className="text-action account-mode" type="button" onClick={() => { setAuthMode(v => v === 'signin' ? 'signup' : 'signin'); setAuthError(''); setAuthMessage(''); }}>{authMode === 'signin' ? 'New to Ryu? Create an account' : 'Already have an account? Sign in'}</button>
-                </form>}
+                  <button className="outline-button full-width" onClick={() => void signOut()}>Sign out</button>
+                </> : <>
+                  <p className="account-status">Your workouts stay on this device until you sign in. Create a free account to sync new training sessions across devices.</p>
+                  <button className="lime-button account-submit" onClick={() => { setAuthMode('signin'); setTab('auth'); }}>Sign in or create account <ArrowRight size={16} /></button>
+                </>}
               </div>
               <div className="settings-layout"><div className="panel settings-panel"><div className="section-head-small"><div><span className="micro-label">PREFERENCES</span><h3>Your experience</h3></div><Settings2 size={18} /></div><SettingRow icon={<Bell size={18} />} title="Workout reminders" desc="Permission-free preference for future reminder support"><Toggle checked={remindersOn} onClick={() => { setRemindersOn(v => !v); pushNotice(remindersOn ? 'Reminders paused' : 'Reminder preference saved', remindersOn ? 'You can turn them back on anytime.' : 'System notifications need Android integration.', 'info'); }} /></SettingRow><SettingRow icon={<Activity size={18} />} title="Sound feedback" desc="Optional sound feedback during interactions"><Toggle checked={soundOn} onClick={() => { setSoundOn(v => !v); pushNotice(soundOn ? 'Sound feedback off' : 'Sound feedback on', 'Preference saved on this device.', 'info'); }} /></SettingRow><SettingRow icon={<Gauge size={18} />} title="Default training focus" desc="Choose the plan selected when you open training"><select className="setting-select" value={selectedPlan} onChange={e => setSelectedPlan(e.target.value)}>{plans.map(p => <option value={p.id} key={p.id}>{p.name}</option>)}</select></SettingRow></div>
                 <div className="panel settings-panel"><div className="section-head-small"><div><span className="micro-label">YOUR DATA</span><h3>On your device</h3></div><ShieldCheck size={18} /></div><div className="data-note"><div className="data-note-icon"><ShieldCheck size={19} /></div><div><strong>{account ? 'Account connected · sync in progress' : 'Your data, your control'}</strong><p>{account ? 'Your account is authenticated securely. New completed workouts sync to the cloud; older local-only history stays on this device and is not uploaded automatically.' : 'Your current session history, XP and streak stay on this device. Create an account to prepare for secure cloud sync.'}</p></div></div><button className="outline-button full-width" onClick={() => { const blob = new Blob([JSON.stringify({ sessions, xp, streak, exportedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'ryu-progress.json'; a.click(); URL.revokeObjectURL(url); pushNotice('Export prepared', 'Your progress file was downloaded.', 'success'); }}><ArrowDownRight size={16} /> Export my progress</button><button className="danger-button full-width" onClick={() => { if (window.confirm('Reset all local Ryu progress? This cannot be undone.')) { setSessions([]); setXp(0); setStreak(0); setActive(false); setStartedAt(null); setElapsed(0); setExercises(starterExercises); pushNotice('Progress reset', 'Your local training history has been cleared.', 'info'); } }}><RotateCcw size={16} /> Reset local progress</button></div></div>
