@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import type { User } from '@supabase/supabase-js';
+import { supabase } from './lib/supabase';
 import {
   Activity, ArrowDownRight, ArrowRight, Award, Bell, Check, CheckCheck,
   ChevronRight, Clock3, Dumbbell, Flame, Footprints, Gauge,
@@ -33,6 +35,15 @@ function readStore<T>(key: string, fallback: T): T {
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('home');
+  const [account, setAccount] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [authMessage, setAuthMessage] = useState('');
+  const [authError, setAuthError] = useState('');
   const [sessions, setSessions] = useState<Session[]>(() => readStore('ryu.sessions', []));
   const [xp, setXp] = useState(() => readStore('ryu.xp', 0));
   const [streak, setStreak] = useState(() => readStore('ryu.streak', 0));
@@ -51,6 +62,23 @@ export default function App() {
   const [remindersOn, setRemindersOn] = useState(false);
   const noticeId = useRef(0);
   const previousRest = useRef(0);
+
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (!mounted) return;
+      if (error) setAuthError('Could not restore your account session.');
+      setAccount(data.session?.user ?? null);
+      setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) {
+        setAccount(session?.user ?? null);
+        setAuthLoading(false);
+      }
+    });
+    return () => { mounted = false; subscription.unsubscribe(); };
+  }, []);
 
   useEffect(() => { localStorage.setItem('ryu.sessions', JSON.stringify(sessions)); }, [sessions]);
   useEffect(() => { localStorage.setItem('ryu.xp', JSON.stringify(xp)); }, [xp]);
@@ -86,6 +114,59 @@ export default function App() {
   const recent = sessions.slice(0, 4);
   const weeklyCount = useMemo(() => sessions.filter(s => Date.now() - new Date(s.date).getTime() < 7 * 86400000).length, [sessions]);
   const totalMinutes = Math.round(sessions.reduce((sum, s) => sum + s.duration, 0) / 60);
+
+  async function submitAuth(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setAuthBusy(true);
+    setAuthError('');
+    setAuthMessage('');
+    try {
+      if (authMode === 'signup') {
+        const { data, error } = await supabase.auth.signUp({
+          email: authEmail.trim(),
+          password: authPassword,
+          options: { data: { display_name: displayName.trim() || authEmail.split('@')[0] } },
+        });
+        if (error) throw error;
+        if (data.session) {
+          setAccount(data.session.user);
+          setAuthMessage('Account created. Your Ryu account is ready.');
+          await supabase.from('profiles').upsert({
+            id: data.session.user.id,
+            display_name: displayName.trim() || authEmail.split('@')[0],
+            updated_at: new Date().toISOString(),
+          });
+        } else {
+          setAuthMessage('Check your email for the confirmation link, then sign in.');
+        }
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: authEmail.trim(),
+          password: authPassword,
+        });
+        if (error) throw error;
+        setAccount(data.user);
+        setAuthMessage('Signed in. Welcome back.');
+        await supabase.from('profiles').upsert({
+          id: data.user.id,
+          display_name: displayName.trim() || data.user.user_metadata?.display_name || authEmail.split('@')[0],
+          updated_at: new Date().toISOString(),
+        });
+      }
+      setAuthPassword('');
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Could not complete sign-in. Please try again.');
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
+  async function signOut() {
+    setAuthError('');
+    const { error } = await supabase.auth.signOut();
+    if (error) setAuthError(error.message);
+    else setAuthMessage('Signed out. This device’s local progress remains available here.');
+  }
 
   function pushNotice(title: string, subtitle: string, kind: Notice['kind'] = 'success', priority = 1) {
     const item: Notice = { id: ++noticeId.current, title, subtitle, kind, priority };
@@ -249,9 +330,21 @@ export default function App() {
 
             {tab === 'profile' && <motion.div key="profile" className="page" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: .22 }}>
               <div className="eyebrow"><span className="live-dot" /> YOUR SETTINGS <span className="eyebrow-line" /> <span>MADE PERSONAL</span></div><div className="page-title-row"><div><p className="kicker">YOUR PACE. YOUR RULES.</p><h1>Make it yours.</h1><p className="page-subtitle">A training space should work for you, not the other way around.</p></div></div>
-              <div className="profile-hero panel"><div className="profile-avatar">R<span /></div><div className="profile-hero-copy"><span className="micro-label">RYU MEMBER</span><h2>The journey is yours.</h2><p>Level {level} · {xp.toLocaleString()} XP earned</p></div><div className="profile-badge"><ShieldCheck size={19} /><span>LOCAL<br />PROFILE</span></div></div>
+              <div className="profile-hero panel"><div className="profile-avatar">{(account?.user_metadata?.display_name || account?.email || 'R').slice(0, 1).toUpperCase()}<span /></div><div className="profile-hero-copy"><span className="micro-label">{account ? 'RYU CLOUD MEMBER' : 'RYU MEMBER'}</span><h2>{account?.user_metadata?.display_name || 'The journey is yours.'}</h2><p>Level {level} · {xp.toLocaleString()} XP earned</p>{account && <p>{account.email}</p>}</div><div className="profile-badge"><ShieldCheck size={19} /><span>{account ? 'ACCOUNT<br />ACTIVE' : 'DEVICE<br />PROFILE'}</span></div></div>
+              <div className="panel settings-panel account-panel"><div className="section-head-small"><div><span className="micro-label">RYU ACCOUNT</span><h3>{account ? 'You’re signed in' : 'Your training, across devices'}</h3></div><ShieldCheck size={18} /></div>
+                {authLoading ? <p className="account-status">Checking your secure session…</p> : account ? <><p className="account-status">Signed in as <strong>{account.email}</strong>. Account sync is being connected; your existing local history is still preserved.</p><button className="outline-button full-width" onClick={() => void signOut()}>Sign out</button></> : <form className="account-form" onSubmit={submitAuth}>
+                  {authMode === 'signup' && <label className="account-field">Display name<input autoComplete="nickname" value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="What should Ryu call you?" maxLength={40} /></label>}
+                  <label className="account-field">Email<input type="email" autoComplete="email" value={authEmail} onChange={e => setAuthEmail(e.target.value)} placeholder="you@example.com" required /></label>
+                  <label className="account-field">Password<input type="password" autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'} value={authPassword} onChange={e => setAuthPassword(e.target.value)} minLength={6} placeholder="At least 6 characters" required /></label>
+                  {authError && <p className="account-error" role="alert">{authError}</p>}
+                  {authMessage && <p className="account-status" role="status">{authMessage}</p>}
+                  <button className="lime-button account-submit" type="submit" disabled={authBusy}>{authBusy ? 'One sec…' : authMode === 'signup' ? 'Create account' : 'Sign in'} <ArrowRight size={16} /></button>
+                  <button className="text-action account-mode" type="button" onClick={() => { setAuthMode(v => v === 'signin' ? 'signup' : 'signin'); setAuthError(''); setAuthMessage(''); }}>{authMode === 'signin' ? 'New to Ryu? Create an account' : 'Already have an account? Sign in'}</button>
+                </form>}
+                {!authLoading && !account && (authError || authMessage) && <p className={authError ? 'account-error' : 'account-status'} role={authError ? 'alert' : 'status'}>{authError || authMessage}</p>}
+              </div>
               <div className="settings-layout"><div className="panel settings-panel"><div className="section-head-small"><div><span className="micro-label">PREFERENCES</span><h3>Your experience</h3></div><Settings2 size={18} /></div><SettingRow icon={<Bell size={18} />} title="Workout reminders" desc="Permission-free preference for future reminder support"><Toggle checked={remindersOn} onClick={() => { setRemindersOn(v => !v); pushNotice(remindersOn ? 'Reminders paused' : 'Reminder preference saved', remindersOn ? 'You can turn them back on anytime.' : 'System notifications need Android integration.', 'info'); }} /></SettingRow><SettingRow icon={<Activity size={18} />} title="Sound feedback" desc="Optional sound feedback during interactions"><Toggle checked={soundOn} onClick={() => { setSoundOn(v => !v); pushNotice(soundOn ? 'Sound feedback off' : 'Sound feedback on', 'Preference saved on this device.', 'info'); }} /></SettingRow><SettingRow icon={<Gauge size={18} />} title="Default training focus" desc="Choose the plan selected when you open training"><select className="setting-select" value={selectedPlan} onChange={e => setSelectedPlan(e.target.value)}>{plans.map(p => <option value={p.id} key={p.id}>{p.name}</option>)}</select></SettingRow></div>
-                <div className="panel settings-panel"><div className="section-head-small"><div><span className="micro-label">YOUR DATA</span><h3>On your device</h3></div><ShieldCheck size={18} /></div><div className="data-note"><div className="data-note-icon"><ShieldCheck size={19} /></div><div><strong>Local-first by design</strong><p>Sessions, XP and preferences are stored in this browser on this device. No account or cloud sync is connected in this version.</p></div></div><button className="outline-button full-width" onClick={() => { const blob = new Blob([JSON.stringify({ sessions, xp, streak, exportedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'ryu-progress.json'; a.click(); URL.revokeObjectURL(url); pushNotice('Export prepared', 'Your progress file was downloaded.', 'success'); }}><ArrowDownRight size={16} /> Export my progress</button><button className="danger-button full-width" onClick={() => { if (window.confirm('Reset all local Ryu progress? This cannot be undone.')) { setSessions([]); setXp(0); setStreak(0); setActive(false); setStartedAt(null); setElapsed(0); setExercises(starterExercises); pushNotice('Progress reset', 'Your local training history has been cleared.', 'info'); } }}><RotateCcw size={16} /> Reset local progress</button></div></div>
+                <div className="panel settings-panel"><div className="section-head-small"><div><span className="micro-label">YOUR DATA</span><h3>On your device</h3></div><ShieldCheck size={18} /></div><div className="data-note"><div className="data-note-icon"><ShieldCheck size={19} /></div><div><strong>{account ? 'Account connected · sync in progress' : 'Your data, your control'}</strong><p>{account ? 'Your account is authenticated securely. Workout history migration and cloud sync are the next integration step; current history remains safely on this device.' : 'Your current session history, XP and streak stay on this device. Create an account to prepare for secure cloud sync.'}</p></div></div><button className="outline-button full-width" onClick={() => { const blob = new Blob([JSON.stringify({ sessions, xp, streak, exportedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'ryu-progress.json'; a.click(); URL.revokeObjectURL(url); pushNotice('Export prepared', 'Your progress file was downloaded.', 'success'); }}><ArrowDownRight size={16} /> Export my progress</button><button className="danger-button full-width" onClick={() => { if (window.confirm('Reset all local Ryu progress? This cannot be undone.')) { setSessions([]); setXp(0); setStreak(0); setActive(false); setStartedAt(null); setElapsed(0); setExercises(starterExercises); pushNotice('Progress reset', 'Your local training history has been cleared.', 'info'); } }}><RotateCcw size={16} /> Reset local progress</button></div></div>
               <div className="privacy-foot"><ShieldCheck size={15} /><span>Your training data stays in local browser storage until you export or reset it.</span></div>
             </motion.div>}
           </AnimatePresence>
