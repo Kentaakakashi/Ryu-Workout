@@ -35,6 +35,8 @@ jobs:
         run: npm run build
       - name: Generate Android project
         run: npx cap add android
+      - name: Configure Android OAuth deep link
+        run: node scripts/patch-android-oauth.mjs
       - name: Copy web assets into Android app
         run: npx cap sync android
       - name: Build installable debug APK
