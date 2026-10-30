@@ -32,3 +32,22 @@
   .rest-presets button{font-size:10px}
   .island-dismiss{opacity:1}
 }
+
+
+/* Center the notification independently of Framer Motion's inline transforms.
+   left/right + auto margins remain centered even while the island animates. */
+.dynamic-island{
+  left:0 !important;
+  right:0 !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+  transform:none;
+  width:min(360px,calc(100vw - 24px));
+  max-width:calc(100vw - 24px);
+}
+@media(max-width:540px){
+  .dynamic-island{
+    width:calc(100vw - 28px);
+    max-width:calc(100vw - 28px);
+  }
+}
