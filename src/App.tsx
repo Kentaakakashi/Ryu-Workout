@@ -90,20 +90,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (tab !== 'auth' || authMode !== 'signup' || !usernameValid) {
-      setUsernameAvailability('idle');
-      return;
-    }
-    let cancelled = false;
-    setUsernameAvailability('checking');
-    const timer = window.setTimeout(async () => {
-      const { data, error } = await supabase.rpc('is_ryu_username_available', { candidate: normalizedUsername });
-      if (cancelled) return;
-      setUsernameAvailability(error ? 'unknown' : data ? 'available' : 'taken');
-    }, 350);
-    return () => { cancelled = true; window.clearTimeout(timer); };
-  }, [tab, authMode, normalizedUsername, usernameValid]);
-  useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     let removeListener: (() => void) | undefined;
     void CapacitorApp.addListener('appUrlOpen', async ({ url }) => {
@@ -241,6 +227,22 @@ export default function App() {
   const passwordScore = passwordCriteria.filter(item => item.valid).length;
   const passwordStrong = passwordCriteria.every(item => item.valid);
   const passwordStrengthLabel = passwordScore <= 2 ? 'Weak' : passwordScore === 3 ? 'Fair' : passwordScore === 4 ? 'Good' : 'Strong';
+
+  useEffect(() => {
+    if (tab !== 'auth' || authMode !== 'signup' || !usernameValid) {
+      setUsernameAvailability('idle');
+      return;
+    }
+    let cancelled = false;
+    setUsernameAvailability('checking');
+    const timer = window.setTimeout(async () => {
+      const { data, error } = await supabase.rpc('is_ryu_username_available', { candidate: normalizedUsername });
+      if (cancelled) return;
+      setUsernameAvailability(error ? 'unknown' : data ? 'available' : 'taken');
+    }, 350);
+    return () => { cancelled = true; window.clearTimeout(timer); };
+  }, [tab, authMode, normalizedUsername, usernameValid]);
+
 
   async function submitAuth(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
