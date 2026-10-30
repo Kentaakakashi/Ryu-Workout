@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import type { FormEvent } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './lib/supabase';
@@ -158,7 +159,7 @@ export default function App() {
   const weeklyCount = useMemo(() => sessions.filter(s => Date.now() - new Date(s.date).getTime() < 7 * 86400000).length, [sessions]);
   const totalMinutes = Math.round(sessions.reduce((sum, s) => sum + s.duration, 0) / 60);
 
-  async function submitAuth(event: React.FormEvent<HTMLFormElement>) {
+  async function submitAuth(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setAuthBusy(true);
     setAuthError('');
