@@ -34,8 +34,8 @@ function readStore<T>(key: string, fallback: T): T {
 export default function App() {
   const [tab, setTab] = useState<Tab>('home');
   const [sessions, setSessions] = useState<Session[]>(() => readStore('ryu.sessions', []));
-  const [xp, setXp] = useState(() => readStore('ryu.xp', 120));
-  const [streak, setStreak] = useState(() => readStore('ryu.streak', 3));
+  const [xp, setXp] = useState(() => readStore('ryu.xp', 0));
+  const [streak, setStreak] = useState(() => readStore('ryu.streak', 0));
   const [active, setActive] = useState(false);
   const [workoutName, setWorkoutName] = useState('Full body foundation');
   const [exercises, setExercises] = useState<Exercise[]>(starterExercises);
@@ -50,6 +50,7 @@ export default function App() {
   const [soundOn, setSoundOn] = useState(false);
   const [remindersOn, setRemindersOn] = useState(false);
   const noticeId = useRef(0);
+  const previousRest = useRef(0);
 
   useEffect(() => { localStorage.setItem('ryu.sessions', JSON.stringify(sessions)); }, [sessions]);
   useEffect(() => { localStorage.setItem('ryu.xp', JSON.stringify(xp)); }, [xp]);
@@ -65,13 +66,13 @@ export default function App() {
     return () => window.clearInterval(timer);
   }, [active, restLeft > 0, restPaused]);
   useEffect(() => {
-    if (restLeft === 0 && active && !restPaused) return;
-    if (restLeft === 0 && active) {
+    if (previousRest.current > 0 && restLeft === 0 && active) {
       setRestPaused(true);
       pushNotice('Rest complete', 'You’re good to go when you are.', 'info', 2);
     }
+    previousRest.current = restLeft;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [restLeft]);
+  }, [restLeft, active]);
   useEffect(() => {
     if (!notices.length || expandedNotice) return;
     const timer = window.setTimeout(() => setNotices(current => current.slice(1)), notices[0]?.persistent ? 12000 : 4200);
@@ -106,11 +107,21 @@ export default function App() {
     pushNotice('Session started', plan.name, 'info');
   }
   function finishWorkout() {
-    const earned = Math.max(20, completedSets * 8 + Math.round(elapsed / 60));
+    if (completedSets === 0) {
+      pushNotice('Log your first set', 'Finish at least one set to save a training session.', 'info', 3);
+      return;
+    }
+    const earned = 20 + completedSets * 8 + Math.round(elapsed / 60);
     const record: Session = { id: String(Date.now()), title: workoutName, date: new Date().toISOString(), duration: elapsed, xp: earned, sets: completedSets };
     setSessions(current => [record, ...current]);
     setXp(current => current + earned);
-    setStreak(current => Math.max(1, current + (sessions.length ? 0 : 1)));
+    const today = new Date().toDateString();
+    const lastSessionDay = sessions[0] ? new Date(sessions[0].date).toDateString() : '';
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    if (!lastSessionDay) setStreak(1);
+    else if (lastSessionDay === today) { /* Multiple sessions on one day do not inflate the streak. */ }
+    else if (lastSessionDay === yesterday) setStreak(current => current + 1);
+    else setStreak(1);
     setActive(false);
     setShowFinish(false);
     setRestLeft(0);
