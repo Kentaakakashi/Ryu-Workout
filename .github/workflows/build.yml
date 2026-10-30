@@ -57,6 +57,10 @@ jobs:
 
   web-preview:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Serialize Pages deployments so GitHub never receives overlapping deploy requests.
+    concurrency:
+      group: ryu-pages-deployment
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
