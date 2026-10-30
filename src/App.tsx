@@ -80,6 +80,45 @@ export default function App() {
     return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
 
+  useEffect(() => {
+    if (!account) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from('workout_sessions')
+        .select('id,title,completed_at,duration_seconds,xp_earned')
+        .eq('user_id', account.id)
+        .not('completed_at', 'is', null)
+        .order('completed_at', { ascending: false });
+      if (cancelled) return;
+      if (error) {
+        setAuthError('Your account is connected, but cloud history could not be loaded yet.');
+        return;
+      }
+      const cloudSessions: Session[] = (data ?? []).map(row => ({
+        id: row.id,
+        title: row.title,
+        date: row.completed_at ?? new Date().toISOString(),
+        duration: row.duration_seconds,
+        xp: row.xp_earned,
+        sets: 0,
+      }));
+      setSessions(current => {
+        const byId = new Map<string, Session>();
+        [...current, ...cloudSessions].forEach(item => byId.set(item.id, item));
+        return [...byId.values()].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      });
+      setXp(currentXp => {
+        const combined = [...readStore<Session[]>('ryu.sessions', []), ...cloudSessions];
+        const byId = new Map<string, Session>();
+        combined.forEach(item => byId.set(item.id, item));
+        const cloudTotal = [...byId.values()].reduce((sum, item) => sum + item.xp, 0);
+        return Math.max(currentXp, cloudTotal);
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [account?.id]);
+
   useEffect(() => { localStorage.setItem('ryu.sessions', JSON.stringify(sessions)); }, [sessions]);
   useEffect(() => { localStorage.setItem('ryu.xp', JSON.stringify(xp)); }, [xp]);
   useEffect(() => { localStorage.setItem('ryu.streak', JSON.stringify(streak)); }, [streak]);
@@ -187,7 +226,7 @@ export default function App() {
     setShowFinish(false);
     pushNotice('Session started', plan.name, 'info');
   }
-  function finishWorkout() {
+  async function finishWorkout() {
     if (completedSets === 0) {
       pushNotice('Log your first set', 'Finish at least one set to save a training session.', 'info', 3);
       return;
@@ -196,6 +235,39 @@ export default function App() {
     const record: Session = { id: String(Date.now()), title: workoutName, date: new Date().toISOString(), duration: elapsed, xp: earned, sets: completedSets };
     setSessions(current => [record, ...current]);
     setXp(current => current + earned);
+    if (account) {
+      const started = new Date(Date.now() - elapsed * 1000).toISOString();
+      const { data: cloudRecord, error: cloudError } = await supabase
+        .from('workout_sessions')
+        .insert({
+          user_id: account.id,
+          title: workoutName,
+          started_at: started,
+          completed_at: record.date,
+          duration_seconds: elapsed,
+          xp_earned: earned,
+        })
+        .select('id')
+        .single();
+      if (!cloudError && cloudRecord) {
+        const setRows = exercises.flatMap(exercise => Array.from({ length: exercise.done }, (_, i) => ({
+          user_id: account.id,
+          session_id: cloudRecord.id,
+          exercise_id: exercise.id,
+          exercise_name: exercise.name,
+          set_number: i + 1,
+          completed_at: record.date,
+        })));
+        if (setRows.length) {
+          const { error: setError } = await supabase.from('workout_sets').insert(setRows);
+          if (setError) pushNotice('Workout saved, sets pending', 'The session synced; detailed set records need another try.', 'info', 3);
+        }
+        setSessions(current => current.map(item => item.id === record.id ? { ...item, id: cloudRecord.id } : item));
+        pushNotice('Cloud save complete', 'This workout is saved to your Ryu account.', 'success', 4);
+      } else {
+        pushNotice('Saved on this device', 'Cloud save failed, but your workout remains on this device.', 'info', 4);
+      }
+    }
     const today = new Date().toDateString();
     const lastSessionDay = sessions[0] ? new Date(sessions[0].date).toDateString() : '';
     const yesterday = new Date(Date.now() - 86400000).toDateString();
@@ -341,7 +413,6 @@ export default function App() {
                   <button className="lime-button account-submit" type="submit" disabled={authBusy}>{authBusy ? 'One sec…' : authMode === 'signup' ? 'Create account' : 'Sign in'} <ArrowRight size={16} /></button>
                   <button className="text-action account-mode" type="button" onClick={() => { setAuthMode(v => v === 'signin' ? 'signup' : 'signin'); setAuthError(''); setAuthMessage(''); }}>{authMode === 'signin' ? 'New to Ryu? Create an account' : 'Already have an account? Sign in'}</button>
                 </form>}
-                {!authLoading && !account && (authError || authMessage) && <p className={authError ? 'account-error' : 'account-status'} role={authError ? 'alert' : 'status'}>{authError || authMessage}</p>}
               </div>
               <div className="settings-layout"><div className="panel settings-panel"><div className="section-head-small"><div><span className="micro-label">PREFERENCES</span><h3>Your experience</h3></div><Settings2 size={18} /></div><SettingRow icon={<Bell size={18} />} title="Workout reminders" desc="Permission-free preference for future reminder support"><Toggle checked={remindersOn} onClick={() => { setRemindersOn(v => !v); pushNotice(remindersOn ? 'Reminders paused' : 'Reminder preference saved', remindersOn ? 'You can turn them back on anytime.' : 'System notifications need Android integration.', 'info'); }} /></SettingRow><SettingRow icon={<Activity size={18} />} title="Sound feedback" desc="Optional sound feedback during interactions"><Toggle checked={soundOn} onClick={() => { setSoundOn(v => !v); pushNotice(soundOn ? 'Sound feedback off' : 'Sound feedback on', 'Preference saved on this device.', 'info'); }} /></SettingRow><SettingRow icon={<Gauge size={18} />} title="Default training focus" desc="Choose the plan selected when you open training"><select className="setting-select" value={selectedPlan} onChange={e => setSelectedPlan(e.target.value)}>{plans.map(p => <option value={p.id} key={p.id}>{p.name}</option>)}</select></SettingRow></div>
                 <div className="panel settings-panel"><div className="section-head-small"><div><span className="micro-label">YOUR DATA</span><h3>On your device</h3></div><ShieldCheck size={18} /></div><div className="data-note"><div className="data-note-icon"><ShieldCheck size={19} /></div><div><strong>{account ? 'Account connected · sync in progress' : 'Your data, your control'}</strong><p>{account ? 'Your account is authenticated securely. Workout history migration and cloud sync are the next integration step; current history remains safely on this device.' : 'Your current session history, XP and streak stay on this device. Create an account to prepare for secure cloud sync.'}</p></div></div><button className="outline-button full-width" onClick={() => { const blob = new Blob([JSON.stringify({ sessions, xp, streak, exportedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'ryu-progress.json'; a.click(); URL.revokeObjectURL(url); pushNotice('Export prepared', 'Your progress file was downloaded.', 'success'); }}><ArrowDownRight size={16} /> Export my progress</button><button className="danger-button full-width" onClick={() => { if (window.confirm('Reset all local Ryu progress? This cannot be undone.')) { setSessions([]); setXp(0); setStreak(0); setActive(false); setStartedAt(null); setElapsed(0); setExercises(starterExercises); pushNotice('Progress reset', 'Your local training history has been cleared.', 'info'); } }}><RotateCcw size={16} /> Reset local progress</button></div></div>
