@@ -95,26 +95,30 @@ export default function App() {
         setAuthError('Your account is connected, but cloud history could not be loaded yet.');
         return;
       }
+      const { data: setData, error: setLoadError } = await supabase
+        .from('workout_sets')
+        .select('session_id')
+        .eq('user_id', account.id);
+      if (cancelled) return;
+      if (setLoadError) {
+        setAuthError('Your workouts loaded, but detailed set counts could not be fetched.');
+      }
+      const setCounts = new Map<string, number>();
+      (setData ?? []).forEach(item => setCounts.set(item.session_id, (setCounts.get(item.session_id) ?? 0) + 1));
       const cloudSessions: Session[] = (data ?? []).map(row => ({
         id: row.id,
         title: row.title,
         date: row.completed_at ?? new Date().toISOString(),
         duration: row.duration_seconds,
         xp: row.xp_earned,
-        sets: 0,
+        sets: setCounts.get(row.id) ?? 0,
       }));
       setSessions(current => {
         const byId = new Map<string, Session>();
         [...current, ...cloudSessions].forEach(item => byId.set(item.id, item));
         return [...byId.values()].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       });
-      setXp(currentXp => {
-        const combined = [...readStore<Session[]>('ryu.sessions', []), ...cloudSessions];
-        const byId = new Map<string, Session>();
-        combined.forEach(item => byId.set(item.id, item));
-        const cloudTotal = [...byId.values()].reduce((sum, item) => sum + item.xp, 0);
-        return Math.max(currentXp, cloudTotal);
-      });
+      setXp(currentXp => Math.max(currentXp, cloudSessions.reduce((sum, item) => sum + item.xp, 0)));
     })();
     return () => { cancelled = true; };
   }, [account?.id]);
