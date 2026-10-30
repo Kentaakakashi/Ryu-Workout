@@ -222,7 +222,7 @@ export default function App() {
     { label: 'Lowercase letter', valid: /[a-z]/.test(authPassword) },
     { label: 'Uppercase letter', valid: /[A-Z]/.test(authPassword) },
     { label: 'Number', valid: /[0-9]/.test(authPassword) },
-    { label: 'Symbol', valid: /[^A-Za-z0-9]/.test(authPassword) },
+    { label: 'Symbol', valid: [...authPassword].some(character => '!@#$%^&*()_+-=[]{};\':\\\"|<>?,./`~'.includes(character)) },
   ];
   const passwordScore = passwordCriteria.filter(item => item.valid).length;
   const passwordStrong = passwordCriteria.every(item => item.valid);
