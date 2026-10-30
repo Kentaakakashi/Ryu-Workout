@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { FormEvent } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './lib/supabase';
@@ -427,7 +427,7 @@ export default function App() {
         </section>
       </main>
 
-      <nav className="mobile-nav" aria-label="Main navigation">{([{id:'home',icon:<Home size={19}/>,label:'Home'},{id:'train',icon:<Dumbbell size={19}/>,label:'Train'},{id:'progress',icon:<TrendingUp size={19}/>,label:'Progress'},{id:'discover',icon:<Sparkles size={19}/>,label:'Explore'},{id:'profile',icon:<Settings2 size={19}/>,label:'You'}] as {id:Tab;icon:React.ReactNode;label:string}[]).map(item => <button key={item.id} className={tab === item.id ? 'mobile-nav-item active' : 'mobile-nav-item'} onClick={() => setTab(item.id)}>{item.icon}<span>{item.label}</span></button>)}</nav>
+      <nav className="mobile-nav" aria-label="Main navigation">{([{id:'home',icon:<Home size={19}/>,label:'Home'},{id:'train',icon:<Dumbbell size={19}/>,label:'Train'},{id:'progress',icon:<TrendingUp size={19}/>,label:'Progress'},{id:'discover',icon:<Sparkles size={19}/>,label:'Explore'},{id:'profile',icon:<Settings2 size={19}/>,label:'You'}] as {id:Tab;icon:ReactNode;label:string}[]).map(item => <button key={item.id} className={tab === item.id ? 'mobile-nav-item active' : 'mobile-nav-item'} onClick={() => setTab(item.id)}>{item.icon}<span>{item.label}</span></button>)}</nav>
 
       <AnimatePresence>
         {notices.length > 0 && <motion.div className={`dynamic-island ${expandedNotice ? 'is-expanded' : ''} ${notices[0].kind}`} initial={{ opacity: 0, y: -22, scale: .92 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -16, scale: .96 }} transition={{ type: 'spring', stiffness: 420, damping: 30 }} onClick={() => setExpandedNotice(v => !v)} role="status" aria-live="polite">
@@ -442,13 +442,13 @@ export default function App() {
   );
 }
 
-function NavButton({ icon, label, active, onClick }: { icon: React.ReactNode; label: string; active: boolean; onClick: () => void }) {
+function NavButton({ icon, label, active, onClick }: { icon: ReactNode; label: string; active: boolean; onClick: () => void }) {
   return <button className={`side-nav-item ${active ? 'nav-active' : ''}`} onClick={onClick}>{icon}<span>{label}</span>{active && <span className="nav-active-mark" />}</button>;
 }
-function Stat({ icon, label, value, note }: { icon: React.ReactNode; label: string; value: string; note: string }) {
+function Stat({ icon, label, value, note }: { icon: ReactNode; label: string; value: string; note: string }) {
   return <div className="stat-item"><span className="stat-icon">{icon}</span><div className="stat-copy"><span className="micro-label">{label}</span><strong>{value}</strong><small>{note}</small></div></div>;
 }
-function SettingRow({ icon, title, desc, children }: { icon: React.ReactNode; title: string; desc: string; children: React.ReactNode }) {
+function SettingRow({ icon, title, desc, children }: { icon: ReactNode; title: string; desc: string; children: ReactNode }) {
   return <div className="setting-row"><span className="setting-icon">{icon}</span><div className="setting-copy"><strong>{title}</strong><span>{desc}</span></div>{children}</div>;
 }
 function Toggle({ checked, onClick }: { checked: boolean; onClick: () => void }) {
