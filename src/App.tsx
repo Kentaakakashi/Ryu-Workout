@@ -217,12 +217,13 @@ export default function App() {
   const totalMinutes = Math.round(sessions.reduce((sum, s) => sum + s.duration, 0) / 60);
   const normalizedUsername = username.trim().toLowerCase();
   const usernameValid = /^[a-z0-9][a-z0-9_]{2,19}$/.test(normalizedUsername);
+  const allowedPasswordSymbols = "!@#$%^&*()_+-=[]{};':\\\"|<>?,./`~";
   const passwordCriteria = [
     { label: 'At least 12 characters', valid: authPassword.length >= 12 },
     { label: 'Lowercase letter', valid: /[a-z]/.test(authPassword) },
     { label: 'Uppercase letter', valid: /[A-Z]/.test(authPassword) },
     { label: 'Number', valid: /[0-9]/.test(authPassword) },
-    { label: 'Symbol', valid: [...authPassword].some(character => '!@#$%^&*()_+-=[]{};\':\\\"|<>?,./`~'.includes(character)) },
+    { label: 'Symbol', valid: [...authPassword].some(character => allowedPasswordSymbols.includes(character)) },
   ];
   const passwordScore = passwordCriteria.filter(item => item.valid).length;
   const passwordStrong = passwordCriteria.every(item => item.valid);
