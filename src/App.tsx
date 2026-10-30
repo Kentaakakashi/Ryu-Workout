@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
-  Activity, ArrowDownRight, ArrowLeft, ArrowRight, Award, Bell, Check, CheckCheck,
-  ChevronRight, CircleHelp, Clock3, Dumbbell, Flame, Footprints, Gauge, Heart,
-  Home, Leaf, Minus, MoreHorizontal, Pause, Play, Plus, RotateCcw, Settings2,
+  Activity, ArrowDownRight, ArrowRight, Award, Bell, Check, CheckCheck,
+  ChevronRight, Clock3, Dumbbell, Flame, Footprints, Gauge,
+  Home, Leaf, MoreHorizontal, Pause, Play, Plus, RotateCcw, Settings2,
   ShieldCheck, Sparkles, Target, Timer, Trophy, TrendingUp, Waves, X, Zap
 } from 'lucide-react';
 
@@ -49,7 +49,6 @@ export default function App() {
   const [selectedPlan, setSelectedPlan] = useState('foundation');
   const [soundOn, setSoundOn] = useState(false);
   const [remindersOn, setRemindersOn] = useState(false);
-  const [unit, setUnit] = useState<'reps' | 'seconds'>('reps');
   const noticeId = useRef(0);
 
   useEffect(() => { localStorage.setItem('ryu.sessions', JSON.stringify(sessions)); }, [sessions]);
