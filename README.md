@@ -21,6 +21,9 @@ This is a debug APK for testing, not a Play Store-signed release.
 - Capacitor Android packaging with app ID `com.kentaakakashi.ryu`.
 - Workout sessions with set logging, rest timer, session duration and completion summary.
 - Local-first session history, XP and level progression.
+- Supabase email/password account creation and sign-in.
+- Secure per-user database tables for profiles, workout sessions, set logs, and settings, protected by Row Level Security.
+- Signed-in workout sessions and their completed sets are written to Supabase; local history remains available on-device.
 - Achievement milestones and a seven-day consistency view.
 - Nyxhora-inspired expandable notification island with priority queue and contextual feedback.
 - Responsive navigation, accessible labels, reduced-motion support and reduced-transparency fallback.
@@ -56,7 +59,9 @@ The GitHub Actions workflow runs this Android packaging process in the cloud, so
 
 ## Data and privacy
 
-The current version stores session history, XP and streak state in browser local storage. No backend, account system, cloud sync, analytics service, or real Android background-notification integration is connected. The reminder setting is a preference only and does not schedule system notifications yet.
+Ryu uses browser local storage for resilient on-device progress and Supabase for authenticated accounts and workout records. The frontend only uses a Supabase publishable key; no service-role or database secret is shipped to the client. Database tables have Row Level Security policies so signed-in users can only access their own records. Existing local history is preserved when an account signs in; historical local records are not silently uploaded as if they were already cloud-saved. New completed sessions are saved to the account when signed in. AI coaching, full cross-device settings sync, automatic migration of older local history, and real Android scheduled notifications are still in progress.
+
+For a different Supabase project, copy `.env.example` to `.env` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`. These are public client settings, not secret credentials. Never add a Supabase secret key or service-role key to frontend code or GitHub Pages.
 
 ## Design references
 
