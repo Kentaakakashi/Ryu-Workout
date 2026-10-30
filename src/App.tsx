@@ -47,6 +47,7 @@ export default function App() {
   const [authPassword, setAuthPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
+  const [usernameAvailability, setUsernameAvailability] = useState<'idle' | 'checking' | 'available' | 'taken' | 'unknown'>('idle');
   const [profileUsername, setProfileUsername] = useState('');
   const [profileBusy, setProfileBusy] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -88,6 +89,20 @@ export default function App() {
     return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
 
+  useEffect(() => {
+    if (tab !== 'auth' || authMode !== 'signup' || !usernameValid) {
+      setUsernameAvailability('idle');
+      return;
+    }
+    let cancelled = false;
+    setUsernameAvailability('checking');
+    const timer = window.setTimeout(async () => {
+      const { data, error } = await supabase.rpc('is_ryu_username_available', { candidate: normalizedUsername });
+      if (cancelled) return;
+      setUsernameAvailability(error ? 'unknown' : data ? 'available' : 'taken');
+    }, 350);
+    return () => { cancelled = true; window.clearTimeout(timer); };
+  }, [tab, authMode, normalizedUsername, usernameValid]);
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     let removeListener: (() => void) | undefined;
@@ -508,7 +523,7 @@ export default function App() {
                     {authMode === 'signup' && <>
                       <label className="account-field">Username
                         <div className="username-input-wrap"><span>@</span><input autoComplete="username" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20))} placeholder="your_handle" minLength={3} maxLength={20} required /></div>
-                        <small className={username.length === 0 || usernameValid ? 'field-hint' : 'field-hint invalid'}>Unique handle · 3–20 characters · letters, numbers, underscores</small>
+                        <small className={usernameAvailability === 'taken' || (username.length > 0 && !usernameValid) ? 'field-hint invalid' : 'field-hint'}>{username.length === 0 ? 'Unique handle · 3–20 characters · letters, numbers, underscores' : !usernameValid ? 'Use 3–20 lowercase letters, numbers or underscores' : usernameAvailability === 'checking' ? 'Checking username…' : usernameAvailability === 'available' ? '@' + normalizedUsername + ' is available' : usernameAvailability === 'taken' ? 'That username is already taken' : 'Availability could not be checked; Ryu will still enforce uniqueness'}</small>
                       </label>
                       <label className="account-field">Display name<input autoComplete="name" value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="What should Ryu call you?" maxLength={40} /></label>
                     </>}
@@ -523,7 +538,7 @@ export default function App() {
                     </div>}
                     {authError && <p className="account-error" role="alert">{authError}</p>}
                     {authMessage && <p className="account-status" role="status">{authMessage}</p>}
-                    <button className="lime-button account-submit" type="submit" disabled={authBusy || (authMode === 'signup' && (!usernameValid || !passwordStrong))}>{authBusy ? 'One sec…' : authMode === 'signup' ? 'Create account' : 'Sign in'} <ArrowRight size={16} /></button>
+                    <button className="lime-button account-submit" type="submit" disabled={authBusy || (authMode === 'signup' && (!usernameValid || !passwordStrong || usernameAvailability === 'taken' || usernameAvailability === 'checking'))}>{authBusy ? 'One sec…' : authMode === 'signup' ? 'Create account' : 'Sign in'} <ArrowRight size={16} /></button>
                     <button className="text-action account-mode" type="button" onClick={() => { setAuthMode(value => value === 'signin' ? 'signup' : 'signin'); setAuthError(''); setAuthMessage(''); }}>{authMode === 'signin' ? 'New to Ryu? Create an account' : 'Already have an account? Sign in'}</button>
                   </form>
                 </div>
