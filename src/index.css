@@ -51,3 +51,19 @@
     max-width:calc(100vw - 28px);
   }
 }
+
+
+/* Supabase account panel */
+.account-panel { margin-top: 16px; }
+.account-status { color: var(--muted, #a5a79e); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.account-status strong { color: var(--text, #f2f2e9); font-weight: 600; }
+.account-form { display: grid; gap: 12px; margin-top: 14px; }
+.account-field { display: grid; gap: 7px; color: var(--muted, #a5a79e); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.account-field input { box-sizing: border-box; width: 100%; min-height: 46px; border: 1px solid rgba(255,255,255,.11); border-radius: 12px; background: rgba(255,255,255,.035); color: var(--text, #f2f2e9); padding: 0 13px; font: inherit; font-size: 14px; letter-spacing: normal; text-transform: none; outline: none; }
+.account-field input:focus { border-color: #c5f467; box-shadow: 0 0 0 3px rgba(197,244,103,.1); }
+.account-field input::placeholder { color: #77796f; }
+.account-submit { width: 100%; justify-content: center; margin-top: 3px; }
+.account-submit:disabled { opacity: .6; cursor: wait; }
+.account-mode { justify-self: center; margin-top: 2px; }
+.account-error { color: #ff9c91; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; margin: 0; }
+@media (max-width: 520px) { .account-panel { padding: 16px; } .account-field input { min-height: 44px; } }
