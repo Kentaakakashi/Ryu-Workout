@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
+import { App as CapacitorApp } from '@capacitor/app';
+import { Browser } from '@capacitor/browser';
+import { Capacitor } from '@capacitor/core';
 import { AnimatePresence, motion } from 'motion/react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './lib/supabase';
@@ -85,6 +88,29 @@ export default function App() {
     return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
 
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    let removeListener: (() => void) | undefined;
+    void CapacitorApp.addListener('appUrlOpen', async ({ url }) => {
+      if (!url.startsWith('com.kentaakakashi.ryu://auth/callback')) return;
+      await Browser.close();
+      const callbackUrl = new URL(url);
+      const code = callbackUrl.searchParams.get('code');
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) setAuthError('Google sign-in returned to Ryu, but the session could not be completed.');
+        return;
+      }
+      const tokens = new URLSearchParams(callbackUrl.hash.replace(/^#/, ''));
+      const accessToken = tokens.get('access_token');
+      const refreshToken = tokens.get('refresh_token');
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+        if (error) setAuthError('Google sign-in returned to Ryu, but the session could not be saved.');
+      }
+    }).then(handle => { removeListener = () => { void handle.remove(); }; });
+    return () => removeListener?.();
+  }, []);
   useEffect(() => {
     if (!account) { setProfileUsername(''); return; }
     let cancelled = false;
@@ -236,8 +262,19 @@ export default function App() {
   async function signInWithGoogle() {
     setAuthBusy(true); setAuthError(''); setAuthMessage('');
     try {
-      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + window.location.pathname, queryParams: { prompt: 'select_account' } } });
-      if (error) throw error;
+      if (Capacitor.isNativePlatform()) {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: 'com.kentaakakashi.ryu://auth/callback', skipBrowserRedirect: true, queryParams: { prompt: 'select_account' } },
+        });
+        if (error) throw error;
+        if (!data.url) throw new Error('Google did not return an authorization URL.');
+        await Browser.open({ url: data.url });
+        setAuthBusy(false);
+      } else {
+        const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + window.location.pathname, queryParams: { prompt: 'select_account' } } });
+        if (error) throw error;
+      }
     } catch (error) { setAuthError(error instanceof Error ? error.message : 'Google sign-in could not be started.'); setAuthBusy(false); }
   }
 
