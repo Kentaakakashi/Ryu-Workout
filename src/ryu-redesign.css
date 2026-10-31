@@ -1,0 +1,356 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root{
+  font-family:'DM Sans',sans-serif;color:#f4f7ef;background:#080d09;font-synthesis:none;
+  text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  --bg:#080d09;--panel:#101710;--panel-2:#151e16;--line:rgba(235,255,226,.09);
+  --muted:#95a18f;--dim:#657162;--lime:#b9ff24;--lime-soft:#d1ff69;
+  --lime-ink:#132007;--mono:'DM Mono',monospace;--display:'Space Grotesk',sans-serif;
+  --glass:rgba(17,27,18,.76);
+}
+*{box-sizing:border-box}
+html,body,#root{min-width:320px;min-height:100%;margin:0;background:#080d09}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:#f4f7ef;overflow-x:hidden}
+button,input,select{font:inherit}
+button{color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:disabled{cursor:not-allowed;opacity:.48}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+input,select{color-scheme:dark}
+::selection{background:#b9ff24;color:#10170b}
+.ryu-shell{position:relative;isolation:isolate;min-height:100vh;max-width:560px;margin:0 auto;overflow:hidden;background:radial-gradient(ellipse at 82% 0%,rgba(27,87,31,.34),transparent 34%),linear-gradient(180deg,#0a110b 0%,#080d09 38%,#090e0a 100%);border-inline:1px solid rgba(224,255,210,.045);padding-bottom:105px}
+.ryu-shell:before{content:"";position:fixed;z-index:-1;inset:0;pointer-events:none;opacity:.11;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.28'/%3E%3C/svg%3E");mix-blend-mode:soft-light}
+.ryu-atmosphere{position:absolute;z-index:-1;pointer-events:none;filter:blur(75px);border-radius:50%;opacity:.55}
+.ryu-atmosphere--one{width:360px;height:330px;right:-220px;top:90px;background:rgba(60,140,36,.24)}
+.ryu-atmosphere--two{width:300px;height:280px;left:-220px;top:580px;background:rgba(28,98,45,.18)}
+.ryu-header{height:72px;padding:0 23px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;background:rgba(8,15,9,.83);border-bottom:1px solid rgba(232,255,224,.065);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.ryu-brand{display:flex;align-items:center;gap:10px;border:0;padding:0;background:none;text-align:left}
+.ryu-brand-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;border:1px solid rgba(185,255,36,.35);background:linear-gradient(145deg,rgba(185,255,36,.19),rgba(27,75,29,.22));color:var(--lime);box-shadow:0 0 24px rgba(140,255,28,.08),inset 0 1px rgba(255,255,255,.1)}
+.ryu-brand strong{display:block;font:700 23px/1 var(--display);letter-spacing:-1.6px;color:#f6f8f1}
+.ryu-brand strong span{color:var(--lime)}
+.ryu-brand small{display:block;margin-top:4px;color:#81917c;font:8px var(--mono);letter-spacing:1.25px}
+.ryu-header-actions{display:flex;align-items:center;gap:9px}
+.ryu-streak{height:32px;display:flex;align-items:center;gap:6px;padding:0 10px;border:1px solid rgba(185,255,36,.19);border-radius:99px;color:var(--lime);background:rgba(185,255,36,.055)}
+.ryu-streak strong{font:600 12px var(--display)}
+.ryu-streak span{font:8px var(--mono);letter-spacing:.7px;color:#c6d3bc}
+.ryu-icon-btn,.ryu-greeting-bell{display:grid;place-items:center;width:35px;height:35px;border:1px solid rgba(230,255,225,.08);border-radius:50%;background:rgba(255,255,255,.035);color:#c4d0bf}
+.ryu-avatar,.ryu-greeting-avatar{position:relative;display:grid;place-items:center;width:35px;height:35px;border-radius:50%;border:1px solid rgba(185,255,36,.35);background:linear-gradient(145deg,#395b2d,#132416);color:#d7ffa0;font:700 14px var(--display)}
+.ryu-avatar i,.ryu-greeting-avatar i{position:absolute;right:0;bottom:0;width:8px;height:8px;border:2px solid #09110a;border-radius:50%;background:var(--lime)}
+.ryu-main{position:relative;z-index:1;padding:22px 20px 34px}
+.ryu-screen{width:100%;max-width:510px;margin:0 auto}
+.ryu-overline{display:block;color:#91a187;font:9px var(--mono);letter-spacing:1.15px;text-transform:uppercase}
+.ryu-greeting{display:flex;align-items:center;gap:11px;margin:2px 0 21px}
+.ryu-greeting-avatar{width:42px;height:42px;flex:0 0 auto;font-size:17px}
+.ryu-greeting h1{margin:4px 0 2px;font:600 23px/1.12 var(--display);letter-spacing:-.7px;color:#f3f7ee}
+.ryu-greeting h1 span{font-size:18px}
+.ryu-greeting p{margin:0;color:#8e9b89;font-size:11px}
+.ryu-greeting-bell{margin-left:auto;flex:0 0 auto;width:39px;height:39px}
+.ryu-challenge-card{position:relative;isolation:isolate;overflow:hidden;min-height:158px;border:1px solid rgba(199,255,72,.5);border-radius:20px;background:linear-gradient(115deg,#caff31 0%,#a8f51c 50%,#32d68a 100%);color:#111b0b;box-shadow:0 18px 38px rgba(110,213,28,.12),inset 0 1px rgba(255,255,255,.55)}
+.ryu-challenge-card .rb-spotlight__content{height:100%}
+.ryu-challenge-card__content{position:relative;z-index:2;display:grid;grid-template-columns:54px minmax(0,1fr) auto;align-items:center;gap:12px;padding:21px 17px 19px;min-height:158px}
+.ryu-challenge-orbit{position:absolute;right:-54px;top:-110px;width:245px;height:245px;border:1px solid rgba(13,37,13,.14);border-radius:50%;box-shadow:0 0 0 24px rgba(7,37,7,.025),0 0 0 55px rgba(7,37,7,.025),0 0 0 88px rgba(7,37,7,.022)}
+.ryu-challenge-emblem{display:grid;place-items:center;width:52px;height:52px;border:1px solid rgba(10,31,10,.38);border-radius:50%;background:#101a0d;color:var(--lime);box-shadow:0 0 0 5px rgba(255,255,255,.17),0 8px 20px rgba(0,0,0,.16)}
+.ryu-challenge-copy{min-width:0}
+.ryu-challenge-copy>span{font:8px var(--mono);letter-spacing:1.15px;color:rgba(13,27,8,.65)}
+.ryu-challenge-copy h2{margin:4px 0 3px;color:#10200a;font:700 19px/1.05 var(--display);letter-spacing:-.55px}
+.ryu-challenge-copy p{margin:0;color:rgba(13,27,8,.72);font-size:11px;font-weight:600}
+.ryu-challenge-start{display:flex;align-items:center;gap:6px;padding:10px 12px;border:0;border-radius:99px;background:#f1ffe7;color:#17250d;font:700 9px var(--mono);box-shadow:0 5px 13px rgba(0,0,0,.1)}
+.ryu-challenge-progress{grid-column:1/4;height:4px;overflow:hidden;border-radius:99px;background:rgba(11,32,10,.2)}
+.ryu-challenge-progress span{display:block;height:100%;border-radius:inherit;background:#10260b;transition:width .4s}
+.ryu-challenge-foot{grid-column:1/4;display:flex;justify-content:space-between;margin-top:-7px;color:rgba(12,28,9,.72);font:9px var(--mono)}
+.ryu-challenge-foot strong{color:#14240b}
+.ryu-section{margin-top:28px}
+.ryu-section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:13px}
+.ryu-section-heading h2{margin:4px 0 0;font:600 19px/1.1 var(--display);letter-spacing:-.55px;color:#edf3e8}
+.ryu-section-heading h3{margin:4px 0 0;font:600 16px var(--display);color:#edf3e8}
+.ryu-text-link{display:flex;align-items:center;gap:5px;padding:0;border:0;background:none;color:#b7e85f;font-size:10px;font-weight:600;white-space:nowrap}
+.ryu-date-chip,.ryu-count-pill{padding:6px 8px;border:1px solid rgba(231,255,223,.08);border-radius:7px;color:#a9b79f;background:rgba(255,255,255,.028);font:8px var(--mono);letter-spacing:.5px}
+.ryu-week-strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.ryu-week-day{min-width:0;display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 2px 9px;border:1px solid rgba(230,255,223,.075);border-radius:12px;background:rgba(255,255,255,.025);color:#7e8c79;transition:all .22s}
+.ryu-week-day>span{font:8px var(--mono);letter-spacing:.5px}
+.ryu-week-day>strong{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;font:600 12px var(--display);color:#dce8d3}
+.ryu-week-day>i{display:grid;place-items:center;width:15px;height:15px;border-radius:50%;color:#111a0b;font-style:normal}
+.ryu-week-day>i span{width:4px;height:4px;border-radius:50%;background:#60705b}
+.ryu-week-day.has-workout>i{background:var(--lime)}
+.ryu-week-day.is-today{border-color:rgba(185,255,36,.43);background:rgba(185,255,36,.075);color:var(--lime);box-shadow:inset 0 0 0 1px rgba(185,255,36,.035),0 0 20px rgba(185,255,36,.04)}
+.ryu-week-day.is-today>strong{background:var(--lime);color:#17200d}
+.ryu-week-day.is-today>i span{background:var(--lime)}
+.ryu-category-row{display:flex;gap:8px;overflow:auto;padding:1px 0 9px;scrollbar-width:none}
+.ryu-category-row::-webkit-scrollbar{display:none}
+.ryu-category{display:flex;align-items:center;gap:7px;flex:0 0 auto;padding:9px 13px;border:1px solid rgba(234,255,225,.09);border-radius:99px;background:rgba(255,255,255,.035);color:#a5b19c;font-size:10px;font-weight:600}
+.ryu-category.is-active{border-color:rgba(185,255,36,.4);background:rgba(185,255,36,.085);color:var(--lime)}
+.ryu-workout-tiles{display:grid;grid-template-columns:1.22fr 1fr;grid-template-rows:146px 146px;gap:10px}
+.ryu-workout-tile{position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;overflow:hidden;min-width:0;padding:14px;border:1px solid rgba(230,255,221,.09);border-radius:16px;text-align:left;background-size:cover;background-position:center}
+.ryu-workout-tile:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.53))}
+.ryu-workout-tile--photo{grid-row:1/3;background-position:48% center}
+.ryu-workout-tile--photo:before{background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.74))}
+.ryu-workout-tile--green{background:radial-gradient(circle at 88% 16%,rgba(185,255,36,.22),transparent 44%),linear-gradient(140deg,#173e1b,#0e1e12)}
+.ryu-workout-tile--dark{background:radial-gradient(circle at 92% 0%,rgba(74,122,61,.2),transparent 42%),linear-gradient(145deg,#18211a,#0c110d)}
+.ryu-tile-tag{position:relative;z-index:1;color:#d9f7c9;font:8px var(--mono);letter-spacing:1px}
+.ryu-workout-tile--photo .ryu-tile-tag{padding:5px 7px;border:1px solid rgba(185,255,36,.32);border-radius:6px;background:rgba(5,15,7,.45);color:var(--lime)}
+.ryu-tile-abstract{position:absolute;right:12px;top:31px;display:grid;place-items:center;width:65px;height:65px;border:1px solid rgba(185,255,36,.17);border-radius:50%;color:rgba(203,255,145,.65);background:rgba(185,255,36,.055);box-shadow:0 0 30px rgba(185,255,36,.05)}
+.ryu-tile-copy{position:relative;z-index:1;display:flex;flex-direction:column;gap:4px;max-width:100%}
+.ryu-tile-copy small{color:#b4c5aa;font:8px var(--mono);letter-spacing:.65px}
+.ryu-tile-copy strong{color:#f3f7ef;font:600 18px/1 var(--display);letter-spacing:-.4px}
+.ryu-tile-copy em{color:#c1ceb9;font-size:9px;font-style:normal;line-height:1.4}
+.ryu-workout-tile--photo .ryu-tile-copy strong{font-size:23px}
+.ryu-tile-arrow{position:absolute;right:12px;bottom:13px;display:grid;place-items:center;width:29px;height:29px;border-radius:50%;background:var(--lime);color:#14200c}
+.ryu-quick-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:20px 0 8px}
+.ryu-quick-stats>div{display:flex;align-items:center;gap:9px;min-width:0;padding:12px 10px;border:1px solid rgba(235,255,225,.075);border-radius:13px;background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.016))}
+.ryu-stat-icon{display:grid;place-items:center;width:30px;height:30px;flex:0 0 auto;border-radius:10px;color:var(--lime);background:rgba(185,255,36,.09)}
+.ryu-quick-stats>div>span:last-child{display:flex;flex-direction:column;gap:3px;min-width:0}
+.ryu-quick-stats small{color:#82907d;font:7px var(--mono);letter-spacing:.75px}
+.ryu-quick-stats strong{overflow:hidden;color:#f0f5ea;font:600 14px var(--display);white-space:nowrap;text-overflow:ellipsis}
+.ryu-quick-stats em{color:#8f9e88;font:8px var(--mono);font-style:normal}
+.ryu-home-progress{margin-top:29px}
+.ryu-home-progress .ryu-rpg{margin:0}
+.ryu-home-progress .ryu-rpg__surface{border-color:rgba(185,255,36,.13)}
+.ryu-recent-section{margin-bottom:12px}
+.ryu-activity-list{overflow:hidden;border:1px solid rgba(232,255,222,.08);border-radius:15px;background:rgba(255,255,255,.022)}
+.ryu-activity-row{display:flex;align-items:center;gap:11px;padding:13px 12px;border-bottom:1px solid rgba(232,255,222,.055)}
+.ryu-activity-row:last-child{border-bottom:0}
+.ryu-activity-icon{display:grid;place-items:center;width:36px;height:36px;flex:0 0 auto;border-radius:12px;background:rgba(185,255,36,.09);color:var(--lime)}
+.ryu-activity-row>div{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.ryu-activity-row strong{overflow:hidden;color:#eaf1e4;font:600 12px var(--display);white-space:nowrap;text-overflow:ellipsis}
+.ryu-activity-row small{color:#869480;font-size:9px}
+.ryu-activity-row>b{color:#caff73;font:10px var(--mono);white-space:nowrap}
+.ryu-empty-card{display:flex;flex-direction:column;align-items:center;padding:24px 18px;border:1px dashed rgba(232,255,222,.13);border-radius:15px;text-align:center;background:rgba(255,255,255,.018)}
+.ryu-empty-card>span{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:rgba(185,255,36,.09);color:var(--lime)}
+.ryu-empty-card strong{margin-top:11px;color:#edf3e8;font:600 13px var(--display)}
+.ryu-empty-card p{margin:5px 0 12px;color:#8c9a86;font-size:10px}
+.ryu-empty-card button{display:flex;align-items:center;gap:6px;border:0;background:none;color:var(--lime);font-size:10px;font-weight:700}
+.ryu-page-intro{margin:5px 0 22px}
+.ryu-page-intro h1{margin:7px 0 7px;color:#f1f6ec;font:600 clamp(29px,7vw,38px)/1.03 var(--display);letter-spacing:-1.4px}
+.ryu-page-intro p{margin:0;max-width:390px;color:#91a08d;font-size:11px;line-height:1.6}
+.ryu-active-hero{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;min-height:250px;padding:17px;border:1px solid rgba(185,255,36,.17);border-radius:21px;background-position:center 38%;background-size:cover;box-shadow:0 17px 40px rgba(0,0,0,.22)}
+.ryu-active-hero__top,.ryu-active-hero__bottom{position:relative;z-index:1}
+.ryu-active-hero__top{display:flex;justify-content:space-between;align-items:center}
+.ryu-live-pill,.ryu-elapsed{display:flex;align-items:center;gap:7px;padding:7px 9px;border:1px solid rgba(235,255,224,.14);border-radius:99px;background:rgba(5,13,6,.48);backdrop-filter:blur(12px);color:#d8e7d0;font:8px var(--mono);letter-spacing:.6px}
+.ryu-live-pill i{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 10px var(--lime)}
+.ryu-active-hero__bottom h2{margin:4px 0 3px;color:#f6f8f0;font:600 25px var(--display);letter-spacing:-.8px}
+.ryu-active-hero__bottom p{margin:0 0 11px;color:#b3c0ac;font-size:10px}
+.ryu-active-hero__bottom .ryu-overline{color:#c8eaa3}
+.ryu-progress-track{height:5px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.19)}
+.ryu-progress-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#a2ed1b,#d5ff72);box-shadow:0 0 14px rgba(185,255,36,.35)}
+.ryu-light-button{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:13px;padding:10px 13px;border:0;border-radius:99px;background:var(--lime);color:#14200b;font:700 10px var(--mono)}
+.ryu-session-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:13px;margin-top:22px}
+.ryu-session-exercises{min-width:0}
+.ryu-exercise-list{display:flex;flex-direction:column;gap:9px}
+.ryu-exercise-card{display:grid;grid-template-columns:29px minmax(0,1fr) 40px;gap:10px;align-items:start;padding:13px 12px;border:1px solid rgba(236,255,228,.08);border-radius:14px;background:linear-gradient(135deg,rgba(255,255,255,.045),rgba(255,255,255,.018))}
+.ryu-exercise-card.is-complete{border-color:rgba(185,255,36,.19);background:linear-gradient(135deg,rgba(185,255,36,.065),rgba(255,255,255,.015))}
+.ryu-exercise-num{display:grid;place-items:center;width:27px;height:27px;border:1px solid rgba(185,255,36,.16);border-radius:9px;color:#c9ef95;background:rgba(185,255,36,.045);font:9px var(--mono)}
+.ryu-exercise-info{min-width:0}
+.ryu-exercise-info>strong{display:block;color:#eef4e9;font:600 13px var(--display)}
+.ryu-exercise-info>small{display:block;margin-top:3px;color:#879481;font-size:9px}
+.ryu-set-dots{display:flex;gap:5px;margin-top:9px}
+.ryu-set-dots i{width:17px;height:4px;border-radius:99px;background:rgba(231,255,225,.11)}
+.ryu-set-dots i.done{background:var(--lime);box-shadow:0 0 8px rgba(185,255,36,.35)}
+.ryu-exercise-inputs{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.ryu-exercise-inputs label{display:flex;align-items:center;gap:6px;padding:5px 7px;border:1px solid rgba(230,255,222,.08);border-radius:7px;background:rgba(0,0,0,.16)}
+.ryu-exercise-inputs label span{color:#82917c;font:7px var(--mono);letter-spacing:.5px;white-space:nowrap}
+.ryu-exercise-inputs input{width:43px;min-width:0;padding:0;border:0;outline:0;background:none;color:#eef6e7;font:10px var(--mono);text-align:right}
+.ryu-exercise-inputs input:disabled{opacity:.5}
+.ryu-exercise-side{display:flex;flex-direction:column;align-items:center;gap:9px}
+.ryu-exercise-side>strong{color:#f2f7ed;font:600 15px var(--display)}
+.ryu-exercise-side>strong small{color:#84927d;font-size:10px}
+.ryu-exercise-side button{display:grid;place-items:center;width:34px;height:34px;border:1px solid rgba(185,255,36,.21);border-radius:50%;background:rgba(185,255,36,.1);color:var(--lime)}
+.ryu-exercise-side button:disabled{background:rgba(185,255,36,.2);color:#d8ff89}
+.ryu-exercise-side .rb-click-spark{width:100%;height:100%}
+.ryu-add-movement{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:10px;padding:11px;border:1px dashed rgba(185,255,36,.2);border-radius:10px;background:rgba(185,255,36,.03);color:#c1e99a;font-size:10px;font-weight:600}
+.ryu-rest-card{padding:16px;border:1px solid rgba(185,255,36,.15);border-radius:17px;background:radial-gradient(ellipse at 50% 0%,rgba(79,133,49,.14),transparent 54%),linear-gradient(145deg,#111b13,#0c120d)}
+.ryu-rest-status{color:#b8e96a;font:8px var(--mono);letter-spacing:.8px}
+.ryu-rest-ring{position:relative;display:grid;place-items:center;width:166px;height:166px;margin:12px auto 7px}
+.ryu-rest-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.ryu-rest-ring circle{fill:none;stroke:rgba(255,255,255,.08);stroke-width:4}
+.ryu-rest-ring circle.ryu-rest-ring__value{stroke:#b9ff24;stroke-linecap:round;filter:drop-shadow(0 0 7px rgba(185,255,36,.5))}
+.ryu-rest-ring>div{display:flex;flex-direction:column;align-items:center;gap:5px}
+.ryu-rest-ring small{color:#879780;font:8px var(--mono);letter-spacing:1px}
+.ryu-rest-ring strong{color:#f5f8ee;font:600 29px var(--display);font-variant-numeric:tabular-nums}
+.ryu-rest-card>p{text-align:center;color:#91a08a;font-size:10px}
+.ryu-rest-controls,.ryu-rest-presets{display:flex;gap:7px}
+.ryu-rest-controls button,.ryu-rest-presets button{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 5px;border:1px solid rgba(237,255,228,.1);border-radius:8px;background:rgba(255,255,255,.04);color:#d2dfca;font-size:9px;font-weight:600}
+.ryu-rest-controls button.is-primary{border-color:transparent;background:var(--lime);color:#16210d}
+.ryu-rest-presets{margin-top:8px}
+.ryu-rest-presets button{padding:7px 3px;color:#9dad94;font:8px var(--mono)}
+.ryu-training-feature{overflow:hidden;border:1px solid rgba(185,255,36,.17);border-radius:21px;background:#0e1a10}
+.ryu-training-feature .rb-spotlight__content{height:100%}
+.ryu-training-feature__image{position:relative;min-height:270px;padding:24px 19px;background-size:cover;background-position:55% 36%;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.ryu-training-feature__image .ryu-overline{color:#c2ee8a}
+.ryu-training-feature__image h2{margin:8px 0;color:#f2f7ed;font:600 31px/1.02 var(--display);letter-spacing:-1.3px}
+.ryu-training-feature__image h2 span{color:var(--lime)}
+.ryu-training-feature__image p{max-width:240px;margin:0 0 15px;color:#d0ddca;font-size:10px;line-height:1.6}
+.ryu-primary-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 15px;border:0;border-radius:99px;background:var(--lime);color:#14200b;font:700 10px var(--mono);letter-spacing:.2px;box-shadow:0 7px 20px rgba(185,255,36,.13);transition:transform .18s,filter .18s}
+.ryu-primary-button:active{transform:scale(.97)}
+.ryu-feature-time{position:absolute;right:15px;bottom:15px;display:flex;align-items:center;gap:5px;padding:7px 9px;border:1px solid rgba(231,255,225,.17);border-radius:99px;background:rgba(3,9,4,.55);color:#e9f3e2;font:8px var(--mono)}
+.ryu-plan-list{display:flex;flex-direction:column;gap:9px}
+.ryu-plan-row{display:flex;align-items:center;gap:11px;padding:11px;border:1px solid rgba(234,255,227,.08);border-radius:14px;background:rgba(255,255,255,.025);transition:border-color .2s,transform .2s}
+.ryu-plan-row:active{transform:scale(.99)}
+.ryu-plan-art{display:grid;place-items:center;width:48px;height:48px;flex:0 0 auto;border-radius:13px;color:#c8f57d;background:radial-gradient(circle at 80% 15%,rgba(185,255,36,.18),transparent 52%),linear-gradient(145deg,#203c22,#101b12)}
+.ryu-plan-art.plan-art-1{color:#c4ff70;background:linear-gradient(145deg,#315c27,#111e12)}
+.ryu-plan-art.plan-art-2{color:#b6e5a0;background:linear-gradient(145deg,#243b34,#101713)}
+.ryu-plan-copy{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.ryu-plan-copy>span{color:#9dbb82;font:7px var(--mono);letter-spacing:.65px}
+.ryu-plan-copy strong{overflow:hidden;color:#f0f5ea;font:600 13px var(--display);text-overflow:ellipsis;white-space:nowrap}
+.ryu-plan-copy small{overflow:hidden;color:#869582;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
+.ryu-plan-copy em{color:#687964;font:8px var(--mono);font-style:normal}
+.ryu-plan-play,.ryu-delete-plan{display:grid;place-items:center;width:34px;height:34px;flex:0 0 auto;border:1px solid rgba(185,255,36,.17);border-radius:50%;background:rgba(185,255,36,.075);color:var(--lime)}
+.ryu-delete-plan{width:28px;height:28px;border-color:rgba(255,255,255,.09);background:rgba(255,255,255,.025);color:#91a08c}
+.ryu-routine-builder{margin-top:22px;padding:15px;border:1px solid rgba(185,255,36,.14);border-radius:16px;background:linear-gradient(145deg,rgba(24,48,24,.58),rgba(13,19,14,.9))}
+.ryu-outline-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 12px;border:1px solid rgba(185,255,36,.24);border-radius:99px;background:rgba(185,255,36,.06);color:#c9ed9f;font-size:9px;font-weight:700}
+.ryu-builder-form{display:flex;flex-direction:column;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(236,255,228,.08)}
+.ryu-builder-form>label,.ryu-auth-form>label{display:flex;flex-direction:column;gap:7px;color:#a7b69e;font:8px var(--mono);letter-spacing:.85px}
+.ryu-builder-form input:not([type=checkbox]),.ryu-auth-form input,.ryu-input-prefix,.ryu-input-password{width:100%;min-width:0;padding:11px 12px;border:1px solid rgba(230,255,223,.11);border-radius:9px;outline:0;background:rgba(0,0,0,.18);color:#eff6e8;font:12px 'DM Sans',sans-serif;letter-spacing:0}
+.ryu-builder-form input:focus,.ryu-auth-form input:focus{border-color:rgba(185,255,36,.43)}
+.ryu-builder-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.ryu-builder-grid label{display:flex;align-items:center;gap:7px;min-width:0;padding:9px;border:1px solid rgba(232,255,224,.08);border-radius:9px;background:rgba(255,255,255,.02)}
+.ryu-builder-grid label.is-selected{border-color:rgba(185,255,36,.3);background:rgba(185,255,36,.055)}
+.ryu-builder-grid input{position:absolute;opacity:0;pointer-events:none}
+.ryu-builder-grid label>span{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;color:#e5eee0;font-size:9px;font-weight:600}
+.ryu-builder-grid label small{overflow:hidden;color:#879680;font-size:8px;font-weight:400;text-overflow:ellipsis;white-space:nowrap}
+.ryu-builder-grid label>i{display:grid;place-items:center;width:20px;height:20px;flex:0 0 auto;border:1px solid rgba(185,255,36,.17);border-radius:6px;color:#c8f780;font-style:normal}
+.ryu-full-button{width:100%;margin-top:9px}
+.ryu-progress-summary{display:grid;grid-template-columns:minmax(0,1fr) 98px;gap:12px;margin-bottom:20px}
+.ryu-progress-summary>div:first-child{padding:15px;border:1px solid rgba(185,255,36,.16);border-radius:15px;background:linear-gradient(135deg,rgba(37,73,31,.55),rgba(13,22,14,.95))}
+.ryu-progress-summary>div:first-child>span{display:flex;align-items:center;gap:6px;color:#adc98d;font:8px var(--mono);letter-spacing:.65px}
+.ryu-progress-summary>div:first-child>span svg{color:var(--lime)}
+.ryu-progress-summary>div:first-child>strong{display:block;margin:8px 0;color:#f4f8ed;font:600 27px var(--display);letter-spacing:-1px}
+.ryu-progress-summary>div:first-child>strong small{color:var(--lime);font:9px var(--mono)}
+.ryu-progress-summary>div:first-child>i{display:block;height:5px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.1)}
+.ryu-progress-summary>div:first-child>i span{display:block;height:100%;border-radius:99px;background:var(--lime)}
+.ryu-progress-summary>div:first-child>small{display:block;margin-top:7px;color:#8fa087;font:8px var(--mono)}
+.ryu-progress-level{display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(234,255,222,.09);border-radius:15px;background:rgba(255,255,255,.025)}
+.ryu-progress-level small{color:#8f9d88;font:7px var(--mono);letter-spacing:.7px}
+.ryu-progress-level strong{margin:5px 0;color:var(--lime);font:600 32px var(--display)}
+.ryu-progress-level span{color:#bbc8b1;font-size:9px}
+.ryu-progress-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:18px}
+.ryu-surface{padding:15px;border:1px solid rgba(232,255,224,.08);border-radius:15px;background:rgba(255,255,255,.025)}
+.ryu-week-chart{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;height:128px;padding:10px 2px 0}
+.ryu-week-chart>div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;min-width:0}
+.ryu-week-chart>div>span{color:#889781;font:8px var(--mono)}
+.ryu-week-chart>div>i{display:block;width:100%;max-width:22px;min-height:4px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,#caff50,#4e9d2e);box-shadow:0 0 13px rgba(185,255,36,.1)}
+.ryu-week-chart>div>small{height:11px;color:#b9e97c;font:8px var(--mono)}
+.ryu-achievement{display:flex;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid rgba(235,255,225,.055)}
+.ryu-achievement:last-child{border:0;padding-bottom:0}
+.ryu-achievement>span{display:grid;place-items:center;width:32px;height:32px;flex:0 0 auto;border-radius:10px;background:rgba(255,255,255,.045);color:#81917d}
+.ryu-achievement>div{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.ryu-achievement strong{color:#eaf2e5;font:600 11px var(--display)}
+.ryu-achievement small{color:#82927e;font-size:8px}
+.ryu-achievement em{color:#7f8e7b;font:7px var(--mono);font-style:normal}
+.ryu-achievement:has(>span svg[data-lucide=check])>span{color:var(--lime);background:rgba(185,255,36,.09)}
+.ryu-library-feature{position:relative;isolation:isolate;overflow:hidden;min-height:185px;padding:20px;border:1px solid rgba(185,255,36,.13);border-radius:19px;background-size:cover;background-position:center;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.ryu-library-feature:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(6,13,7,.93),rgba(6,13,7,.57) 60%,rgba(6,13,7,.1))}
+.ryu-library-feature .ryu-overline{color:#c6ef8d}
+.ryu-library-feature h2{margin:8px 0;color:#f2f7ec;font:600 25px/1.05 var(--display);letter-spacing:-.9px}
+.ryu-library-feature p{max-width:245px;margin:0;color:#c0cdb7;font-size:10px;line-height:1.55}
+.ryu-profile-hero{overflow:hidden;padding:17px;border:1px solid rgba(185,255,36,.15);border-radius:20px;background:radial-gradient(ellipse at 100% 0%,rgba(84,147,47,.23),transparent 57%),linear-gradient(140deg,#172719,#0d140e)}
+.ryu-profile-hero .rb-spotlight__content{height:100%}
+.ryu-profile-identity{display:flex;align-items:center;gap:11px}
+.ryu-profile-avatar{position:relative;display:grid;place-items:center;width:50px;height:50px;flex:0 0 auto;border:1px solid rgba(185,255,36,.35);border-radius:50%;background:linear-gradient(145deg,#4c783a,#16291a);color:#d6ff98;font:700 20px var(--display)}
+.ryu-profile-avatar i{position:absolute;right:1px;bottom:1px;width:8px;height:8px;border:2px solid #18271a;border-radius:50%;background:var(--lime)}
+.ryu-profile-identity h2{margin:4px 0 2px;color:#f1f7ed;font:600 18px var(--display)}
+.ryu-profile-identity p{margin:0;color:#9db099;font-size:9px}
+.ryu-profile-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:17px;padding-top:14px;border-top:1px solid rgba(238,255,231,.09)}
+.ryu-profile-metrics>div{display:flex;flex-direction:column;gap:4px}
+.ryu-profile-metrics strong{color:#f5f8f0;font:600 18px var(--display)}
+.ryu-profile-metrics span{color:#8ea087;font:7px var(--mono);letter-spacing:.65px}
+.ryu-settings-section{margin-top:13px}
+.ryu-settings-note{color:#98a892;font-size:10px;line-height:1.6}
+.ryu-settings-section .setting-row{padding:12px 0;border-bottom:1px solid rgba(231,255,224,.06)}
+.ryu-settings-section .setting-row:last-child{border-bottom:0}
+.ryu-settings-section .setting-icon{color:var(--lime)}
+.ryu-settings-section .setting-copy strong{color:#eaf2e5;font-size:10px}
+.ryu-settings-section .setting-copy span{color:#81917d;font-size:8px}
+.ryu-setting-select{max-width:135px;padding:8px 9px;border:1px solid rgba(236,255,225,.12);border-radius:8px;background:#142017;color:#e3eedc;font-size:9px}
+.ryu-danger-button{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:9px;padding:10px;border:1px solid rgba(255,112,99,.2);border-radius:99px;background:rgba(255,89,78,.055);color:#ff9d92;font-size:9px;font-weight:700}
+.ryu-auth-screen{padding-bottom:20px}
+.ryu-auth-screen .ryu-page-intro h1 span{color:var(--lime)}
+.ryu-auth-card{padding:17px;border:1px solid rgba(185,255,36,.15);border-radius:18px;background:linear-gradient(145deg,rgba(23,39,24,.9),rgba(11,17,12,.98));box-shadow:0 20px 50px rgba(0,0,0,.18)}
+.ryu-google-button{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border:1px solid rgba(230,255,223,.1);border-radius:10px;background:rgba(255,255,255,.05);color:#edf4e9;font-size:10px;font-weight:700}
+.ryu-google-button>span{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#fff;color:#4285f4;font:700 14px Arial}
+.ryu-auth-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:#73836f;font:7px var(--mono);letter-spacing:.8px}
+.ryu-auth-divider:before,.ryu-auth-divider:after{content:"";height:1px;flex:1;background:rgba(231,255,224,.08)}
+.ryu-auth-form{display:flex;flex-direction:column;gap:12px}
+.ryu-input-prefix,.ryu-input-password{display:flex;align-items:center;gap:8px;padding:0 11px}
+.ryu-input-prefix>span{color:var(--lime);font:12px var(--mono)}
+.ryu-input-prefix input,.ryu-input-password input{min-width:0;flex:1;padding:11px 0;border:0;background:none;outline:0}
+.ryu-input-password button{border:0;background:none;color:var(--lime);font:9px var(--mono)}
+.ryu-auth-form>label>small{color:#91a18b;font:8px var(--mono);letter-spacing:0}
+.ryu-password-check{display:grid;grid-template-columns:1fr auto;gap:7px;color:#99a78f;font-size:8px}
+.ryu-password-check>div{grid-column:1/3;display:flex;justify-content:space-between}
+.ryu-password-check>i{grid-column:1/3;height:4px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.1)}
+.ryu-password-check>i span{display:block;height:100%;background:var(--lime)}
+.ryu-password-check small.is-valid{color:#c2f28b}
+.ryu-error{color:#ff988d;font-size:10px}
+.ryu-success{color:#c2f28b;font-size:10px}
+.ryu-auth-switch{display:block;margin:9px auto 0;border:0;background:none;color:#b7e879;font-size:9px;font-weight:600}
+.ryu-bottom-nav{position:fixed;z-index:40;left:50%;bottom:0;transform:translateX(-50%);width:min(560px,100%);height:74px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;padding:7px 14px calc(7px + env(safe-area-inset-bottom));border-top:1px solid rgba(230,255,223,.08);background:rgba(8,14,9,.94);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.ryu-bottom-nav>button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;height:54px;border:0;background:none;color:#748270}
+.ryu-bottom-nav>button span{font:7px var(--mono);letter-spacing:.35px}
+.ryu-bottom-nav>button.is-active{color:var(--lime)}
+.ryu-bottom-nav>button.ryu-bottom-center{justify-self:center;align-self:start;display:grid;place-items:center;width:51px;height:51px;margin-top:-21px;border:4px solid #09110a;border-radius:50%;background:var(--lime);color:#18230d;box-shadow:0 0 0 1px rgba(185,255,36,.42),0 0 28px rgba(185,255,36,.2)}
+.ryu-bottom-nav>button.ryu-bottom-center svg{width:21px;height:21px}
+.ryu-bottom-nav>button.ryu-bottom-center.is-active{background:#d0ff61;box-shadow:0 0 0 1px rgba(185,255,36,.75),0 0 36px rgba(185,255,36,.34)}
+.ryu-toast{position:fixed;z-index:80;top:82px;left:50%;transform:translateX(-50%);width:min(420px,calc(100% - 28px));display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid rgba(185,255,36,.22);border-radius:15px;background:rgba(16,27,17,.95);box-shadow:0 16px 45px rgba(0,0,0,.4);backdrop-filter:blur(18px)}
+.ryu-toast-icon{display:grid;place-items:center;width:33px;height:33px;flex:0 0 auto;border-radius:10px;background:rgba(185,255,36,.1);color:var(--lime)}
+.ryu-toast>div{min-width:0;flex:1}
+.ryu-toast strong{display:block;color:#eef5e9;font:600 11px var(--display)}
+.ryu-toast p{margin:4px 0 0;color:#a1b19b;font-size:9px;line-height:1.5}
+.ryu-toast-count{color:var(--lime);font:9px var(--mono)}
+.ryu-toast>button{display:grid;place-items:center;width:25px;height:25px;border:0;border-radius:50%;background:rgba(255,255,255,.06);color:#9aa993}
+.ryu-modal-backdrop{position:fixed;z-index:100;inset:0;display:grid;place-items:center;padding:18px;background:rgba(0,0,0,.72);backdrop-filter:blur(9px)}
+.ryu-finish-modal{position:relative;width:min(390px,100%);padding:23px;border:1px solid rgba(185,255,36,.22);border-radius:22px;background:linear-gradient(145deg,#19271a,#0b110c);box-shadow:0 25px 80px rgba(0,0,0,.55)}
+.ryu-modal-close{position:absolute;right:13px;top:13px;display:grid;place-items:center;width:31px;height:31px;border:1px solid rgba(234,255,225,.09);border-radius:50%;background:rgba(255,255,255,.04);color:#9baa94}
+.ryu-finish-icon{display:grid;place-items:center;width:50px;height:50px;margin-bottom:15px;border-radius:15px;background:rgba(185,255,36,.12);color:var(--lime)}
+.ryu-finish-modal h2{margin:7px 0;color:#f3f7ee;font:600 23px var(--display)}
+.ryu-finish-modal>p{color:#98a791;font-size:10px;line-height:1.6}
+.ryu-finish-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:17px 0}
+.ryu-finish-stats>div{display:flex;flex-direction:column;gap:4px;padding:11px 5px;border:1px solid rgba(230,255,225,.08);border-radius:10px;background:rgba(255,255,255,.025);text-align:center}
+.ryu-finish-stats strong{color:#f1f7ea;font:600 18px var(--display)}
+.ryu-finish-stats small{color:#81927c;font:7px var(--mono)}
+.ryu-modal-cancel{display:block;margin:12px auto 0;border:0;background:none;color:#9aac94;font-size:9px}
+.ryu-footer{display:flex;justify-content:space-between;gap:10px;max-width:510px;margin:0 auto;padding:0 20px 12px;color:#52624f;font:7px var(--mono);letter-spacing:.8px}
+.ryu-footer span:last-child{text-align:right}
+.ryu-rpg{margin:0}
+.ryu-rpg__surface{border-color:rgba(185,255,36,.15)!important;background:linear-gradient(145deg,rgba(20,34,21,.98),rgba(9,15,10,.99)) padding-box,linear-gradient(135deg,rgba(185,255,36,.3),rgba(255,255,255,.05)) border-box!important}
+.ryu-rpg__ring-progress{filter:drop-shadow(0 0 5px rgba(185,255,36,.5))}
+.ryu-rpg__xp-fill,.ryu-rpg__stat-track span{background:linear-gradient(90deg,#70bc24,#b9ff24)!important}
+.ryu-rpg__rank--current{border-color:rgba(185,255,36,.5)!important}
+.ryu-rpg--home .ryu-rpg__surface{min-height:0}
+.ryu-rpg--home .ryu-rpg__content{min-height:0}
+.ryu-rpg__compact-identity h2 span{color:var(--lime)}
+.ryu-rpg__compact-stats strong{color:#e9f3e1}
+.quest-board{margin:27px 0}
+.quest-board__header h2,.pr-board__header h2{color:#f0f5e9}
+.quest-card{background:#111c13;border-color:rgba(231,255,224,.09)}
+.quest-card__icon{color:var(--lime);border-color:rgba(185,255,36,.17);background:rgba(185,255,36,.08)}
+.quest-card__track span{background:linear-gradient(90deg,#67be22,#b9ff24)}
+.quest-card__claim:not(:disabled){border-color:rgba(185,255,36,.28);background:rgba(185,255,36,.1);color:#d2ff85}
+.pr-board{border-color:rgba(185,255,36,.13);background:linear-gradient(145deg,#132015,#0a100b)}
+.pr-card{background:rgba(255,255,255,.025)}
+.pr-card__value{color:#f2f8ed}
+.rb-shiny-text{background-image:linear-gradient(105deg,currentColor 0%,currentColor 36%,#e0ff9b 49%,currentColor 62%,currentColor 100%)}
+@media(min-width:700px){
+  body{background:radial-gradient(ellipse at 50% 0%,rgba(45,102,40,.17),transparent 45%),#050905}
+  .ryu-shell{min-height:100vh;box-shadow:0 0 110px rgba(0,0,0,.5)}
+  .ryu-header{padding-inline:27px}
+  .ryu-main{padding-inline:26px}
+  .ryu-screen{max-width:510px}
+}
+@media(max-width:390px){
+  .ryu-header{padding-inline:16px}
+  .ryu-main{padding-inline:15px}
+  .ryu-streak{padding-inline:8px}
+  .ryu-streak span{font-size:7px}
+  .ryu-workout-tiles{grid-template-rows:136px 136px}
+  .ryu-challenge-card__content{grid-template-columns:47px minmax(0,1fr) auto;gap:8px;padding-inline:12px}
+  .ryu-challenge-emblem{width:45px;height:45px}
+  .ryu-challenge-copy h2{font-size:17px}
+  .ryu-challenge-start{padding:9px 9px;font-size:8px}
+  .ryu-quick-stats{gap:6px}
+  .ryu-quick-stats>div{gap:6px;padding:10px 7px}
+  .ryu-stat-icon{width:27px;height:27px}
+  .ryu-quick-stats strong{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
