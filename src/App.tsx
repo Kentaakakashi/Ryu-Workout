@@ -215,8 +215,6 @@ export default function App() {
 
   const completedSets = exercises.reduce((sum, item) => sum + item.done, 0);
   const totalSets = exercises.reduce((sum, item) => sum + item.target, 0);
-  const level = Math.floor(xp / 250) + 1;
-  const levelProgress = (xp % 250) / 250 * 100;
   const totalLoggedSets = sessions.reduce((sum, session) => sum + session.sets, 0);
   const recent = sessions.slice(0, 4);
   const weeklyCount = useMemo(() => sessions.filter(s => Date.now() - new Date(s.date).getTime() < 7 * 86400000).length, [sessions]);
@@ -480,16 +478,7 @@ export default function App() {
                   </div>
                   <div className="hero-panel-bottom"><div><h2>Full body foundation</h2><p>Simple movements. Serious consistency.</p></div><button className="round-arrow" onClick={() => startWorkout('foundation')} aria-label="Start today's workout"><ArrowRight size={22} /></button></div>
                 </div>
-                <div className="level-panel glass">
-                  <div className="panel-topline"><span className="micro-label">YOUR JOURNEY</span><MoreHorizontal size={18} /></div>
-                  <div className="level-ring-wrap"><svg className="level-ring" viewBox="0 0 160 160" role="img" aria-label={`Level ${level}, ${Math.round(levelProgress)} percent to next level`}><circle cx="80" cy="80" r="68" className="ring-track" /><circle cx="80" cy="80" r="68" className="ring-progress" style={{ strokeDasharray: `${2 * Math.PI * 68 * levelProgress / 100} ${2 * Math.PI * 68}` }} /></svg><div className="ring-center"><span>LVL</span><strong>{String(level).padStart(2, '0')}</strong><small>RYU</small></div></div>
-                  <div className="xp-row"><span>EXPERIENCE</span><strong>{xp.toLocaleString()} <small>XP</small></strong></div>
-                  <div className="xp-track"><span style={{ width: `${levelProgress}%` }} /></div>
-                  <p className="level-foot">{250 - (xp % 250)} XP to level {level + 1}</p>
-                  <div className="level-divider" />
-                  <div className="mini-stat-row"><div><span>SESSIONS</span><strong>{sessions.length}</strong></div><div><span>THIS WEEK</span><strong>{weeklyCount}<small> / 4</small></strong></div></div>
                 </div>
-              </div>
               <RpgProgression variant="home" xp={xp} sessionsCount={sessions.length} totalSets={totalLoggedSets} totalMinutes={totalMinutes} streak={streak} />
               <div className="section-heading"><div><span className="micro-label">THE NEXT REP</span><h2>Make today count.</h2></div><button className="text-action" onClick={() => setTab('discover')}>Explore plans <ArrowRight size={15} /></button></div>
               <div className="stats-strip">
