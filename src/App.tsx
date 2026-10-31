@@ -13,7 +13,7 @@ import {
   Activity, ArrowDownRight, ArrowRight, Award, Bell, Check, CheckCheck,
   Clock3, Dumbbell, Flame, Footprints, Gauge, ArrowUpRight, UserRound,
   Home, Pause, Play, Plus, RotateCcw, Search, Settings2, Utensils, Leaf,
-  ShieldCheck, Sparkles, Timer, Trophy, TrendingUp, Waves, X, Zap
+  ShieldCheck, Timer, Trophy, TrendingUp, Waves, X, Zap
 } from 'lucide-react';
 
 type Tab = 'home' | 'train' | 'progress' | 'discover' | 'meals' | 'profile' | 'auth';
