@@ -795,7 +795,7 @@ export default function App() {
     pushNotice('Exercise added', next.name, 'success');
   }
 
-  const greetingName = (displayName.trim().split(/\\s+/)[0] || account?.email?.split('@')[0] || 'Athlete');
+  const greetingName = (displayName.trim().split(/\s+/)[0] || account?.email?.split('@')[0] || 'Athlete');
   const weeklyCalendar = Array.from({ length: 7 }, (_, index) => {
     const now = new Date();
     const todayIndex = now.getDay();
@@ -804,7 +804,6 @@ export default function App() {
     const count = sessions.filter(session => new Date(session.date).toDateString() === day.toDateString()).length;
     return { key: day.toDateString(), label: day.toLocaleDateString(undefined, { weekday: 'short' }).slice(0, 3).toUpperCase(), date: day.getDate(), count, today: day.toDateString() === now.toDateString(), future: day > now };
   });
-  const selectedRoutine = allPlans.find(plan => plan.id === selectedPlan) ?? plans[0];
   const workoutHeroImage = 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000';
   const fuelHeroImage = 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000';
 
