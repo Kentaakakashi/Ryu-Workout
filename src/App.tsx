@@ -701,13 +701,16 @@ export default function App() {
         .select('id')
         .single();
       if (!cloudError && cloudRecord) {
-        const setRows = exercises.flatMap(exercise => Array.from({ length: exercise.done }, (_, i) => ({
+        const setRows = exercises.flatMap(exercise => (exercise.setLogs ?? []).map((log, i) => ({
           user_id: account.id,
           session_id: cloudRecord.id,
           exercise_id: exercise.id,
           exercise_name: exercise.name,
           set_number: i + 1,
-          completed_at: record.date,
+          reps: log.unit === 'REPS' ? log.value : null,
+          load_kg: log.loadKg,
+          duration_seconds: log.unit === 'SEC' ? log.value : null,
+          completed_at: log.completedAt,
         })));
         if (setRows.length) {
           const { error: setError } = await supabase.from('workout_sets').insert(setRows);
@@ -750,22 +753,41 @@ export default function App() {
     const current = exercises[index];
     if (!current || current.done >= current.target) return;
     const nextDone = current.done + 1;
-    setExercises(list => list.map((item, i) => i === index ? { ...item, done: nextDone } : item));
+    const log: ExerciseLog = {
+      value: current.repTarget ?? (current.measure === 'seconds' ? 30 : 10),
+      unit: current.measure === 'seconds' ? 'SEC' : 'REPS',
+      loadKg: (current.loadKg ?? 0) > 0 ? current.loadKg ?? null : null,
+      completedAt: new Date().toISOString(),
+    };
+    setExercises(list => list.map((item, i) => i === index
+      ? { ...item, done: nextDone, setLogs: [...(item.setLogs ?? []), log] }
+      : item));
+    const candidate: PersonalRecord = {
+      exerciseId: current.id,
+      exerciseName: current.name,
+      value: log.value,
+      unit: log.unit,
+      loadKg: log.loadKg,
+      completedAt: log.completedAt,
+    };
+    const previousRecord = personalRecords.find(record => record.exerciseId === candidate.exerciseId);
+    const isNewRecord = !previousRecord
+      || previousRecord.unit !== candidate.unit
+      || (candidate.loadKg ?? 0) > (previousRecord.loadKg ?? 0)
+      || ((candidate.loadKg ?? 0) === (previousRecord.loadKg ?? 0) && candidate.value > previousRecord.value);
+    setPersonalRecords(currentRecords => mergePersonalRecords(currentRecords, [candidate]));
     pushNotice('Set logged', `${current.name} · set ${nextDone} of ${current.target}`, 'success', 1);
+    if (isNewRecord) pushNotice('PERSONAL RECORD', `${current.name} · ${candidate.value} ${candidate.unit}${candidate.loadKg ? ` · ${candidate.loadKg} kg` : ''}`, 'achievement', 5);
     if (nextDone < current.target) {
-      setRestLeft(current.rest);
+      setRestLeft(restTimerSeconds || current.rest);
       setRestPaused(false);
     }
   }
   function addExercise() {
-    const choices: Exercise[] = [
-      { id: 'mountain', name: 'Mountain climbers', detail: 'Core · Conditioning', target: 3, unit: 'sets', rest: 45, done: 0 },
-      { id: 'bridge', name: 'Glute bridges', detail: 'Glutes · Hamstrings', target: 3, unit: 'sets', rest: 45, done: 0 },
-      { id: 'pike', name: 'Pike push-ups', detail: 'Shoulders · Triceps', target: 3, unit: 'sets', rest: 60, done: 0 },
-    ];
+    const choices: Exercise[] = routineExerciseLibrary.filter(item => ['mountain', 'bridge', 'pike', 'diamond', 'deadbug', 'calf'].includes(item.id));
     const next = choices.find(item => !exercises.some(e => e.id === item.id));
     if (!next) { pushNotice('All extras added', 'You already have the available bonus moves.', 'info'); return; }
-    setExercises(current => [...current, next]);
+    setExercises(current => [...current, { ...next, done: 0, setLogs: [] }]);
     pushNotice('Exercise added', next.name, 'success');
   }
 
@@ -838,7 +860,7 @@ export default function App() {
                 <div className="workout-actions"><button className="outline-button" onClick={addExercise}><Plus size={16} /> Add movement</button><span className="autosave"><ShieldCheck size={14} /> Progress saves automatically</span></div></div>
                 <div className="rest-panel glass"><span className="micro-label">RECOVERY WINDOW</span><div className="rest-clock"><svg viewBox="0 0 160 160"><circle cx="80" cy="80" r="69" className="ring-track" /><circle cx="80" cy="80" r="69" className="rest-progress" style={{ strokeDasharray: `${2 * Math.PI * 69 * (restLeft / 90)} ${2 * Math.PI * 69}` }} /></svg><div className="rest-clock-center"><Timer size={17} /><strong>{formatTime(restLeft)}</strong><span>{restLeft > 0 ? 'RESTING' : 'READY'}</span></div></div><p>{restLeft > 0 ? 'Breathe. Recover. Come back strong.' : 'Take your time. Quality over hurry.'}</p><div className="rest-controls"><button className="outline-button" onClick={() => { setRestLeft(0); setRestPaused(true); }}><X size={15} /> Skip</button><button className="lime-button" onClick={() => setRestPaused(v => !v)}>{restPaused ? <Play size={15} /> : <Pause size={15} />}{restPaused ? 'Resume' : 'Pause'}</button></div><div className="rest-presets"><button onClick={() => { setRestLeft(v => v + 15); setRestPaused(false); }}>+15s</button><button onClick={() => { setRestLeft(45); setRestPaused(false); }}>45s</button><button onClick={() => { setRestLeft(60); setRestPaused(false); }}>60s</button><button onClick={() => { setRestLeft(90); setRestPaused(false); }}>90s</button></div><div className="rest-note"><Leaf size={15} /><span>Rest is part of the work.</span></div></div></div>
               : <div className="training-empty"><div className="training-empty-art"><div className="training-orbit" /><Dumbbell size={48} strokeWidth={1.2} /><span>RYU / TRAINING LOG</span></div><div className="training-empty-copy"><span className="micro-label">BUILT AROUND YOU</span><h2>Your next session<br />starts with one rep.</h2><p>Choose a focused session, log each set as you go, and let Ryu keep the record. Your history and XP update when you finish.</p><button className="lime-button large" onClick={() => startWorkout(selectedPlan)}><Play size={17} fill="currentColor" /> Start full body <ArrowRight size={17} /></button></div></div>}
-              <div className="section-heading"><div><span className="micro-label">CHOOSE YOUR FOCUS</span><h2>Training plans</h2></div></div><div className="plan-grid">{plans.map((plan, i) => <button className={`plan-card ${selectedPlan === plan.id ? 'plan-selected' : ''}`} key={plan.id} onClick={() => { setSelectedPlan(plan.id); if (!active) { setWorkoutName(plan.name); setExercises(plan.exercises.map(e => ({ ...e, done: 0 }))); } }}><div className={`plan-art plan-art-${i + 1}`}><span>{['01', '02', '03'][i]}</span>{i === 0 ? <Activity size={24} /> : i === 1 ? <Zap size={24} /> : <Footprints size={24} />}</div><div className="plan-card-copy"><span className="micro-label">{plan.level} · {plan.time}</span><strong>{plan.name}</strong><span>{plan.sub}</span><div className="plan-card-foot"><span>{plan.exercises.length} movements</span><ChevronRight size={17} /></div></div></button>)}</div>
+              <div className="section-heading"><div><span className="micro-label">CHOOSE YOUR FOCUS</span><h2>Training plans</h2></div></div><div className="plan-grid">{plans.map((plan, i) => <button className={`plan-card ${selectedPlan === plan.id ? 'plan-selected' : ''}`} key={plan.id} onClick={() => { setSelectedPlan(plan.id); if (!active) { setWorkoutName(plan.name); setExercises(plan.exercises.map(e => ({ ...e, done: 0, setLogs: [] }))); } }}><div className={`plan-art plan-art-${i + 1}`}><span>{['01', '02', '03'][i]}</span>{i === 0 ? <Activity size={24} /> : i === 1 ? <Zap size={24} /> : <Footprints size={24} />}</div><div className="plan-card-copy"><span className="micro-label">{plan.level} · {plan.time}</span><strong>{plan.name}</strong><span>{plan.sub}</span><div className="plan-card-foot"><span>{plan.exercises.length} movements</span><ChevronRight size={17} /></div></div></button>)}</div>
             </motion.div>}
 
             {tab === 'progress' && <motion.div key="progress" className="page" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: .22 }}>
