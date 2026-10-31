@@ -190,3 +190,48 @@
   .ryu-rpg__seal:after,.ryu-rpg__live-dot,.ryu-rpg__xp-fill:after { animation:none !important; }
   .ryu-rpg__stat { transition:none; }
 }
+
+
+/* Compact player card used beside the daily workout on Home. */
+.ryu-rpg--home { margin:0;min-width:0;height:100%; }
+.ryu-rpg--home .ryu-rpg__surface { height:100%;min-height:365px;border-radius:12px; }
+.ryu-rpg--home .ryu-rpg__content { display:flex;flex-direction:column;min-height:365px;height:100%;padding:19px 17px; }
+.ryu-rpg--home .ryu-rpg__topline { align-items:flex-start;gap:8px;margin-bottom:18px; }
+.ryu-rpg--home .ryu-rpg__system-label { font-size:8px;letter-spacing:1px;line-height:1.45; }
+.ryu-rpg--home .ryu-rpg__live { padding:6px 7px;font-size:7px;letter-spacing:.45px; }
+.ryu-rpg__compact-hero { display:grid;grid-template-columns:minmax(0,1fr) 83px;align-items:center;gap:7px; }
+.ryu-rpg__compact-identity { min-width:0; }
+.ryu-rpg__compact-identity .ryu-rpg__rank-pill { padding:6px 7px;font-size:8px;letter-spacing:.7px; }
+.ryu-rpg__compact-identity h2 { margin:14px 0 0;color:#a4a995;font:9px var(--mono);letter-spacing:1.2px; }
+.ryu-rpg__compact-identity h2 span { display:block;margin-top:4px;color:#f1f3e8;font:600 31px/1 var(--display);letter-spacing:-1.4px; }
+.ryu-rpg__compact-identity p { margin:10px 0 0;color:#a6c86a;font:9px var(--mono);line-height:1.5; }
+.ryu-rpg--home .ryu-rpg__level-orb { width:83px; }
+.ryu-rpg--home .ryu-rpg__orb-copy strong { font-size:25px; }
+.ryu-rpg--home .ryu-rpg__orb-copy small { font-size:7px;letter-spacing:1.2px; }
+.ryu-rpg--home .ryu-rpg__orb-copy span { font-size:6px;letter-spacing:.65px; }
+.ryu-rpg--home .ryu-rpg__xp-panel--compact { display:flex;flex-direction:column;gap:12px;margin-top:18px;padding:13px 12px; }
+.ryu-rpg--home .ryu-rpg__xp-total { flex-direction:row;align-items:baseline;justify-content:space-between;gap:8px; }
+.ryu-rpg--home .ryu-rpg__xp-total small { font-size:8px;letter-spacing:.7px; }
+.ryu-rpg--home .ryu-rpg__xp-total strong { font-size:22px;white-space:nowrap; }
+.ryu-rpg--home .ryu-rpg__xp-total strong em { font-size:8px; }
+.ryu-rpg--home .ryu-rpg__xp-detail { margin-bottom:8px;font-size:8px; }
+.ryu-rpg--home .ryu-rpg__xp-foot { margin-top:7px;font-size:8px; }
+.ryu-rpg__compact-stats { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:auto;padding-top:18px; }
+.ryu-rpg__compact-stats > div { display:flex;flex-direction:column;gap:6px;min-width:0;border-top:1px solid rgba(255,255,255,.08);padding-top:10px; }
+.ryu-rpg__compact-stats span { color:#848b7b;font:8px var(--mono);letter-spacing:.5px; }
+.ryu-rpg__compact-stats strong { color:#e7edd9;font:600 17px/1 var(--display);font-variant-numeric:tabular-nums; }
+.ryu-rpg__compact-stats strong small { margin-left:3px;color:#a8c764;font:8px var(--mono); }
+@media(max-width:720px) {
+  .ryu-rpg--home { margin:0; }
+  .ryu-rpg--home .ryu-rpg__content { padding:18px; }
+  .ryu-rpg--home .ryu-rpg__surface { min-height:340px; }
+  .ryu-rpg--home .ryu-rpg__content { min-height:340px; }
+}
+@media(max-width:380px) {
+  .ryu-rpg--home .ryu-rpg__content { padding:14px; }
+  .ryu-rpg--home .ryu-rpg__topline { margin-bottom:15px; }
+  .ryu-rpg__compact-hero { grid-template-columns:minmax(0,1fr) 72px; }
+  .ryu-rpg--home .ryu-rpg__level-orb { width:72px; }
+  .ryu-rpg__compact-identity h2 span { font-size:27px; }
+  .ryu-rpg--home .ryu-rpg__xp-total strong { font-size:20px; }
+}
