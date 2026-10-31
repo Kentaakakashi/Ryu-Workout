@@ -19,13 +19,18 @@ This is a debug APK for testing, not a Play Store-signed release.
 
 - Responsive React + TypeScript + Vite app.
 - Capacitor Android packaging with app ID `com.kentaakakashi.ryu`.
-- Workout sessions with set logging, rest timer, session duration and completion summary.
+- Workout sessions with per-set reps, load and timed holds, rest timer, session duration and completion summary.
+- Personal records derived from your actual logged sets, with local-first history and account sync.
+- Custom workout routine builder with user-owned Supabase templates and offline local drafts.
+- Daily training contracts with claimable bonus XP persisted in the account quest ledger.
+- Cloud-synced measurement units, default rest timer, sound preference, reminders preference and default routine.
 - Local-first session history, XP and level progression.
 - Supabase email/password account creation and sign-in.
 - Secure per-user database tables for profiles, workout sessions, set logs, and settings, protected by Row Level Security.
-- Signed-in workout sessions and their completed sets are written to Supabase; local history remains available on-device.
-- Achievement milestones and a seven-day consistency view.
+- Signed-in workout sessions and their completed sets are written to Supabase; local history remains available on-device. Per-set reps, load and timed holds, custom routines, daily quest rewards and settings are stored against the signed-in user with Row Level Security. Personal records are derived from the saved set log.
+- Achievement milestones, daily quest contracts, a seven-day consistency view and personal record wall.
 - Nyxhora-inspired expandable notification island with priority queue and contextual feedback.
+- React Bits-inspired SpotlightCard, TiltedCard, ClickSpark, CountUp, ShinyText and reveal effects, adapted for Ryu's mobile-first dark visual system.
 - Responsive navigation, accessible labels, reduced-motion support and reduced-transparency fallback.
 - GitHub Actions typecheck, web build, Android APK build, and downloadable artifacts.
 
@@ -65,6 +70,7 @@ For a different Supabase project, copy `.env.example` to `.env` and set `VITE_SU
 
 ## Design references
 
+- [React Bits](https://reactbits.dev/) — SpotlightCard, TiltedCard, ClickSpark, CountUp and ShinyText patterns adapted into Ryu's motion system.
 - [Magic UI Animated Circular Progress Bar](https://magicui.design/docs/components/animated-circular-progress-bar) — adapted as Ryu's animated level ring.
 - [Magic UI Number Ticker](https://magicui.design/docs/components/number-ticker) — adapted for the lifetime XP counter.
 - [Magic UI Magic Card](https://magicui.design/docs/components/magic-card) — adapted for the pointer-following border and spotlight on the RPG card.
@@ -72,4 +78,4 @@ For a different Supabase project, copy `.env.example` to `.env` and set `VITE_SU
 - [Nyxhora Dynamic Island](https://ui.nyxhora.com/docs/components/dynamic-island)
 - [Capacitor](https://capacitorjs.com/docs)
 
-The component patterns are adapted to Ryu's own vanilla-CSS design system and mobile layout; Ryu does not install a prebuilt dashboard or require Tailwind for these components. Magic UI is MIT-licensed; attribution and the license text are included in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+The component patterns are adapted to Ryu's own vanilla-CSS design system and mobile layout; Ryu does not install a prebuilt dashboard or require Tailwind for these components. Magic UI is MIT-licensed. React Bits uses MIT plus the Commons Clause; its attribution and applicable license terms are included in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
