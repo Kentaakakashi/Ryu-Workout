@@ -853,7 +853,7 @@ export default function App() {
       <div className="ryu-atmosphere ryu-atmosphere--one" />
       <div className="ryu-atmosphere ryu-atmosphere--two" />
       <header className="ryu-header">
-        <button className="ryu-brand" onClick={() => setTab('home')} aria-label="Ryu home">
+        <button className="ryu-brand" onClick={() => setTab(appAccess === 'active' ? 'home' : account ? 'profile' : 'auth')} aria-label="Ryu home">
           <span className="ryu-brand-mark"><Waves size={20} strokeWidth={2.5} /></span>
           <span><strong>RYU<span>.</span></strong><small>TRAIN WITH INTENT</small></span>
         </button>
