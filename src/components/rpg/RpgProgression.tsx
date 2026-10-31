@@ -273,7 +273,7 @@ export function RpgProgression({
               <Trophy size={20} color="#d2f36b" />
             </div>
             <div className="ryu-rpg__rank-list">
-              {RANKS.map((rank, index) => {
+              {RANKS.map(rank => {
                 const earned = level >= rank.level;
                 const current = rank.title === currentRank.title;
                 const Icon = rank.icon;
