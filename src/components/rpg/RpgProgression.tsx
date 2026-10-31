@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef } from 'react';
 import type { ReactNode } from 'react';
 import {
-  Award, CalendarCheck2, Check, Clock3, Crown, Dumbbell, Flame,
+  Award, CalendarCheck2, Clock3, Crown, Dumbbell, Flame,
   LockKeyhole, ShieldCheck, Sparkles, Target, Trophy, Zap,
 } from 'lucide-react';
 import {
