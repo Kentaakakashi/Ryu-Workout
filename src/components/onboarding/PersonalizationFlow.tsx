@@ -160,6 +160,16 @@ const EXPERIENCE_CHOICES: { value: FitnessProfile['experience_level']; label: st
   { value: 'experienced', label: 'Experienced', description: 'I train consistently and know my movements.' },
 ];
 
+function withTimeout<T>(promise: Promise<T>, milliseconds: number, message: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), milliseconds);
+    promise.then(
+      value => { clearTimeout(timer); resolve(value); },
+      error => { clearTimeout(timer); reject(error); },
+    );
+  });
+}
+
 const INITIAL_PROFILE: FitnessProfile = {
   age_years: null,
   height_cm: null,
