@@ -148,6 +148,17 @@ const EXERCISES: { slug: string; name: string; equipment: Equipment[]; focus: st
   { slug: 'assisted_pull_up', name: 'Foot-assisted pull-up', equipment: ['pullup_bar'], focus: 'Back · Arms' },
 ];
 
+const SEX_CHOICES: { value: NonNullable<FitnessProfile['sex_for_energy_estimate']>; label: string }[] = [
+  { value: 'female', label: 'Female' },
+  { value: 'male', label: 'Male' },
+  { value: 'prefer_not_to_say', label: 'Prefer not to say' },
+];
+const EXPERIENCE_CHOICES: { value: FitnessProfile['experience_level']; label: string; description: string }[] = [
+  { value: 'beginner', label: 'Beginner', description: "I'm new or returning after a break." },
+  { value: 'some_experience', label: 'Some experience', description: 'I know the basics and have trained before.' },
+  { value: 'experienced', label: 'Experienced', description: 'I train consistently and know my movements.' },
+];
+
 const INITIAL_PROFILE: FitnessProfile = {
   age_years: null,
   height_cm: null,
@@ -581,15 +592,63 @@ export function PersonalizationFlow({
             <div className="ryu-onboard-field"><label>Which areas would you like to focus on?</label><div className="ryu-chip-grid">{FOCUS_OPTIONS.map(item => <button type="button" key={item} className={profile.focus_areas.includes(item) ? 'is-selected' : ''} onClick={() => updateProfile('focus_areas', toggleString(profile.focus_areas, item))}>{item}</button>)}</div></div>
           </>}
 
-          {step === 1 && <>
-            <span className="ryu-overline">02 / YOUR STARTING POINT</span><h2>Let's understand your baseline.</h2><p>Measurements are optional, but they help Ryu make the overview more useful. You can skip either one.</p>
-            <div className="ryu-measurement-grid">
-              <label><span>HEIGHT</span><div><input type="number" min="80" max="250" step="0.1" value={profile.height_cm ?? ''} onChange={event => updateProfile('height_cm', event.target.value ? Number(event.target.value) : null)} placeholder="165"/><b>cm</b></div></label>
-              <label><span>WEIGHT</span><div><input type="number" min="20" max="400" step="0.1" value={profile.weight_kg ?? ''} onChange={event => updateProfile('weight_kg', event.target.value ? Number(event.target.value) : null)} placeholder="55"/><b>kg</b></div></label>
-            </div>
-            {profile.age_years !== null && profile.age_years >= 18 && <div className="ryu-onboard-field"><label>Optional: which equation category should Ryu use for an adult energy estimate?</label><p>This is used only for a broad energy estimate, not for identity or access decisions.</p><div className="ryu-choice-row">{[{value:'female',label:'Female'},{value:'male',label:'Male'},{value:'prefer_not_to_say',label:'Prefer not to say'}].map(item=><button type="button" key={item.value} className={profile.sex_for_energy_estimate===item.value?'is-selected':''} onClick={()=>updateProfile('sex_for_energy_estimate',item.value as FitnessProfile['sex_for_energy_estimate'])}>{item.label}</button>)}</div></div>}
-            <div className="ryu-onboard-field"><label>How experienced are you with training?</label><div className="ryu-choice-stack">{[{value:'beginner',label:'Beginner',desc:'I'm new or returning after a break.'},{value:'some_experience',label:'Some experience',desc:'I know the basics and have trained before.'},{value:'experienced',label:'Experienced',desc:'I train consistently and know my movements.'}].map(item=><button type="button" key={item.value} className={profile.experience_level===item.value?'is-selected':''} onClick={()=>updateProfile('experience_level',item.value as FitnessProfile['experience_level'])}><strong>{item.label}</strong><small>{item.desc}</small></button>)}</div></div>
-          </>}
+          {step === 1 && (
+            <>
+              <span className="ryu-overline">02 / YOUR STARTING POINT</span>
+              <h2>Let's understand your baseline.</h2>
+              <p>Measurements are optional, but they help Ryu make the overview more useful. You can skip either one.</p>
+              <div className="ryu-measurement-grid">
+                <label>
+                  <span>HEIGHT</span>
+                  <div>
+                    <input type="number" min="80" max="250" step="0.1" value={profile.height_cm ?? ''} onChange={event => updateProfile('height_cm', event.target.value ? Number(event.target.value) : null)} placeholder="165" />
+                    <b>cm</b>
+                  </div>
+                </label>
+                <label>
+                  <span>WEIGHT</span>
+                  <div>
+                    <input type="number" min="20" max="400" step="0.1" value={profile.weight_kg ?? ''} onChange={event => updateProfile('weight_kg', event.target.value ? Number(event.target.value) : null)} placeholder="55" />
+                    <b>kg</b>
+                  </div>
+                </label>
+              </div>
+              {profile.age_years !== null && profile.age_years >= 18 && (
+                <div className="ryu-onboard-field">
+                  <label>Optional: which equation category should Ryu use for an adult energy estimate?</label>
+                  <p>This is used only for a broad energy estimate, not for identity or access decisions.</p>
+                  <div className="ryu-choice-row">
+                    {SEX_CHOICES.map(choice => (
+                      <button
+                        type="button"
+                        key={choice.value}
+                        className={profile.sex_for_energy_estimate === choice.value ? 'is-selected' : ''}
+                        onClick={() => updateProfile('sex_for_energy_estimate', choice.value)}
+                      >
+                        {choice.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="ryu-onboard-field">
+                <label>How experienced are you with training?</label>
+                <div className="ryu-choice-stack">
+                  {EXPERIENCE_CHOICES.map(choice => (
+                    <button
+                      type="button"
+                      key={choice.value}
+                      className={profile.experience_level === choice.value ? 'is-selected' : ''}
+                      onClick={() => updateProfile('experience_level', choice.value)}
+                    >
+                      <strong>{choice.label}</strong>
+                      <small>{choice.description}</small>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
 
           {step === 2 && <>
             <span className="ryu-overline">03 / YOUR REAL LIFE</span><h2>When and where do you train?</h2><p>Ryu will never schedule a workout on a day you haven't made available.</p>
