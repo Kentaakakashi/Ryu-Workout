@@ -795,192 +795,274 @@ export default function App() {
     pushNotice('Exercise added', next.name, 'success');
   }
 
+  const greetingName = (displayName.trim().split(/\\s+/)[0] || account?.email?.split('@')[0] || 'Athlete');
+  const weeklyCalendar = Array.from({ length: 7 }, (_, index) => {
+    const now = new Date();
+    const todayIndex = now.getDay();
+    const day = new Date(now);
+    day.setDate(now.getDate() - todayIndex + index);
+    const count = sessions.filter(session => new Date(session.date).toDateString() === day.toDateString()).length;
+    return { key: day.toDateString(), label: day.toLocaleDateString(undefined, { weekday: 'short' }).slice(0, 3).toUpperCase(), date: day.getDate(), count, today: day.toDateString() === now.toDateString(), future: day > now };
+  });
+  const selectedRoutine = allPlans.find(plan => plan.id === selectedPlan) ?? plans[0];
+  const workoutHeroImage = 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000';
+  const fuelHeroImage = 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000';
+
   return (
-    <div className="app-shell">
-      <div className="ambient ambient-one" /><div className="ambient ambient-two" />
-      <header className="topbar">
-        <button className="brand-lockup" onClick={() => setTab('home')} aria-label="Ryu home">
-          <span className="brand-mark"><Waves size={21} strokeWidth={2.5} /></span>
-          <span className="brand-word">RYU<span className="brand-period">.</span><small>TRAIN WITH INTENT</small></span>
+    <div className="ryu-shell">
+      <div className="ryu-atmosphere ryu-atmosphere--one" />
+      <div className="ryu-atmosphere ryu-atmosphere--two" />
+      <header className="ryu-header">
+        <button className="ryu-brand" onClick={() => setTab('home')} aria-label="Ryu home">
+          <span className="ryu-brand-mark"><Waves size={20} strokeWidth={2.5} /></span>
+          <span><strong>RYU<span>.</span></strong><small>TRAIN WITH INTENT</small></span>
         </button>
-        <div className="topbar-right">
-          <div className="streak-chip"><Flame size={15} fill="currentColor" /><span>{streak} DAY STREAK</span></div>
-          <button className="icon-button" aria-label="Show notification" onClick={() => pushNotice('You’re on track', 'Small sessions build strong habits.', 'info')}><Bell size={18} /></button>
-          {account ? <button className="avatar" onClick={() => setTab('profile')} aria-label="Open profile">{(displayName || account.email || 'R').slice(0, 1).toUpperCase()}<span /></button> : <button className="topbar-auth" onClick={() => { setAuthMode('signin'); setTab('auth'); }}>Sign in <ArrowRight size={15} /></button>}
+        <div className="ryu-header-actions">
+          <div className="ryu-streak"><Flame size={15} fill="currentColor" /><strong>{streak}</strong><span>DAY STREAK</span></div>
+          <button className="ryu-icon-btn" aria-label="Notifications" onClick={() => pushNotice('You’re on track', 'Small sessions build strong habits.', 'info')}><Bell size={18} /></button>
+          <button className="ryu-avatar" onClick={() => setTab('profile')} aria-label="Open profile">{greetingName.slice(0, 1).toUpperCase()}<i /></button>
         </div>
       </header>
 
-      <main className="main-layout">
-        <aside className="side-nav">
-          <span className="nav-caption">YOUR SPACE</span>
-          <NavButton icon={<Home size={18} />} label="Overview" active={tab === 'home'} onClick={() => setTab('home')} />
-          <NavButton icon={<Dumbbell size={18} />} label="Training" active={tab === 'train'} onClick={() => setTab('train')} />
-          <NavButton icon={<TrendingUp size={18} />} label="Progress" active={tab === 'progress'} onClick={() => setTab('progress')} />
-          <NavButton icon={<Sparkles size={18} />} label="Discover" active={tab === 'discover'} onClick={() => setTab('discover')} />
-          <div className="nav-spacer" />
-          <div className="side-quote"><span className="quote-line" /><p>Earn your<br /><em>next version.</em></p><span className="quote-meta">RYU PRINCIPLE / 001</span></div>
-          <NavButton icon={<Settings2 size={18} />} label="Profile & settings" active={tab === 'profile'} onClick={() => setTab('profile')} />
-        </aside>
+      <main className="ryu-main">
+        <AnimatePresence mode="wait">
+          {tab === 'home' && <motion.div key="home" className="ryu-screen" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: .24 }}>
+            <div className="ryu-greeting">
+              <div className="ryu-greeting-avatar">{greetingName.slice(0, 1).toUpperCase()}<i /></div>
+              <div><span className="ryu-overline">YOUR TRAINING SPACE</span><h1>Hello {greetingName} <span>✋</span></h1><p>Get ready. Your next rep is waiting.</p></div>
+              <button className="ryu-greeting-bell" onClick={() => setTab('profile')} aria-label="Open settings"><Settings2 size={18} /></button>
+            </div>
 
-        <section className="content-area">
-          <AnimatePresence mode="wait">
-            {tab === 'home' && <motion.div key="home" className="page" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: .22 }}>
-              <div className="eyebrow"><span className="live-dot" /> YOUR TRAINING SPACE <span className="eyebrow-line" /> <span>VOL. 01</span></div>
-              <div className="hero-heading">
-                <div><p className="kicker"><ShinyText>THE WORK IS THE REWARD.</ShinyText></p><h1>Build a body.<br /><span>Build a habit.</span></h1></div>
-                <div className="hero-aside"><span className="aside-number">{String(sessions.length + 1).padStart(2, '0')}</span><span className="aside-caption">NEXT CHAPTER<br />STARTS HERE</span></div>
+            <SpotlightCard className="ryu-challenge-card" radius={22} intensity={0.14}>
+              <div className="ryu-challenge-card__content">
+                <div className="ryu-challenge-emblem"><Trophy size={25} /></div>
+                <div className="ryu-challenge-copy"><span>14 DAY CHALLENGE</span><h2>New Challenge</h2><p>Two weeks of energy.</p></div>
+                <button className="ryu-challenge-start" onClick={() => startWorkout(selectedPlan)}>START <ArrowRight size={14} /></button>
+                <div className="ryu-challenge-progress"><span style={{ width: Math.min(100, weeklyCount / 4 * 100) + '%' }} /></div>
+                <div className="ryu-challenge-foot"><span>{Math.min(weeklyCount, 4)} / 4 weekly sessions</span><strong>{Math.round(Math.min(100, weeklyCount / 4 * 100))}%</strong></div>
               </div>
-              <div className="hero-grid">
-                <SpotlightCard className="home-spotlight" radius={12} intensity={0.1}><div className="hero-panel">
-                  <div className="hero-panel-top"><span className="micro-label">TODAY'S FOCUS</span><span className="pill-outline"><span className="pill-dot" /> READY WHEN YOU ARE</span></div>
-                  <div className="hero-art" aria-hidden="true">
-                    <div className="orbit orbit-a" /><div className="orbit orbit-b" /><div className="orbit orbit-c" />
-                    <div className="hero-sigil"><span>力</span></div>
-                    <div className="hero-art-label">STRENGTH<br /><span>IS BUILT QUIETLY.</span></div>
-                  </div>
-                  <div className="hero-panel-bottom"><div><h2>Full body foundation</h2><p>Simple movements. Serious consistency.</p></div><button className="round-arrow" onClick={() => startWorkout('foundation')} aria-label="Start today's workout"><ArrowRight size={22} /></button></div>
-                </div></SpotlightCard>
-                <RpgProgression variant="home" xp={xp} sessionsCount={sessions.length} totalSets={totalLoggedSets} totalMinutes={totalMinutes} streak={streak} />
+              <div className="ryu-challenge-orbit" />
+            </SpotlightCard>
+
+            <section className="ryu-section ryu-week-section">
+              <div className="ryu-section-heading"><div><span className="ryu-overline">STAY IN RHYTHM</span><h2>This week</h2></div><span className="ryu-date-chip">{new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span></div>
+              <div className="ryu-week-strip">
+                {weeklyCalendar.map(day => <div className={'ryu-week-day' + (day.today ? ' is-today' : '') + (day.count ? ' has-workout' : '')} key={day.key}>
+                  <span>{day.label}</span><strong>{day.date}</strong><i>{day.count ? <Check size={11} /> : day.future ? '' : <span />}</i>
+                </div>)}
               </div>
-              <DailyQuestBoard quests={dailyQuests} claimedKeys={claimedQuestKeys} onClaim={quest => void claimDailyQuest(quest)} />
-              <div className="section-heading"><div><span className="micro-label">THE NEXT REP</span><h2>Make today count.</h2></div><button className="text-action" onClick={() => setTab('discover')}>Explore plans <ArrowRight size={15} /></button></div>
-              <FadeIn className="home-stats-reveal"><div className="stats-strip">
-                <Stat icon={<Target size={17} />} label="WEEKLY TARGET" value={`${Math.min(weeklyCount, 4)} / 4`} note="sessions completed" />
-                <Stat icon={<Clock3 size={17} />} label="TIME INVESTED" value={`${totalMinutes}m`} note="across all sessions" />
-                <Stat icon={<Trophy size={17} />} label="TOTAL SETS" value={String(totalLoggedSets)} note="logged with intent" />
-              </div></FadeIn>
-              <div className="bottom-grid">
-                <div className="panel recent-panel"><div className="section-head-small"><div><span className="micro-label">YOUR HISTORY</span><h3>Recent sessions</h3></div><button className="subtle-link" onClick={() => setTab('progress')}>View all <ArrowRight size={14} /></button></div>
-                  {recent.length ? recent.map(s => <div className="session-row" key={s.id}><div className="session-icon"><Check size={17} /></div><div className="session-info"><strong>{s.title}</strong><span>{dateLabel(s.date)} · {s.sets} sets</span></div><div className="session-xp">+{s.xp} XP</div></div>) : <div className="empty-history"><span className="empty-icon"><Activity size={19} /></span><p>Your first chapter is unwritten.</p><span>Finish a session and it will live here.</span></div>}
+            </section>
+
+            <section className="ryu-section">
+              <div className="ryu-section-heading"><div><span className="ryu-overline">MOVE WITH PURPOSE</span><h2>Find your flow</h2></div><button className="ryu-text-link" onClick={() => setTab('discover')}>See all <ArrowRight size={14} /></button></div>
+              <div className="ryu-category-row">
+                <button className="ryu-category is-active" onClick={() => { setSelectedPlan('foundation'); setTab('train'); }}><Activity size={15} /> Warm up</button>
+                <button className="ryu-category" onClick={() => { setSelectedPlan('legs'); setTab('train'); }}><Waves size={15} /> Cardio</button>
+                <button className="ryu-category" onClick={() => { setSelectedPlan('upper'); setTab('train'); }}><Dumbbell size={15} /> Strength</button>
+              </div>
+              <div className="ryu-workout-tiles">
+                <button className="ryu-workout-tile ryu-workout-tile--photo" onClick={() => startWorkout('foundation')} style={{ backgroundImage: 'linear-gradient(0deg,rgba(5,8,6,.94) 0%,rgba(5,8,6,.04) 72%),url(' + workoutHeroImage + ')' }}>
+                  <span className="ryu-tile-tag">RECOMMENDED</span><span className="ryu-tile-copy"><small>25 MIN · FULL BODY</small><strong>Foundation</strong><em>Build the base, one rep at a time.</em></span><span className="ryu-tile-arrow"><ArrowUpRight size={17} /></span>
+                </button>
+                <button className="ryu-workout-tile ryu-workout-tile--green" onClick={() => startWorkout('upper')}>
+                  <span className="ryu-tile-tag">STRENGTH / 02</span><span className="ryu-tile-abstract"><Dumbbell size={48} strokeWidth={1.1} /></span><span className="ryu-tile-copy"><small>20 MIN · UPPER BODY</small><strong>Upper focus</strong><em>Push strength and control.</em></span><span className="ryu-tile-arrow"><ArrowUpRight size={17} /></span>
+                </button>
+                <button className="ryu-workout-tile ryu-workout-tile--dark" onClick={() => startWorkout('legs')}>
+                  <span className="ryu-tile-tag">LOWER BODY / 03</span><span className="ryu-tile-abstract"><Footprints size={46} strokeWidth={1.1} /></span><span className="ryu-tile-copy"><small>22 MIN · LOWER BODY</small><strong>Leg day</strong><em>Control, range, repeat.</em></span><span className="ryu-tile-arrow"><ArrowUpRight size={17} /></span>
+                </button>
+              </div>
+            </section>
+
+            <section className="ryu-quick-stats">
+              <div><span className="ryu-stat-icon"><Flame size={16} /></span><span><small>STREAK</small><strong>{streak} <em>days</em></strong></span></div>
+              <div><span className="ryu-stat-icon"><Clock3 size={16} /></span><span><small>TRAINED</small><strong>{totalMinutes} <em>min</em></strong></span></div>
+              <div><span className="ryu-stat-icon"><Zap size={16} /></span><span><small>EXPERIENCE</small><strong>{xp.toLocaleString()} <em>XP</em></strong></span></div>
+            </section>
+
+            <section className="ryu-section ryu-home-progress">
+              <div className="ryu-section-heading"><div><span className="ryu-overline">YOUR CHARACTER</span><h2>Built, not borrowed.</h2></div><button className="ryu-text-link" onClick={() => setTab('progress')}>Open record <ArrowRight size={14} /></button></div>
+              <RpgProgression variant="home" xp={xp} sessionsCount={sessions.length} totalSets={totalLoggedSets} totalMinutes={totalMinutes} streak={streak} />
+            </section>
+
+            <DailyQuestBoard quests={dailyQuests} claimedKeys={claimedQuestKeys} onClaim={quest => void claimDailyQuest(quest)} />
+
+            <section className="ryu-section ryu-recent-section">
+              <div className="ryu-section-heading"><div><span className="ryu-overline">THE WORK ADDS UP</span><h2>Recent activity</h2></div><button className="ryu-text-link" onClick={() => setTab('progress')}>History <ArrowRight size={14} /></button></div>
+              {recent.length ? <div className="ryu-activity-list">{recent.slice(0, 3).map((session, index) => <div className="ryu-activity-row" key={session.id}><span className={'ryu-activity-icon activity-' + index}><Dumbbell size={17} /></span><div><strong>{session.title}</strong><small>{dateLabel(session.date)} · {session.sets} sets · {formatTime(session.duration)}</small></div><b>+{session.xp} XP</b></div>)}</div> : <div className="ryu-empty-card"><span><Activity size={20} /></span><strong>Your first chapter is unwritten.</strong><p>Complete a session and your activity will appear here.</p><button onClick={() => setTab('train')}>Go to training <ArrowRight size={14} /></button></div>}
+            </section>
+          </motion.div>}
+
+          {tab === 'train' && <motion.div key="train" className="ryu-screen" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: .24 }}>
+            <div className="ryu-page-intro"><span className="ryu-overline">TRAINING FLOOR</span><h1>{active ? 'Stay in the work.' : 'Time to train.'}</h1><p>{active ? 'One good set at a time. Keep your form controlled.' : 'Choose your focus. Log the work. Let progress compound.'}</p></div>
+            {active ? <>
+              <div className="ryu-active-hero" style={{ backgroundImage: 'linear-gradient(0deg,rgba(5,8,6,.97),rgba(5,8,6,.05) 85%),url(' + workoutHeroImage + ')' }}>
+                <div className="ryu-active-hero__top"><span className="ryu-live-pill"><i /> SESSION LIVE</span><span className="ryu-elapsed"><Timer size={14} /> {formatTime(elapsed)}</span></div>
+                <div className="ryu-active-hero__bottom"><span className="ryu-overline">CURRENT SESSION</span><h2>{workoutName}</h2><p>{completedSets} of {totalSets} sets completed</p><div className="ryu-progress-track"><span style={{ width: (totalSets ? completedSets / totalSets * 100 : 0) + '%' }} /></div><button className="ryu-light-button" onClick={() => setShowFinish(true)}>Finish session <CheckCheck size={16} /></button></div>
+              </div>
+              <div className="ryu-session-layout">
+                <section className="ryu-session-exercises">
+                  <div className="ryu-section-heading"><div><span className="ryu-overline">YOUR MOVEMENTS</span><h2>Exercise queue</h2></div><span className="ryu-count-pill">{completedSets}/{totalSets} SETS</span></div>
+                  <div className="ryu-exercise-list">{exercises.map((exercise, index) => <div className={'ryu-exercise-card' + (exercise.done === exercise.target ? ' is-complete' : '')} key={exercise.id}>
+                    <div className="ryu-exercise-num">{String(index + 1).padStart(2, '0')}</div>
+                    <div className="ryu-exercise-info"><strong>{exercise.name}</strong><small>{exercise.detail}</small><div className="ryu-set-dots">{Array.from({ length: exercise.target }, (_, n) => <i key={n} className={n < exercise.done ? 'done' : ''} />)}</div><div className="ryu-exercise-inputs"><label><span>{exercise.measure === 'seconds' ? 'HOLD SEC' : 'REPS / SET'}</span><input type="number" min="1" max="999" inputMode="numeric" value={exercise.repTarget ?? 10} disabled={exercise.done >= exercise.target} onChange={event => updateExerciseMetric(index, 'repTarget', event.target.value)} /></label><label><span>LOAD {units === 'imperial' ? 'LB' : 'KG'}</span><input type="number" min="0" max="999" step="0.5" inputMode="decimal" value={units === 'imperial' ? ((exercise.loadKg ?? 0) * 2.20462).toFixed(1) : (exercise.loadKg ?? 0)} disabled={exercise.done >= exercise.target} onChange={event => { const value = event.target.value; updateExerciseMetric(index, 'loadKg', String(units === 'imperial' ? Number(value || 0) / 2.20462 : Number(value || 0))); }} /></label></div></div>
+                    <div className="ryu-exercise-side"><strong>{exercise.done}<small>/{exercise.target}</small></strong><button onClick={() => markSet(index)} disabled={exercise.done >= exercise.target} aria-label={'Log set for ' + exercise.name}><ClickSpark color="#b9ff24">{exercise.done >= exercise.target ? <Check size={18} /> : <Plus size={18} />}</ClickSpark></button></div>
+                  </div>)}</div>
+                  <button className="ryu-add-movement" onClick={addExercise}><Plus size={16} /> Add movement</button>
+                </section>
+                <aside className="ryu-rest-card">
+                  <div className="ryu-section-heading"><div><span className="ryu-overline">RECOVERY WINDOW</span><h3>Rest timer</h3></div><span className="ryu-rest-status">{restLeft > 0 ? 'RESTING' : 'READY'}</span></div>
+                  <div className="ryu-rest-ring"><svg viewBox="0 0 180 180"><circle cx="90" cy="90" r="76" /><circle cx="90" cy="90" r="76" className="ryu-rest-ring__value" style={{ strokeDasharray: (2 * Math.PI * 76 * (restLeft / Math.max(1, restTimerSeconds))) + ' ' + (2 * Math.PI * 76) }} /></svg><div><small>{restLeft > 0 ? 'RECOVER' : 'TAKE YOUR TIME'}</small><strong>{formatTime(restLeft)}</strong></div></div>
+                  <p>Breathe. Recover. Come back strong.</p>
+                  <div className="ryu-rest-controls"><button onClick={() => { setRestLeft(0); setRestPaused(true); }}>Skip</button><button className="is-primary" onClick={() => setRestPaused(value => !value)}>{restPaused ? <Play size={14} /> : <Pause size={14} />}{restPaused ? 'Resume' : 'Pause'}</button></div>
+                  <div className="ryu-rest-presets"><button onClick={() => { setRestLeft(value => value + 15); setRestPaused(false); }}>+15</button><button onClick={() => { setRestLeft(45); setRestPaused(false); }}>45s</button><button onClick={() => { setRestLeft(60); setRestPaused(false); }}>60s</button><button onClick={() => { setRestLeft(90); setRestPaused(false); }}>90s</button></div>
+                </aside>
+              </div>
+            </> : <>
+              <SpotlightCard className="ryu-training-feature" radius={22} intensity={0.12}>
+                <div className="ryu-training-feature__image" style={{ backgroundImage: 'linear-gradient(90deg,rgba(4,7,5,.96),rgba(4,7,5,.6) 54%,rgba(4,7,5,.05)),url(' + workoutHeroImage + ')' }}>
+                  <span className="ryu-overline">EDITOR'S PICK · NO EQUIPMENT</span><h2>Build your<br /><span>foundation.</span></h2><p>Four movements. One focused session. Start where you are.</p><button className="ryu-primary-button" onClick={() => startWorkout('foundation')}><Play size={15} fill="currentColor" /> Start session <ArrowRight size={15} /></button>
+                  <span className="ryu-feature-time"><Clock3 size={13} /> 25 MIN</span>
                 </div>
-                <div className="principle-panel"><span className="principle-index">RYU / FIELD NOTE 01</span><div className="principle-mark"><Zap size={21} /></div><h3>Consistency<br />beats intensity.</h3><p>You don't need a perfect day. You need a repeatable one. Start where you are, then build.</p><button className="principle-link" onClick={() => setTab('train')}>Get moving <ArrowDownRight size={16} /></button><span className="principle-watermark">01</span></div>
-              </div>
-            </motion.div>}
-
-            {tab === 'train' && <motion.div key="train" className="page" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: .22 }}>
-              <div className="eyebrow"><span className="live-dot" /> TRAINING FLOOR <span className="eyebrow-line" /> <span>{active ? 'SESSION IN PROGRESS' : 'READY TO MOVE'}</span></div>
-              <div className="page-title-row"><div><p className="kicker">SHOW UP FOR YOURSELF.</p><h1>{active ? 'Stay in the work.' : 'Time to train.'}</h1><p className="page-subtitle">{active ? 'Every completed set is one more promise kept.' : 'No equipment required. Just a little room and a decision.'}</p></div>{active && <div className="elapsed-chip"><Timer size={16} /><strong>{formatTime(elapsed)}</strong><span>ELAPSED</span></div>}</div>
-              {active ? <div className="workout-layout"><div className="workout-main panel"><div className="workout-head"><div><span className="micro-label">CURRENT SESSION</span><h2>{workoutName}</h2><p>{completedSets} of {totalSets} sets logged</p></div><button className="outline-button" onClick={() => setShowFinish(true)}>Finish session</button></div><div className="workout-progress"><span style={{ width: `${totalSets ? completedSets / totalSets * 100 : 0}%` }} /></div>
-                <div className="exercise-list">{exercises.map((e, i) => <div className={`exercise-row ${e.done === e.target ? 'exercise-complete' : ''}`} key={e.id}><div className="exercise-index">{String(i + 1).padStart(2, '0')}</div><div className="exercise-details"><strong>{e.name}</strong><span>{e.detail}</span><div className="set-track">{Array.from({ length: e.target }, (_, n) => <span key={n} className={n < e.done ? 'set-done' : ''} />)}</div><div className="exercise-metrics"><label><span>{e.measure === 'seconds' ? 'HOLD SEC' : 'REPS / SET'}</span><input type="number" min="1" max="999" inputMode="numeric" value={e.repTarget ?? 10} disabled={e.done >= e.target} onChange={event => updateExerciseMetric(i, 'repTarget', event.target.value)} /></label><label><span>LOAD {units === 'imperial' ? 'LB' : 'KG'}</span><input type="number" min="0" max="999" step="0.5" inputMode="decimal" value={units === 'imperial' ? ((e.loadKg ?? 0) * 2.20462).toFixed(1) : (e.loadKg ?? 0)} disabled={e.done >= e.target} onChange={event => { const value = event.target.value; updateExerciseMetric(i, 'loadKg', String(units === 'imperial' ? Number(value || 0) / 2.20462 : Number(value || 0))); }} /></label></div></div><div className="exercise-count"><strong>{e.done}<span>/{e.target}</span></strong><small>SETS</small></div><button className={`set-button ${e.done === e.target ? 'is-done' : ''}`} onClick={() => markSet(i)} disabled={e.done >= e.target} aria-label={e.done >= e.target ? `${e.name} complete` : `Log next set of ${e.name}`}><ClickSpark color="#d2f36b">{e.done >= e.target ? <Check size={19} /> : <Plus size={19} />}</ClickSpark></button></div>)}</div>
-                <div className="workout-actions"><button className="outline-button" onClick={addExercise}><Plus size={16} /> Add movement</button><span className="autosave"><ShieldCheck size={14} /> Progress saves automatically</span></div></div>
-                <div className="rest-panel glass"><span className="micro-label">RECOVERY WINDOW</span><div className="rest-clock"><svg viewBox="0 0 160 160"><circle cx="80" cy="80" r="69" className="ring-track" /><circle cx="80" cy="80" r="69" className="rest-progress" style={{ strokeDasharray: `${2 * Math.PI * 69 * (restLeft / 90)} ${2 * Math.PI * 69}` }} /></svg><div className="rest-clock-center"><Timer size={17} /><strong>{formatTime(restLeft)}</strong><span>{restLeft > 0 ? 'RESTING' : 'READY'}</span></div></div><p>{restLeft > 0 ? 'Breathe. Recover. Come back strong.' : 'Take your time. Quality over hurry.'}</p><div className="rest-controls"><button className="outline-button" onClick={() => { setRestLeft(0); setRestPaused(true); }}><X size={15} /> Skip</button><button className="lime-button" onClick={() => setRestPaused(v => !v)}>{restPaused ? <Play size={15} /> : <Pause size={15} />}{restPaused ? 'Resume' : 'Pause'}</button></div><div className="rest-presets"><button onClick={() => { setRestLeft(v => v + 15); setRestPaused(false); }}>+15s</button><button onClick={() => { setRestLeft(45); setRestPaused(false); }}>45s</button><button onClick={() => { setRestLeft(60); setRestPaused(false); }}>60s</button><button onClick={() => { setRestLeft(90); setRestPaused(false); }}>90s</button></div><div className="rest-note"><Leaf size={15} /><span>Rest is part of the work.</span></div></div></div>
-              : <div className="training-empty"><div className="training-empty-art"><div className="training-orbit" /><Dumbbell size={48} strokeWidth={1.2} /><span>RYU / TRAINING LOG</span></div><div className="training-empty-copy"><span className="micro-label">BUILT AROUND YOU</span><h2>Your next session<br />starts with one rep.</h2><p>Choose a focused session, log each set as you go, and let Ryu keep the record. Your history and XP update when you finish.</p><button className="lime-button large" onClick={() => startWorkout(selectedPlan)}><Play size={17} fill="currentColor" /> Start full body <ArrowRight size={17} /></button></div></div>}
-              <div className="section-heading"><div><span className="micro-label">CHOOSE YOUR FOCUS</span><h2>Training plans</h2></div></div><div className="plan-grid">{allPlans.map((plan, i) => <TiltedCard className="plan-tilt" key={plan.id}><button className={`plan-card ${selectedPlan === plan.id ? 'plan-selected' : ''}`} onClick={() => { setSelectedPlan(plan.id); void persistUserSettings({ default_plan: plan.id }); if (!active) { setWorkoutName(plan.name); setExercises(plan.exercises.map(e => ({ ...e, done: 0, setLogs: [] }))); } }}><div className={`plan-art plan-art-${(i % 3) + 1}`}><span>{String(i + 1).padStart(2, '0')}</span>{i % 3 === 0 ? <Activity size={24} /> : i % 3 === 1 ? <Zap size={24} /> : <Footprints size={24} />}</div><div className="plan-card-copy"><span className="micro-label">{plan.level} · {plan.time}</span><strong>{plan.name}</strong><span>{plan.sub}</span><div className="plan-card-foot"><span>{plan.exercises.length} movements</span><ChevronRight size={17} /></div></div></button></TiltedCard>)}</div>
-            </motion.div>}
-
-            {tab === 'progress' && <motion.div key="progress" className="page" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: .22 }}>
-              <div className="eyebrow"><span className="live-dot" /> THE LONG GAME <span className="eyebrow-line" /> <span>YOUR RECORD</span></div><div className="page-title-row"><div><p className="kicker">PROOF OF YOUR WORK.</p><h1>Look how far.</h1><p className="page-subtitle">Every session counts. This is your progress, not somebody else's.</p></div><div className="progress-stamp"><Trophy size={22} /><span>RYU<br />RECORD</span></div></div>
-              <RpgProgression variant="progress" xp={xp} sessionsCount={sessions.length} totalSets={totalLoggedSets} totalMinutes={totalMinutes} streak={streak} />
-              <PersonalRecordBoard records={personalRecords} units={units} />
-              <div className="progress-layout"><div className="panel progress-chart-panel"><div className="section-head-small"><div><span className="micro-label">WEEKLY CONSISTENCY</span><h3>Show up, again.</h3></div><span className="chart-range">LAST 7 DAYS</span></div><div className="week-bars">{['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => { const now = new Date(); const monday = (now.getDay() + 6) % 7; const d = new Date(now); d.setDate(now.getDate() - monday + i); const count = sessions.filter(s => new Date(s.date).toDateString() === d.toDateString()).length; return <div className="week-day" key={day + i}><div className="bar-track"><motion.span initial={{ height: 0 }} animate={{ height: count ? '100%' : '8%' }} transition={{ duration: .6, delay: i * .04 }} className={count ? 'bar-filled' : ''} /></div><span className={d.toDateString() === now.toDateString() ? 'today-label' : ''}>{day}</span></div>; })}</div><div className="chart-legend"><span className="legend-dot" /> Completed sessions <span className="legend-muted">· one bar per day</span></div></div>
-                <div className="panel achievement-panel"><div className="section-head-small"><div><span className="micro-label">MILESTONES</span><h3>Earned, not given.</h3></div><Award size={19} /></div>{[{title:'First steps', desc:'Complete your first workout', earned:sessions.length >= 1, icon:<Footprints size={18} />},{title:'In the rhythm', desc:'Complete 5 workouts', earned:sessions.length >= 5, icon:<Flame size={18} />},{title:'Century club', desc:'Log 100 sets', earned:sessions.reduce((s,x)=>s+x.sets,0) >= 100, icon:<Trophy size={18} />}].map(a => <div className={`achievement-row ${a.earned ? 'achievement-earned' : ''}`} key={a.title}><span className="achievement-icon">{a.earned ? <Check size={17} /> : a.icon}</span><div><strong>{a.title}</strong><span>{a.desc}</span></div><span className="achievement-status">{a.earned ? 'EARNED' : 'LOCKED'}</span></div>)}</div></div>
-              <div className="panel history-panel"><div className="section-head-small"><div><span className="micro-label">THE ARCHIVE</span><h3>Session history</h3></div><span className="chart-range">{sessions.length} RECORDS</span></div>{sessions.length ? sessions.map(s => <div className="history-row" key={s.id}><div className="history-date"><strong>{new Date(s.date).getDate()}</strong><span>{new Date(s.date).toLocaleDateString(undefined,{month:'short'})}</span></div><div className="history-details"><strong>{s.title}</strong><span>{dateLabel(s.date)} · {formatTime(s.duration)} · {s.sets} sets</span></div><div className="history-reward">+{s.xp} XP</div></div>) : <div className="empty-history wide"><span className="empty-icon"><TrendingUp size={19} /></span><p>Your progress begins with one session.</p><span>Finish a workout and your real history will appear here.</span><button className="text-action" onClick={() => setTab('train')}>Start training <ArrowRight size={15} /></button></div>}</div>
-            </motion.div>}
-
-            {tab === 'discover' && <motion.div key="discover" className="page" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: .22 }}>
-              <div className="eyebrow"><span className="live-dot" /> THE TRAINING LIBRARY <span className="eyebrow-line" /> <span>FIND YOUR FLOW</span></div><div className="page-title-row"><div><p className="kicker">THERE'S ALWAYS A NEXT STEP.</p><h1>Find your focus.</h1><p className="page-subtitle">Start with what you have. Build from where you are.</p></div><div className="discover-mark"><Sparkles size={24} /></div></div>
-              <section className="routine-builder-shell">
-                <div className="routine-builder-heading">
-                  <div><span className="micro-label">YOUR TRAINING / YOUR RULES</span><h2>Build your own routine.</h2><p>Pick movements, set your own sequence, and keep it in your personal library.</p></div>
-                  <button className="lime-button" type="button" onClick={() => setShowPlanBuilder(value => !value)}><Plus size={16} /> {showPlanBuilder ? 'Close builder' : 'Create routine'}</button>
-                </div>
-                {showPlanBuilder && <form className="routine-builder" onSubmit={saveCustomPlan}>
-                  <div className="routine-builder__fields">
-                    <label>ROUTINE NAME<input value={customPlanName} onChange={event => setCustomPlanName(event.target.value)} placeholder="e.g. Push + core" maxLength={48} minLength={2} required /></label>
-                    <label>SHORT NOTE<input value={customPlanDescription} onChange={event => setCustomPlanDescription(event.target.value)} placeholder="What is this session for?" maxLength={140} /></label>
-                  </div>
-                  <div className="routine-builder__exercise-head"><div><span className="micro-label">MOVEMENT LIBRARY</span><strong>Choose your movements</strong></div><span>{customExerciseIds.length} SELECTED / 12 MAX</span></div>
-                  <div className="routine-builder__choices">{routineExerciseLibrary.map(exercise => <label className={customExerciseIds.includes(exercise.id) ? 'routine-choice routine-choice--selected' : 'routine-choice'} key={exercise.id}><input type="checkbox" checked={customExerciseIds.includes(exercise.id)} onChange={event => setCustomExerciseIds(current => event.target.checked ? (current.length >= 12 ? current : [...current, exercise.id]) : current.filter(id => id !== exercise.id))} /><span className="routine-choice__check">{customExerciseIds.includes(exercise.id) ? <Check size={13} /> : <Plus size={13} />}</span><span><strong>{exercise.name}</strong><small>{exercise.detail} · {exercise.repTarget} {exercise.measure === 'seconds' ? 'sec' : 'reps'}</small></span></label>)}</div>
-                  <div className="routine-builder__footer"><span><ShieldCheck size={14} /> {account ? 'Will sync to your Ryu account' : 'Saved on this device · sign in to sync across devices'}</span><button className="lime-button" type="submit" disabled={planSaving || customExerciseIds.length === 0}>{planSaving ? 'Saving routine…' : 'Save routine'} <ArrowRight size={15} /></button></div>
+              </SpotlightCard>
+              <section className="ryu-section">
+                <div className="ryu-section-heading"><div><span className="ryu-overline">CHOOSE YOUR FOCUS</span><h2>Your plans</h2></div><span className="ryu-count-pill">{allPlans.length} ROUTINES</span></div>
+                <div className="ryu-plan-list">{allPlans.map((plan, index) => <div className="ryu-plan-row" key={plan.id}>
+                  <div className={'ryu-plan-art plan-art-' + (index % 3)}>{index % 3 === 0 ? <Activity size={22} /> : index % 3 === 1 ? <Dumbbell size={22} /> : <Footprints size={22} />}</div>
+                  <div className="ryu-plan-copy"><span>{plan.level} · {plan.time}</span><strong>{plan.name}</strong><small>{plan.sub}</small><em>{plan.exercises.length} movements</em></div>
+                  {plan.level === 'CUSTOM' && <button className="ryu-delete-plan" onClick={() => void deleteCustomPlan(plan)} aria-label={'Delete ' + plan.name}><X size={14} /></button>}
+                  <button className="ryu-plan-play" onClick={() => { setSelectedPlan(plan.id); if (plan.id !== selectedPlan) { setWorkoutName(plan.name); setExercises(plan.exercises.map(e => ({ ...e, done: 0, setLogs: [] }))); } startWorkout(plan.id); }} aria-label={'Start ' + plan.name}><Play size={15} fill="currentColor" /></button>
+                </div>)}</div>
+              </section>
+              <section className="ryu-routine-builder">
+                <div className="ryu-section-heading"><div><span className="ryu-overline">MAKE IT YOURS</span><h2>Build a routine</h2></div><button className="ryu-outline-button" onClick={() => setShowPlanBuilder(value => !value)}>{showPlanBuilder ? 'Close' : 'Create'} <Plus size={14} /></button></div>
+                {showPlanBuilder && <form className="ryu-builder-form" onSubmit={saveCustomPlan}>
+                  <label>ROUTINE NAME<input value={customPlanName} onChange={event => setCustomPlanName(event.target.value)} placeholder="e.g. Push + core" maxLength={48} minLength={2} required /></label>
+                  <label>SHORT NOTE<input value={customPlanDescription} onChange={event => setCustomPlanDescription(event.target.value)} placeholder="What is this session for?" maxLength={140} /></label>
+                  <div className="ryu-builder-grid">{routineExerciseLibrary.map(exercise => <label key={exercise.id} className={customExerciseIds.includes(exercise.id) ? 'is-selected' : ''}><input type="checkbox" checked={customExerciseIds.includes(exercise.id)} onChange={event => setCustomExerciseIds(current => event.target.checked ? (current.length >= 12 ? current : [...current, exercise.id]) : current.filter(id => id !== exercise.id))} /><span>{exercise.name}<small>{exercise.detail}</small></span><i>{customExerciseIds.includes(exercise.id) ? <Check size={13} /> : <Plus size={13} />}</i></label>)}</div>
+                  <button className="ryu-primary-button ryu-full-button" type="submit" disabled={planSaving || !customExerciseIds.length}>{planSaving ? 'Saving…' : 'Save routine'} <ArrowRight size={15} /></button>
                 </form>}
               </section>
-              <SpotlightCard className="discover-feature-spotlight" radius={16}><div className="discover-feature"><div className="discover-feature-copy"><span className="micro-label">EDITOR'S STARTER · NO EQUIPMENT</span><h2>Strong starts<br />right here.</h2><p>A balanced session built around fundamental movements. No gear, no complicated setup.</p><button className="lime-button" onClick={() => startWorkout('foundation')}>Start the foundation <ArrowRight size={16} /></button></div><div className="discover-feature-art"><div className="feature-orbit" /><div className="feature-figure">力</div><span>RYU / 001</span></div></div></SpotlightCard>
-              <div className="section-heading"><div><span className="micro-label">PICK YOUR PATH</span><h2>Built for real life.</h2></div></div><div className="discover-list">{allPlans.map((plan, i) => <div className={`discover-row ${plan.level === 'CUSTOM' ? 'discover-row-custom' : ''}`} key={plan.id}><div className={`discover-number discover-number-${i % 3}`}>{String(i + 1).padStart(2, '0')}</div><div className="discover-row-copy"><strong>{plan.name}</strong><span>{plan.sub}</span><small>{plan.exercises.length} movements · {plan.time.toLowerCase()} · {plan.level.toLowerCase()}</small></div>{plan.level === 'CUSTOM' && <button className="discover-delete" type="button" onClick={() => void deleteCustomPlan(plan)} aria-label={`Delete ${plan.name}`}><X size={15} /></button>}<button className="round-arrow small-arrow" onClick={() => startWorkout(plan.id)} aria-label={`Start ${plan.name}`}><ArrowRight size={18} /></button></div>)}</div>
-              <div className="principle-panel discover-principle"><span className="principle-index">A NOTE ON PROGRESS</span><h3>Start easy.<br /><em>Stay consistent.</em></h3><p>Training should challenge you, not punish you. Choose a pace you can recover from and increase difficulty gradually.</p></div>
-            </motion.div>}
+            </>}
+          </motion.div>}
 
-            {tab === 'auth' && <motion.div key="auth" className="page auth-page" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: .22 }}>
-              <div className="eyebrow"><span className="live-dot" /> RYU MEMBER ACCESS <span className="eyebrow-line" /> <span>YOUR PROGRESS, YOURS</span></div>
-              <div className="auth-page-grid">
-                <div className="auth-intro">
-                  <p className="kicker">YOUR NEXT CHAPTER STARTS HERE.</p>
-                  <h1>Make every<br /><span>rep count.</span></h1>
-                  <p>Sign in to carry your training history across devices, keep your sessions together and build a profile with a name that is yours.</p>
-                  <div className="auth-points"><span><ShieldCheck size={16} /> Private account</span><span><Activity size={16} /> Cloud workout sync</span><span><Target size={16} /> Your own @username</span></div>
-                </div>
-                <div className="panel auth-card">
-                  <div className="section-head-small"><div><span className="micro-label">RYU ACCOUNT</span><h3>{authMode === 'signup' ? 'Create your account' : 'Welcome back'}</h3></div><ShieldCheck size={18} /></div>
-                  <button type="button" className="google-button" onClick={() => void signInWithGoogle()} disabled={authBusy}><span className="google-mark" aria-hidden="true">G</span><span>Continue with Google</span><ArrowRight size={16} /></button>
-                  <div className="auth-divider"><span>OR CONTINUE WITH EMAIL</span></div>
-                  <form className="account-form" onSubmit={submitAuth}>
-                    {authMode === 'signup' && <>
-                      <label className="account-field">Username
-                        <div className="username-input-wrap"><span>@</span><input autoComplete="username" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20))} placeholder="your_handle" minLength={3} maxLength={20} required /></div>
-                        <small className={usernameAvailability === 'taken' || (username.length > 0 && !usernameValid) ? 'field-hint invalid' : 'field-hint'}>{username.length === 0 ? 'Unique handle · 3–20 characters · letters, numbers, underscores' : !usernameValid ? 'Use 3–20 lowercase letters, numbers or underscores' : usernameAvailability === 'checking' ? 'Checking username…' : usernameAvailability === 'available' ? '@' + normalizedUsername + ' is available' : usernameAvailability === 'taken' ? 'That username is already taken' : 'Availability could not be checked; Ryu will still enforce uniqueness'}</small>
-                      </label>
-                      <label className="account-field">Display name<input autoComplete="name" value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="What should Ryu call you?" maxLength={40} /></label>
-                    </>}
-                    <label className="account-field">Email<input type="email" autoComplete="email" value={authEmail} onChange={e => setAuthEmail(e.target.value)} placeholder="you@example.com" required /></label>
-                    <label className="account-field">Password
-                      <div className="password-input-wrap"><input type={passwordVisible ? 'text' : 'password'} autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'} value={authPassword} onChange={e => setAuthPassword(e.target.value)} minLength={authMode === 'signup' ? 12 : undefined} placeholder={authMode === 'signup' ? 'Create a strong password' : 'Your password'} required /><button type="button" onClick={() => setPasswordVisible(value => !value)} aria-label={passwordVisible ? 'Hide password' : 'Show password'}>{passwordVisible ? 'Hide' : 'Show'}</button></div>
-                    </label>
-                    {authMode === 'signup' && <div className="password-strength">
-                      <div className="strength-heading"><span>Password strength</span><strong className={'strength-' + passwordScore}>{authPassword ? passwordStrengthLabel : 'Not checked'}</strong></div>
-                      <div className="strength-track"><span className={'strength-fill strength-fill-' + passwordScore} /></div>
-                      <div className="password-checks">{passwordCriteria.map(item => <span key={item.label} className={item.valid ? 'passed' : ''}>{item.valid ? '✓' : '○'} {item.label}</span>)}</div>
-                    </div>}
-                    {authError && <p className="account-error" role="alert">{authError}</p>}
-                    {authMessage && <p className="account-status" role="status">{authMessage}</p>}
-                    <button className="lime-button account-submit" type="submit" disabled={authBusy || (authMode === 'signup' && (!usernameValid || !passwordStrong || usernameAvailability === 'taken' || usernameAvailability === 'checking'))}>{authBusy ? 'One sec…' : authMode === 'signup' ? 'Create account' : 'Sign in'} <ArrowRight size={16} /></button>
-                    <button className="text-action account-mode" type="button" onClick={() => { setAuthMode(value => value === 'signin' ? 'signup' : 'signin'); setAuthError(''); setAuthMessage(''); }}>{authMode === 'signin' ? 'New to Ryu? Create an account' : 'Already have an account? Sign in'}</button>
-                  </form>
-                </div>
-              </div>
-            </motion.div>}
-            {tab === 'profile' && <motion.div key="profile" className="page" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: .22 }}>
-              <div className="eyebrow"><span className="live-dot" /> YOUR SETTINGS <span className="eyebrow-line" /> <span>MADE PERSONAL</span></div><div className="page-title-row"><div><p className="kicker">YOUR PACE. YOUR RULES.</p><h1>Make it yours.</h1><p className="page-subtitle">A training space should work for you, not the other way around.</p></div></div>
-              <SpotlightCard className="profile-spotlight" radius={14}><div className="profile-hero panel"><div className="profile-avatar">{(account?.user_metadata?.display_name || account?.email || 'R').slice(0, 1).toUpperCase()}<span /></div><div className="profile-hero-copy"><span className="micro-label">{account ? 'RYU CLOUD MEMBER' : 'RYU MEMBER'}</span><h2>{displayName || account?.user_metadata?.full_name || 'The journey is yours.'}</h2><p>Level {level} · {xp.toLocaleString()} XP earned</p>{account && <p>{profileUsername ? '@' + profileUsername + ' · ' : ''}{account.email}</p>}</div><div className="profile-badge"><ShieldCheck size={19} /><span>{account ? 'ACCOUNT<br />ACTIVE' : 'DEVICE<br />PROFILE'}</span></div></div></SpotlightCard>
-              <div className="panel settings-panel account-panel"><div className="section-head-small"><div><span className="micro-label">RYU ACCOUNT</span><h3>{account ? 'Your member profile' : 'Your training, across devices'}</h3></div><ShieldCheck size={18} /></div>
-                {authLoading ? <p className="account-status">Checking your secure session…</p> : account ? <>
-                  <p className="account-status">Signed in as <strong>{account.email}</strong>. New workouts sync to your Ryu account.</p>
-                  <p className="profile-handle-line">{profileUsername ? <>Your username <strong>@{profileUsername}</strong></> : 'Choose your unique username to finish setting up your Ryu profile.'}</p>
-                  {!profileUsername && <form className="account-form" onSubmit={event => { event.preventDefault(); void saveUsername(); }}>
-                    <label className="account-field">Unique username
-                      <div className="username-input-wrap"><span>@</span><input autoComplete="username" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20))} placeholder="your_handle" minLength={3} maxLength={20} required /></div>
-                      <small className={username.length === 0 || usernameValid ? 'field-hint' : 'field-hint invalid'}>3–20 characters · letters, numbers, underscores</small>
-                    </label>
-                    <button className="lime-button account-submit" type="submit" disabled={profileBusy || !usernameValid}>{profileBusy ? 'Saving…' : 'Save username'} <ArrowRight size={16} /></button>
-                  </form>}
-                  {authError && <p className="account-error" role="alert">{authError}</p>}
-                  {authMessage && <p className="account-status" role="status">{authMessage}</p>}
-                  <button className="outline-button full-width" onClick={() => void signOut()}>Sign out</button>
-                </> : <>
-                  <p className="account-status">Your workouts stay on this device until you sign in. Create a free account to sync new training sessions across devices.</p>
-                  <button className="lime-button account-submit" onClick={() => { setAuthMode('signin'); setTab('auth'); }}>Sign in or create account <ArrowRight size={16} /></button>
+          {tab === 'progress' && <motion.div key="progress" className="ryu-screen" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: .24 }}>
+            <div className="ryu-page-intro"><span className="ryu-overline">THE LONG GAME</span><h1>Your progress.</h1><p>Your work, your numbers, your next milestone.</p></div>
+            <div className="ryu-progress-summary"><div><span><Trophy size={15} /> TOTAL EXPERIENCE</span><strong>{xp.toLocaleString()} <small>XP</small></strong><i><span style={{ width: (xp % 250) / 250 * 100 + '%' }} /></i><small>{250 - (xp % 250)} XP to level {level + 1}</small></div><div className="ryu-progress-level"><small>PLAYER LEVEL</small><strong>{String(level).padStart(2, '0')}</strong><span>{nextLevelTitle(level)}</span></div></div>
+            <RpgProgression variant="progress" xp={xp} sessionsCount={sessions.length} totalSets={totalLoggedSets} totalMinutes={totalMinutes} streak={streak} />
+            <PersonalRecordBoard records={personalRecords} units={units} />
+            <div className="ryu-progress-grid">
+              <section className="ryu-surface">
+                <div className="ryu-section-heading"><div><span className="ryu-overline">WEEKLY CONSISTENCY</span><h2>Keep the rhythm.</h2></div><span className="ryu-count-pill">7 DAYS</span></div>
+                <div className="ryu-week-chart">{weeklyCalendar.map(day => <div key={day.key}><span>{day.label.slice(0,1)}</span><i className={day.count ? 'has-value' : ''} style={{ height: day.count ? Math.min(100, 34 + day.count * 28) + '%' : '8%' }} /><small>{day.count || '·'}</small></div>)}</div>
+              </section>
+              <section className="ryu-surface">
+                <div className="ryu-section-heading"><div><span className="ryu-overline">MILESTONES</span><h2>Earned, not given.</h2></div><Award size={19} /></div>
+                {[{title:'First steps',desc:'Complete your first workout',earned:sessions.length>=1,icon:<Footprints size={17}/>},{title:'In the rhythm',desc:'Complete 5 workouts',earned:sessions.length>=5,icon:<Flame size={17}/>},{title:'Century club',desc:'Log 100 sets',earned:totalLoggedSets>=100,icon:<Trophy size={17}/>}].map(item => <div className="ryu-achievement" key={item.title}><span>{item.earned?<Check size={16}/>:item.icon}</span><div><strong>{item.title}</strong><small>{item.desc}</small></div><em>{item.earned?'EARNED':'LOCKED'}</em></div>)}
+              </section>
+            </div>
+            <section className="ryu-section">
+              <div className="ryu-section-heading"><div><span className="ryu-overline">YOUR ARCHIVE</span><h2>Session history</h2></div><span className="ryu-count-pill">{sessions.length} RECORDS</span></div>
+              {sessions.length ? <div className="ryu-activity-list">{sessions.map(session => <div className="ryu-activity-row" key={session.id}><span className="ryu-activity-icon"><Dumbbell size={17}/></span><div><strong>{session.title}</strong><small>{dateLabel(session.date)} · {formatTime(session.duration)} · {session.sets} sets</small></div><b>+{session.xp} XP</b></div>)}</div> : <div className="ryu-empty-card"><span><TrendingUp size={20}/></span><strong>Your progress begins with one session.</strong><p>Log a workout to start building your record.</p><button onClick={() => setTab('train')}>Start training <ArrowRight size={14}/></button></div>}
+            </section>
+          </motion.div>}
+
+          {tab === 'discover' && <motion.div key="discover" className="ryu-screen" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: .24 }}>
+            <div className="ryu-page-intro"><span className="ryu-overline">THE TRAINING LIBRARY</span><h1>Find your focus.</h1><p>Explore your plans and create a routine that fits your day.</p></div>
+            <div className="ryu-library-feature" style={{ backgroundImage: 'linear-gradient(90deg,rgba(3,7,4,.92),rgba(3,7,4,.56) 57%,rgba(3,7,4,.06)),url(' + fuelHeroImage + ')' }}>
+              <span className="ryu-overline">FUEL YOUR RECOVERY</span><h2>Strong starts<br/>with good habits.</h2><p>Rest, hydration and balanced meals are part of training too.</p>
+            </div>
+            <section className="ryu-section">
+              <div className="ryu-section-heading"><div><span className="ryu-overline">PICK YOUR PATH</span><h2>Workout library</h2></div><span className="ryu-count-pill">{allPlans.length} PLANS</span></div>
+              <div className="ryu-plan-list">{allPlans.map((plan,index) => <div className="ryu-plan-row" key={plan.id}><div className={'ryu-plan-art plan-art-' + (index%3)}>{index%3===0?<Activity size={22}/>:index%3===1?<Dumbbell size={22}/>:<Footprints size={22}/>}</div><div className="ryu-plan-copy"><span>{plan.level} · {plan.time}</span><strong>{plan.name}</strong><small>{plan.sub}</small><em>{plan.exercises.length} movements</em></div>{plan.level==='CUSTOM'&&<button className="ryu-delete-plan" onClick={()=>void deleteCustomPlan(plan)} aria-label={'Delete '+plan.name}><X size={14}/></button>}<button className="ryu-plan-play" onClick={()=>startWorkout(plan.id)} aria-label={'Start '+plan.name}><Play size={15} fill="currentColor"/></button></div>)}</div>
+            </section>
+            <section className="ryu-routine-builder">
+              <div className="ryu-section-heading"><div><span className="ryu-overline">YOUR TRAINING / YOUR RULES</span><h2>Make a routine.</h2></div><button className="ryu-outline-button" onClick={() => setShowPlanBuilder(value => !value)}>{showPlanBuilder ? 'Close' : 'Create'} <Plus size={14}/></button></div>
+              {showPlanBuilder && <form className="ryu-builder-form" onSubmit={saveCustomPlan}>
+                <label>ROUTINE NAME<input value={customPlanName} onChange={event => setCustomPlanName(event.target.value)} placeholder="e.g. Push + core" maxLength={48} minLength={2} required /></label>
+                <label>SHORT NOTE<input value={customPlanDescription} onChange={event => setCustomPlanDescription(event.target.value)} placeholder="What is this session for?" maxLength={140}/></label>
+                <div className="ryu-builder-grid">{routineExerciseLibrary.map(exercise => <label key={exercise.id} className={customExerciseIds.includes(exercise.id) ? 'is-selected' : ''}><input type="checkbox" checked={customExerciseIds.includes(exercise.id)} onChange={event => setCustomExerciseIds(current => event.target.checked ? (current.length >= 12 ? current : [...current, exercise.id]) : current.filter(id => id !== exercise.id))}/><span>{exercise.name}<small>{exercise.detail}</small></span><i>{customExerciseIds.includes(exercise.id)?<Check size={13}/>:<Plus size={13}/>}</i></label>)}</div>
+                <button className="ryu-primary-button ryu-full-button" type="submit" disabled={planSaving || !customExerciseIds.length}>{planSaving?'Saving routine…':'Save routine'} <ArrowRight size={15}/></button>
+              </form>}
+            </section>
+          </motion.div>}
+
+          {tab === 'auth' && <motion.div key="auth" className="ryu-screen ryu-auth-screen" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+            <div className="ryu-page-intro"><span className="ryu-overline">RYU MEMBER ACCESS</span><h1>Your progress.<br/><span>Your account.</span></h1><p>Sign in to keep every session and milestone with you.</p></div>
+            <div className="ryu-auth-card">
+              <div className="ryu-section-heading"><div><span className="ryu-overline">MEMBER ACCESS</span><h2>{authMode === 'signup' ? 'Create your account' : 'Welcome back'}</h2></div><ShieldCheck size={20}/></div>
+              <button type="button" className="ryu-google-button" onClick={() => void signInWithGoogle()} disabled={authBusy}><span>G</span> Continue with Google <ArrowRight size={15}/></button>
+              <div className="ryu-auth-divider"><span>OR CONTINUE WITH EMAIL</span></div>
+              <form className="ryu-auth-form" onSubmit={submitAuth}>
+                {authMode === 'signup' && <>
+                  <label>USERNAME<div className="ryu-input-prefix"><span>@</span><input autoComplete="username" value={username} onChange={event => setUsername(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0,20))} placeholder="your_handle" minLength={3} maxLength={20} required/></div><small>{username.length===0?'3–20 characters · letters, numbers, underscores':!usernameValid?'Use 3–20 lowercase letters, numbers or underscores':usernameAvailability==='checking'?'Checking username…':usernameAvailability==='available'?'@'+normalizedUsername+' is available':usernameAvailability==='taken'?'That username is already taken':'Availability will be checked when saved'}</small></label>
+                  <label>DISPLAY NAME<input autoComplete="name" value={displayName} onChange={event => setDisplayName(event.target.value)} placeholder="What should Ryu call you?" maxLength={40}/></label>
                 </>}
-              </div>
-              <div className="settings-layout"><div className="panel settings-panel"><div className="section-head-small"><div><span className="micro-label">PREFERENCES</span><h3>Your experience</h3></div><Settings2 size={18} /></div><SettingRow icon={<Bell size={18} />} title="Workout reminders" desc="Save your reminder preference to your Ryu account"><Toggle checked={remindersOn} onClick={() => void persistUserSettings({ reminders_enabled: !remindersOn })} /></SettingRow><SettingRow icon={<Activity size={18} />} title="Sound feedback" desc="Keep your feedback preference synced across devices"><Toggle checked={soundOn} onClick={() => void persistUserSettings({ sound_enabled: !soundOn })} /></SettingRow><SettingRow icon={<Gauge size={18} />} title="Default training focus" desc="Choose the plan selected when you open training"><select className="setting-select" value={selectedPlan} onChange={e => void persistUserSettings({ default_plan: e.target.value })}>{allPlans.map(p => <option value={p.id} key={p.id}>{p.name}</option>)}</select></SettingRow><SettingRow icon={<Gauge size={18} />} title="Measurement units" desc="Choose how training loads are entered and displayed"><select className="setting-select" value={units} onChange={e => void persistUserSettings({ units: e.target.value as 'metric' | 'imperial' })}><option value="metric">Metric · kg</option><option value="imperial">Imperial · lb</option></select></SettingRow><SettingRow icon={<Timer size={18} />} title="Default rest timer" desc="Your preferred recovery window between sets"><select className="setting-select" value={restTimerSeconds} onChange={e => void persistUserSettings({ rest_timer_seconds: Number(e.target.value) })}><option value={45}>45 seconds</option><option value={60}>60 seconds</option><option value={75}>75 seconds</option><option value={90}>90 seconds</option><option value={120}>120 seconds</option></select></SettingRow></div>
-                <div className="panel settings-panel"><div className="section-head-small"><div><span className="micro-label">YOUR DATA</span><h3>On your device</h3></div><ShieldCheck size={18} /></div><div className="data-note"><div className="data-note-icon"><ShieldCheck size={19} /></div><div><strong>{account ? 'Account connected · sync in progress' : 'Your data, your control'}</strong><p>{account ? 'Your account is authenticated securely. New completed workouts sync to the cloud; older local-only history stays on this device and is not uploaded automatically.' : 'Your current session history, XP and streak stay on this device. Create an account to prepare for secure cloud sync.'}</p></div></div><button className="outline-button full-width" onClick={() => { const blob = new Blob([JSON.stringify({ sessions, xp, bonusXp, streak, personalRecords, customPlans, exportedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'ryu-progress.json'; a.click(); URL.revokeObjectURL(url); pushNotice('Export prepared', 'Your progress file was downloaded.', 'success'); }}><ArrowDownRight size={16} /> Export my progress</button><button className="danger-button full-width" onClick={() => { if (window.confirm('Reset all local Ryu progress? This cannot be undone.')) { setSessions([]); setXp(0); setStreak(0); setActive(false); setStartedAt(null); setElapsed(0); setExercises(starterExercises); pushNotice('Progress reset', 'Your local training history has been cleared.', 'info'); } }}><RotateCcw size={16} /> Reset local progress</button></div></div>
-              <div className="privacy-foot"><ShieldCheck size={15} /><span>Your local history stays on this device; signed-in workouts are also stored securely in your Ryu account.</span></div>
-            </motion.div>}
-          </AnimatePresence>
-        </section>
+                <label>EMAIL<input type="email" autoComplete="email" value={authEmail} onChange={event => setAuthEmail(event.target.value)} placeholder="you@example.com" required/></label>
+                <label>PASSWORD<div className="ryu-input-password"><input type={passwordVisible?'text':'password'} autoComplete={authMode==='signup'?'new-password':'current-password'} value={authPassword} onChange={event => setAuthPassword(event.target.value)} minLength={authMode==='signup'?12:undefined} placeholder={authMode==='signup'?'Create a strong password':'Your password'} required/><button type="button" onClick={() => setPasswordVisible(value=>!value)}>{passwordVisible?'Hide':'Show'}</button></div></label>
+                {authMode==='signup'&&<div className="ryu-password-check"><div><span>Password strength</span><strong>{authPassword?passwordStrengthLabel:'Not checked'}</strong></div><i><span style={{width:(passwordScore*20)+'%'}}/></i>{passwordCriteria.map(item=><small key={item.label} className={item.valid?'is-valid':''}>{item.valid?'✓':'○'} {item.label}</small>)}</div>}
+                {authError&&<p className="ryu-error" role="alert">{authError}</p>}
+                {authMessage&&<p className="ryu-success" role="status">{authMessage}</p>}
+                <button className="ryu-primary-button ryu-full-button" type="submit" disabled={authBusy||(authMode==='signup'&&(!usernameValid||!passwordStrong||usernameAvailability==='taken'||usernameAvailability==='checking'))}>{authBusy?'One sec…':authMode==='signup'?'Create account':'Sign in'} <ArrowRight size={15}/></button>
+                <button type="button" className="ryu-auth-switch" onClick={() => {setAuthMode(value=>value==='signin'?'signup':'signin');setAuthError('');setAuthMessage('');}}>{authMode==='signin'?'New to Ryu? Create an account':'Already have an account? Sign in'}</button>
+              </form>
+            </div>
+          </motion.div>}
+
+          {tab === 'profile' && <motion.div key="profile" className="ryu-screen" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+            <div className="ryu-page-intro"><span className="ryu-overline">YOUR SPACE</span><h1>Make it yours.</h1><p>Your pace. Your preferences. Your progress.</p></div>
+            <SpotlightCard className="ryu-profile-hero" radius={20} intensity={0.1}>
+              <div className="ryu-profile-identity"><span className="ryu-profile-avatar">{greetingName.slice(0,1).toUpperCase()}<i/></span><div><span className="ryu-overline">{account?'RYU CLOUD MEMBER':'RYU MEMBER'}</span><h2>{displayName || 'The journey is yours.'}</h2><p>{profileUsername?'@'+profileUsername:'Set your username'} · Level {level}</p></div></div>
+              <div className="ryu-profile-metrics"><div><strong>{xp.toLocaleString()}</strong><span>EXPERIENCE</span></div><div><strong>{sessions.length}</strong><span>SESSIONS</span></div><div><strong>{streak}</strong><span>DAY STREAK</span></div></div>
+            </SpotlightCard>
+            <section className="ryu-settings-section ryu-surface">
+              <div className="ryu-section-heading"><div><span className="ryu-overline">ACCOUNT</span><h2>{account?'You’re signed in':'Sync your progress'}</h2></div><ShieldCheck size={18}/></div>
+              {authLoading ? <p className="ryu-settings-note">Checking your secure session…</p> : account ? <>
+                <p className="ryu-settings-note">{account.email}</p><p className="ryu-settings-note">{profileUsername?'Your handle is @'+profileUsername:'Choose a username to finish your profile.'}</p>
+                {!profileUsername&&<form className="ryu-auth-form" onSubmit={event=>{event.preventDefault();void saveUsername();}}><label>USERNAME<div className="ryu-input-prefix"><span>@</span><input value={username} onChange={event=>setUsername(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,20))} minLength={3} maxLength={20} required/></div></label><button className="ryu-primary-button ryu-full-button" type="submit" disabled={profileBusy||!usernameValid}>{profileBusy?'Saving…':'Save username'} <ArrowRight size={15}/></button></form>}
+                {authError&&<p className="ryu-error">{authError}</p>}{authMessage&&<p className="ryu-success">{authMessage}</p>}
+                <button className="ryu-outline-button ryu-full-button" onClick={() => void signOut()}>Sign out <ArrowRight size={14}/></button>
+              </> : <><p className="ryu-settings-note">Your workouts stay on this device until you sign in. Create an account to sync new training sessions across devices.</p><button className="ryu-primary-button ryu-full-button" onClick={() => {setAuthMode('signin');setTab('auth');}}>Sign in or create account <ArrowRight size={15}/></button></>}
+            </section>
+            <section className="ryu-settings-section ryu-surface">
+              <div className="ryu-section-heading"><div><span className="ryu-overline">PREFERENCES</span><h2>Your experience</h2></div><Settings2 size={18}/></div>
+              <SettingRow icon={<Bell size={18}/>} title="Workout reminders" desc="Save this preference to your account"><Toggle checked={remindersOn} onClick={() => void persistUserSettings({reminders_enabled:!remindersOn})}/></SettingRow>
+              <SettingRow icon={<Activity size={18}/>} title="Sound feedback" desc="Keep feedback preference synced"><Toggle checked={soundOn} onClick={() => void persistUserSettings({sound_enabled:!soundOn})}/></SettingRow>
+              <SettingRow icon={<Gauge size={18}/>} title="Default routine" desc="Choose your starting plan"><select className="ryu-setting-select" value={selectedPlan} onChange={event=>void persistUserSettings({default_plan:event.target.value})}>{allPlans.map(plan=><option key={plan.id} value={plan.id}>{plan.name}</option>)}</select></SettingRow>
+              <SettingRow icon={<Gauge size={18}/>} title="Measurement units" desc="How loads are shown"><select className="ryu-setting-select" value={units} onChange={event=>void persistUserSettings({units:event.target.value as 'metric'|'imperial'})}><option value="metric">Metric · kg</option><option value="imperial">Imperial · lb</option></select></SettingRow>
+              <SettingRow icon={<Timer size={18}/>} title="Rest timer" desc="Default recovery between sets"><select className="ryu-setting-select" value={restTimerSeconds} onChange={event=>void persistUserSettings({rest_timer_seconds:Number(event.target.value)})}><option value={45}>45 seconds</option><option value={60}>60 seconds</option><option value={75}>75 seconds</option><option value={90}>90 seconds</option><option value={120}>120 seconds</option></select></SettingRow>
+            </section>
+            <section className="ryu-settings-section ryu-surface">
+              <div className="ryu-section-heading"><div><span className="ryu-overline">YOUR DATA</span><h2>Keep your record.</h2></div><ShieldCheck size={18}/></div>
+              <p className="ryu-settings-note">{account?'Your signed-in workouts, set records, routines and preferences are synced to your account.':'Your local workouts, XP and streak are stored on this device.'}</p>
+              <button className="ryu-outline-button ryu-full-button" onClick={() => {const blob=new Blob([JSON.stringify({sessions,xp,bonusXp,streak,personalRecords,customPlans,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ryu-progress.json';a.click();URL.revokeObjectURL(url);pushNotice('Export prepared','Your progress file was downloaded.','success');}}><ArrowDownRight size={15}/> Export my progress</button>
+              <button className="ryu-danger-button ryu-full-button" onClick={() => {if(window.confirm('Reset all local Ryu progress? This cannot be undone.')){setSessions([]);setXp(0);setStreak(0);setActive(false);setStartedAt(null);setElapsed(0);setExercises(starterExercises);pushNotice('Progress reset','Your local training history has been cleared.','info');}}}><RotateCcw size={15}/> Reset local progress</button>
+            </section>
+          </motion.div>}
+        </AnimatePresence>
       </main>
 
-      <nav className="mobile-nav" aria-label="Main navigation">{([{id:'home',icon:<Home size={19}/>,label:'Home'},{id:'train',icon:<Dumbbell size={19}/>,label:'Train'},{id:'progress',icon:<TrendingUp size={19}/>,label:'Progress'},{id:'discover',icon:<Sparkles size={19}/>,label:'Explore'},{id:'profile',icon:<Settings2 size={19}/>,label:'You'}] as {id:Tab;icon:ReactNode;label:string}[]).map(item => <button key={item.id} className={tab === item.id ? 'mobile-nav-item active' : 'mobile-nav-item'} onClick={() => setTab(item.id)}>{item.icon}<span>{item.label}</span></button>)}</nav>
+      <nav className="ryu-bottom-nav" aria-label="Main navigation">
+        <button className={tab==='home'?'is-active':''} onClick={() => setTab('home')}><Home size={19}/><span>Home</span></button>
+        <button className={tab==='train'?'is-active':''} onClick={() => setTab('train')}><Dumbbell size={19}/><span>Workout</span></button>
+        <button className={'ryu-bottom-center'+(tab==='progress'?' is-active':'')} onClick={() => setTab('progress')} aria-label="Progress"><TrendingUp size={21}/></button>
+        <button className={tab==='discover'?'is-active':''} onClick={() => setTab('discover')}><Sparkles size={19}/><span>Library</span></button>
+        <button className={tab==='profile'?'is-active':''} onClick={() => setTab('profile')}><UserRound size={19}/><span>Profile</span></button>
+      </nav>
 
       <AnimatePresence>
-        {notices.length > 0 && <motion.div className={`dynamic-island ${expandedNotice ? 'is-expanded' : ''} ${notices[0].kind}`} initial={{ opacity: 0, y: -22, scale: .92 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -16, scale: .96 }} transition={{ type: 'spring', stiffness: 420, damping: 30 }} onClick={() => setExpandedNotice(v => !v)} role="status" aria-live="polite">
-          <div className="island-main"><span className="island-symbol">{notices[0].kind === 'achievement' ? <Trophy size={17} /> : notices[0].kind === 'info' ? <Waves size={17} /> : <Check size={17} />}</span><div className="island-copy"><strong>{notices[0].title}</strong>{expandedNotice && <span>{notices[0].subtitle}</span>}</div><span className="island-count">{notices.length > 1 ? `+${notices.length - 1}` : <span className="island-live-dot" />}</span><button className="island-dismiss" aria-label="Dismiss notification" onClick={e => { e.stopPropagation(); setNotices(current => current.slice(1)); setExpandedNotice(false); }}><X size={14} /></button></div>
-          {expandedNotice && <div className="island-expanded-content"><p>{notices[0].subtitle}</p>{notices.length > 1 && <div className="island-queue">{notices.slice(1).map(n => <div key={n.id}><span>{n.kind === 'achievement' ? <Trophy size={14}/> : <Check size={14}/>}</span><div><strong>{n.title}</strong><small>{n.subtitle}</small></div></div>)}</div>}<button className="island-done" onClick={e => { e.stopPropagation(); setNotices([]); setExpandedNotice(false); }}>Clear notifications <X size={13} /></button></div>}
+        {notices.length > 0 && <motion.div className={'ryu-toast ' + (expandedNotice?'is-expanded':'')} initial={{opacity:0,y:-20,scale:.94}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:-12,scale:.96}} transition={{type:'spring',stiffness:420,damping:30}} onClick={() => setExpandedNotice(value=>!value)} role="status" aria-live="polite">
+          <span className="ryu-toast-icon">{notices[0].kind==='achievement'?<Trophy size={17}/>:notices[0].kind==='info'?<Waves size={17}/>:<Check size={17}/>}</span><div><strong>{notices[0].title}</strong>{expandedNotice&&<p>{notices[0].subtitle}</p>}</div><span className="ryu-toast-count">{notices.length>1?'+'+(notices.length-1):'•'}</span><button onClick={event=>{event.stopPropagation();setNotices(current=>current.slice(1));setExpandedNotice(false);}} aria-label="Dismiss notification"><X size={14}/></button>
         </motion.div>}
       </AnimatePresence>
 
-      <AnimatePresence>{showFinish && <motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFinish(false)}><motion.div className="finish-modal glass" initial={{ opacity: 0, y: 18, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12 }} onClick={e => e.stopPropagation()}><button className="modal-close" onClick={() => setShowFinish(false)} aria-label="Close"><X size={18} /></button><div className="modal-emblem"><Trophy size={26} /></div><span className="micro-label">CLOSE THE CHAPTER</span><h2>Finish this session?</h2><p>Your completed sets will be saved to your history and XP will be awarded based on the work logged.</p><div className="modal-summary"><div><strong>{completedSets}</strong><span>SETS</span></div><div><strong>{formatTime(elapsed)}</strong><span>DURATION</span></div><div><strong>{Math.max(20, completedSets * 8 + Math.round(elapsed / 60))}</strong><span>XP EARNED</span></div></div><button className="lime-button full-width" onClick={finishWorkout}><CheckCheck size={17} /> Finish & save workout</button><button className="cancel-link" onClick={() => setShowFinish(false)}>Keep training</button></motion.div></motion.div>}</AnimatePresence>
-      <footer className="app-footer"><span>RYU / TRAIN WITH INTENT</span><span>BUILT ONE REP AT A TIME <span className="footer-dot">●</span></span></footer>
+      <AnimatePresence>
+        {showFinish && <motion.div className="ryu-modal-backdrop" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={() => setShowFinish(false)}><motion.div className="ryu-finish-modal" initial={{opacity:0,y:20,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:12}} onClick={event=>event.stopPropagation()}><button className="ryu-modal-close" onClick={()=>setShowFinish(false)} aria-label="Close"><X size={18}/></button><span className="ryu-finish-icon"><Trophy size={24}/></span><span className="ryu-overline">CLOSE THE CHAPTER</span><h2>Finish this session?</h2><p>Your sets will be saved and your XP awarded from the work logged.</p><div className="ryu-finish-stats"><div><strong>{completedSets}</strong><small>SETS</small></div><div><strong>{formatTime(elapsed)}</strong><small>DURATION</small></div><div><strong>{Math.max(20,completedSets*8+Math.round(elapsed/60))}</strong><small>XP</small></div></div><button className="ryu-primary-button ryu-full-button" onClick={() => void finishWorkout()}><CheckCheck size={16}/> Finish & save workout</button><button className="ryu-modal-cancel" onClick={()=>setShowFinish(false)}>Keep training</button></motion.div></motion.div>}
+      </AnimatePresence>
+      <footer className="ryu-footer"><span>RYU / TRAIN WITH INTENT</span><span>ONE REP AT A TIME · EST. 2026</span></footer>
     </div>
   );
 }
+
 
 function NavButton({ icon, label, active, onClick }: { icon: ReactNode; label: string; active: boolean; onClick: () => void }) {
   return <button className={`side-nav-item ${active ? 'nav-active' : ''}`} onClick={onClick}>{icon}<span>{label}</span>{active && <span className="nav-active-mark" />}</button>;
