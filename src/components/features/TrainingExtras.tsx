@@ -1,3 +1,4 @@
+import './training-extras.css';
 import {
   Award, Check, Clock3, Flame, LockKeyhole, Sparkles, Target, Trophy, Zap,
 } from 'lucide-react';
