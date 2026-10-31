@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import {
   Activity, ArrowLeft, ArrowRight, CalendarDays, Check, CheckCircle2,
   ChevronDown, Clock3, Dumbbell, Flame, Footprints, HeartPulse, Leaf, Lock,
-  Plus, ShieldCheck, Sparkles, Target, Timer, Trophy, Utensils, WandSparkles,
+  Plus, ShieldCheck, Sparkles, Target, Timer, Trophy, Utensils, WandSparkles, Waves,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { supabase } from '../../lib/supabase';
@@ -781,7 +781,7 @@ function PlanOverview({
     <div className="ryu-personal-top"><span className="ryu-overline">RYU / YOUR PERSONAL BLUEPRINT</span><span className="ryu-plan-proposal"><Sparkles size={12}/> PLAN PROPOSAL</span></div>
     <SpotlightCard className="ryu-plan-hero" radius={22} intensity={0.16}>
       <div className="ryu-plan-hero__orbit"/>
-      <span className="ryu-overline"><ShinyText>BUILT FOR {(displayName.trim().split(/\\s+/)[0] || 'YOU').toUpperCase()}</ShinyText></span>
+      <span className="ryu-overline"><ShinyText>BUILT FOR {coachName.toUpperCase()}</ShinyText></span>
       <h1>{plan.overview.title || plan.title}</h1>
       <p>{plan.summary}</p>
       <div className="ryu-plan-hero__coach"><span><WandSparkles size={16}/></span><div><small>YOUR COACH SAYS</small><strong>{plan.overview.coach_message || 'Your plan is ready. Let’s make it yours.'}</strong></div></div>
