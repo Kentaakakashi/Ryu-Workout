@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import {
-  Activity, ArrowLeft, ArrowRight, Award, CalendarDays, Check, CheckCircle2,
+  Activity, ArrowLeft, ArrowRight, CalendarDays, Check, CheckCircle2,
   ChevronDown, Clock3, Dumbbell, Flame, Footprints, HeartPulse, Leaf, Lock,
-  Minus, Plus, ShieldCheck, Sparkles, Target, Timer, Trophy, Utensils, WandSparkles,
+  Plus, ShieldCheck, Sparkles, Target, Timer, Trophy, Utensils, WandSparkles,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { supabase } from '../../lib/supabase';
-import { FadeIn, ShinyText, SpotlightCard } from '../effects/ReactBits';
+import { ShinyText, SpotlightCard } from '../effects/ReactBits';
 import './personalization-flow.css';
 
 type Goal = 'build_muscle' | 'strength' | 'lose_fat' | 'recomposition' | 'athletic_fitness' | 'general_health';
@@ -14,7 +15,7 @@ type Equipment = 'bodyweight' | 'dumbbells' | 'resistance_bands' | 'pullup_bar' 
 type DayType = 'workout' | 'recovery' | 'rest';
 
 type FitnessProfile = {
-  age_years: number;
+  age_years: number | null;
   height_cm: number | null;
   weight_kg: number | null;
   sex_for_energy_estimate: 'female' | 'male' | 'prefer_not_to_say' | null;
@@ -147,7 +148,7 @@ const EXERCISES: { slug: string; name: string; equipment: Equipment[]; focus: st
 ];
 
 const INITIAL_PROFILE: FitnessProfile = {
-  age_years: 18,
+  age_years: null,
   height_cm: null,
   weight_kg: null,
   sex_for_energy_estimate: null,
@@ -170,7 +171,7 @@ const INITIAL_PROFILE: FitnessProfile = {
   profile_version: 1,
 };
 
-const GOALS: { value: Goal; title: string; description: string; icon: React.ReactNode }[] = [
+const GOALS: { value: Goal; title: string; description: string; icon: ReactNode }[] = [
   { value: 'build_muscle', title: 'Build muscle', description: 'Develop strength and muscle gradually', icon: <Dumbbell size={18} /> },
   { value: 'strength', title: 'Get stronger', description: 'Build foundational strength', icon: <Trophy size={18} /> },
   { value: 'recomposition', title: 'Build a balanced physique', description: 'Improve strength and overall fitness', icon: <Target size={18} /> },
@@ -248,7 +249,7 @@ export function PersonalizationFlow({
         return;
       }
       const savedProfile = profileResult.data
-        ? { ...INITIAL_PROFILE, ...profileResult.data, age_years: Number(profileResult.data.age_years ?? INITIAL_PROFILE.age_years) } as FitnessProfile
+        ? { ...INITIAL_PROFILE, ...profileResult.data, age_years: profileResult.data.age_years == null ? null : Number(profileResult.data.age_years) } as FitnessProfile
         : INITIAL_PROFILE;
       setProfile(savedProfile);
       setStep(Math.min(4, Number(savedProfile.onboarding_step ?? 0)));
@@ -301,7 +302,7 @@ export function PersonalizationFlow({
   async function moveStep(direction: -1 | 1) {
     if (saving) return;
     setError('');
-    if (direction === 1 && step === 0 && (!Number.isInteger(Number(profile.age_years)) || Number(profile.age_years) < 13 || Number(profile.age_years) > 110)) {
+    if (direction === 1 && step === 0 && (profile.age_years === null || !Number.isInteger(profile.age_years) || profile.age_years < 13 || profile.age_years > 110)) {
       setError('Enter your age so Ryu can use age-appropriate training and nutrition guidance.');
       return;
     }
@@ -585,7 +586,7 @@ export function PersonalizationFlow({
               <label><span>HEIGHT</span><div><input type="number" min="80" max="250" step="0.1" value={profile.height_cm ?? ''} onChange={event => updateProfile('height_cm', event.target.value ? Number(event.target.value) : null)} placeholder="165"/><b>cm</b></div></label>
               <label><span>WEIGHT</span><div><input type="number" min="20" max="400" step="0.1" value={profile.weight_kg ?? ''} onChange={event => updateProfile('weight_kg', event.target.value ? Number(event.target.value) : null)} placeholder="55"/><b>kg</b></div></label>
             </div>
-            {profile.age_years >= 18 && <div className="ryu-onboard-field"><label>Optional: which equation category should Ryu use for an adult energy estimate?</label><p>This is used only for a broad energy estimate, not for identity or access decisions.</p><div className="ryu-choice-row">{[{value:'female',label:'Female'},{value:'male',label:'Male'},{value:'prefer_not_to_say',label:'Prefer not to say'}].map(item=><button type="button" key={item.value} className={profile.sex_for_energy_estimate===item.value?'is-selected':''} onClick={()=>updateProfile('sex_for_energy_estimate',item.value as FitnessProfile['sex_for_energy_estimate'])}>{item.label}</button>)}</div></div>}
+            {profile.age_years !== null && profile.age_years >= 18 && <div className="ryu-onboard-field"><label>Optional: which equation category should Ryu use for an adult energy estimate?</label><p>This is used only for a broad energy estimate, not for identity or access decisions.</p><div className="ryu-choice-row">{[{value:'female',label:'Female'},{value:'male',label:'Male'},{value:'prefer_not_to_say',label:'Prefer not to say'}].map(item=><button type="button" key={item.value} className={profile.sex_for_energy_estimate===item.value?'is-selected':''} onClick={()=>updateProfile('sex_for_energy_estimate',item.value as FitnessProfile['sex_for_energy_estimate'])}>{item.label}</button>)}</div></div>}
             <div className="ryu-onboard-field"><label>How experienced are you with training?</label><div className="ryu-choice-stack">{[{value:'beginner',label:'Beginner',desc:'I'm new or returning after a break.'},{value:'some_experience',label:'Some experience',desc:'I know the basics and have trained before.'},{value:'experienced',label:'Experienced',desc:'I train consistently and know my movements.'}].map(item=><button type="button" key={item.value} className={profile.experience_level===item.value?'is-selected':''} onClick={()=>updateProfile('experience_level',item.value as FitnessProfile['experience_level'])}><strong>{item.label}</strong><small>{item.desc}</small></button>)}</div></div>
           </>}
 
@@ -616,7 +617,7 @@ export function PersonalizationFlow({
           {step === 4 && <>
             <span className="ryu-overline">05 / YOUR BLUEPRINT</span><h2>Here's what Ryu knows.</h2><p>Check these details. Your plan will be built around this information, not a generic template.</p>
             <div className="ryu-review-grid">
-              <div><small>AGE</small><strong>{profile.age_years} years</strong></div>
+              <div><small>AGE</small><strong>{profile.age_years === null ? 'Not supplied' : profile.age_years + ' years'}</strong></div>
               <div><small>GOAL</small><strong>{GOALS.find(item=>item.value===profile.primary_goal)?.title}</strong></div>
               <div><small>TIME</small><strong>{profile.session_minutes} min / session</strong></div>
               <div><small>EXPERIENCE</small><strong>{profile.experience_level.replace('_',' ')}</strong></div>
@@ -676,7 +677,7 @@ function PlanOverview({
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
   const [localError, setLocalError] = useState('');
   const weeklyTrainingDays = days.filter(day=>day.day_type!=='rest').length;
-  const isMinor = profile.age_years < 18;
+  const isMinor = profile.age_years !== null && profile.age_years < 18;
   const name = displayName.trim().split(/\s+/)[0] || 'Athlete';
 
   function updateDay(weekday: number, patch: Partial<PlanDay>) {
@@ -735,8 +736,8 @@ function PlanOverview({
       <div className="ryu-flow-section-head"><div><span className="ryu-overline">YOUR STARTING POINT</span><h2>The numbers behind your plan.</h2><p>A clear read on the information you shared.</p></div><button type="button" onClick={onEditAnswers}>Edit profile</button></div>
       <div className="ryu-assessment-metrics">
         <div><span>AGE</span><strong>{profile.age_years}<small> yrs</small></strong><i>Training context</i></div>
-        <div><span>HEIGHT</span><strong>{profile.height_cm ? profile.height_cm+'<small> cm</small>' : '—'}</strong><i>{profile.height_cm?'Profile measurement':'Not supplied'}</i></div>
-        <div><span>WEIGHT</span><strong>{profile.weight_kg ? profile.weight_kg+'<small> kg</small>' : '—'}</strong><i>{profile.weight_kg?'Profile measurement':'Not supplied'}</i></div>
+        <div><span>HEIGHT</span><strong>{profile.height_cm ? <>{profile.height_cm}<small> cm</small></> : '—'}</strong><i>{profile.height_cm?'Profile measurement':'Not supplied'}</i></div>
+        <div><span>WEIGHT</span><strong>{profile.weight_kg ? <>{profile.weight_kg}<small> kg</small></> : '—'}</strong><i>{profile.weight_kg?'Profile measurement':'Not supplied'}</i></div>
       </div>
       <SpotlightCard className={'ryu-body-assessment '+(plan.body_assessment.mode==='growth_context'?'is-growth':'')} radius={17} intensity={0.09}>
         <span className="ryu-body-assessment__icon"><HeartPulse size={20}/></span>
