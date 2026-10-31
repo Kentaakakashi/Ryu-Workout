@@ -274,6 +274,9 @@ export default function App() {
             level: 'CUSTOM',
             exercises: (Array.isArray(row.exercises) ? row.exercises as Exercise[] : []).map(exercise => ({ ...exercise, done: 0, setLogs: [] })),
           }));
+        } else if (!cancelled && insertError) {
+          pushNotice('Local routines kept', 'Ryu could not sync every offline routine yet. They remain on this device.', 'info', 3);
+          syncedPlans = localPlans;
         }
       }
       if (!cancelled) setCustomPlans([...syncedPlans, ...remotePlans]);
