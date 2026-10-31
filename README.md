@@ -65,8 +65,11 @@ For a different Supabase project, copy `.env.example` to `.env` and set `VITE_SU
 
 ## Design references
 
+- [Magic UI Animated Circular Progress Bar](https://magicui.design/docs/components/animated-circular-progress-bar) — adapted as Ryu's animated level ring.
+- [Magic UI Number Ticker](https://magicui.design/docs/components/number-ticker) — adapted for the lifetime XP counter.
+- [Magic UI Magic Card](https://magicui.design/docs/components/magic-card) — adapted for the pointer-following border and spotlight on the RPG card.
 - [Aceternity Liquid Glass](https://ui.aceternity.com/components/liquid-glass)
 - [Nyxhora Dynamic Island](https://ui.nyxhora.com/docs/components/dynamic-island)
 - [Capacitor](https://capacitorjs.com/docs)
 
-The visual components are adapted into the app's own design system rather than imported as a full prebuilt dashboard.
+The component patterns are adapted to Ryu's own vanilla-CSS design system and mobile layout; Ryu does not install a prebuilt dashboard or require Tailwind for these components. Magic UI is MIT-licensed; attribution and the license text are included in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
