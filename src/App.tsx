@@ -10,7 +10,7 @@ import { RpgProgression } from './components/rpg/RpgProgression';
 import {
   Activity, ArrowDownRight, ArrowRight, Award, Bell, Check, CheckCheck,
   ChevronRight, Clock3, Dumbbell, Flame, Footprints, Gauge,
-  Home, Leaf, MoreHorizontal, Pause, Play, Plus, RotateCcw, Settings2,
+  Home, Leaf, Pause, Play, Plus, RotateCcw, Settings2,
   ShieldCheck, Sparkles, Target, Timer, Trophy, TrendingUp, Waves, X, Zap
 } from 'lucide-react';
 
