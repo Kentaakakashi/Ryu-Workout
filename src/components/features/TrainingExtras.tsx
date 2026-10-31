@@ -1,6 +1,6 @@
 import './training-extras.css';
 import {
-  Award, Check, Clock3, Flame, LockKeyhole, Sparkles, Target, Trophy, Zap,
+  Award, Check, Clock3, Flame, LockKeyhole, Target, Trophy, Zap,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ClickSpark, CountUp, FadeIn, ShinyText, SpotlightCard } from '../effects/ReactBits';
