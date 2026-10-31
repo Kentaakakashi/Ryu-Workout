@@ -823,11 +823,11 @@ export default function App() {
             {tab === 'home' && <motion.div key="home" className="page" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: .22 }}>
               <div className="eyebrow"><span className="live-dot" /> YOUR TRAINING SPACE <span className="eyebrow-line" /> <span>VOL. 01</span></div>
               <div className="hero-heading">
-                <div><p className="kicker">THE WORK IS THE REWARD.</p><h1>Build a body.<br /><span>Build a habit.</span></h1></div>
+                <div><p className="kicker"><ShinyText>THE WORK IS THE REWARD.</ShinyText></p><h1>Build a body.<br /><span>Build a habit.</span></h1></div>
                 <div className="hero-aside"><span className="aside-number">{String(sessions.length + 1).padStart(2, '0')}</span><span className="aside-caption">NEXT CHAPTER<br />STARTS HERE</span></div>
               </div>
               <div className="hero-grid">
-                <div className="hero-panel">
+                <SpotlightCard className="home-spotlight" radius={12} intensity={0.1}><div className="hero-panel">
                   <div className="hero-panel-top"><span className="micro-label">TODAY'S FOCUS</span><span className="pill-outline"><span className="pill-dot" /> READY WHEN YOU ARE</span></div>
                   <div className="hero-art" aria-hidden="true">
                     <div className="orbit orbit-a" /><div className="orbit orbit-b" /><div className="orbit orbit-c" />
@@ -835,16 +835,16 @@ export default function App() {
                     <div className="hero-art-label">STRENGTH<br /><span>IS BUILT QUIETLY.</span></div>
                   </div>
                   <div className="hero-panel-bottom"><div><h2>Full body foundation</h2><p>Simple movements. Serious consistency.</p></div><button className="round-arrow" onClick={() => startWorkout('foundation')} aria-label="Start today's workout"><ArrowRight size={22} /></button></div>
-                </div>
+                </div></SpotlightCard>
                 <RpgProgression variant="home" xp={xp} sessionsCount={sessions.length} totalSets={totalLoggedSets} totalMinutes={totalMinutes} streak={streak} />
               </div>
               <DailyQuestBoard quests={dailyQuests} claimedKeys={claimedQuestKeys} onClaim={quest => void claimDailyQuest(quest)} />
               <div className="section-heading"><div><span className="micro-label">THE NEXT REP</span><h2>Make today count.</h2></div><button className="text-action" onClick={() => setTab('discover')}>Explore plans <ArrowRight size={15} /></button></div>
-              <div className="stats-strip">
+              <FadeIn className="home-stats-reveal"><div className="stats-strip">
                 <Stat icon={<Target size={17} />} label="WEEKLY TARGET" value={`${Math.min(weeklyCount, 4)} / 4`} note="sessions completed" />
                 <Stat icon={<Clock3 size={17} />} label="TIME INVESTED" value={`${totalMinutes}m`} note="across all sessions" />
-                <Stat icon={<Trophy size={17} />} label="TOTAL SETS" value={String(sessions.reduce((s, x) => s + x.sets, 0))} note="logged with intent" />
-              </div>
+                <Stat icon={<Trophy size={17} />} label="TOTAL SETS" value={String(totalLoggedSets)} note="logged with intent" />
+              </div></FadeIn>
               <div className="bottom-grid">
                 <div className="panel recent-panel"><div className="section-head-small"><div><span className="micro-label">YOUR HISTORY</span><h3>Recent sessions</h3></div><button className="subtle-link" onClick={() => setTab('progress')}>View all <ArrowRight size={14} /></button></div>
                   {recent.length ? recent.map(s => <div className="session-row" key={s.id}><div className="session-icon"><Check size={17} /></div><div className="session-info"><strong>{s.title}</strong><span>{dateLabel(s.date)} · {s.sets} sets</span></div><div className="session-xp">+{s.xp} XP</div></div>) : <div className="empty-history"><span className="empty-icon"><Activity size={19} /></span><p>Your first chapter is unwritten.</p><span>Finish a session and it will live here.</span></div>}
