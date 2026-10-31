@@ -1,4 +1,3 @@
-import './components/features/app-polish.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import { App as CapacitorApp } from '@capacitor/app';
