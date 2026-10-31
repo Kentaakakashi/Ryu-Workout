@@ -214,6 +214,7 @@ export default function App() {
   }, [notices, expandedNotice]);
 
   const completedSets = exercises.reduce((sum, item) => sum + item.done, 0);
+  const level = Math.floor(xp / 250) + 1;
   const totalSets = exercises.reduce((sum, item) => sum + item.target, 0);
   const totalLoggedSets = sessions.reduce((sum, session) => sum + session.sets, 0);
   const recent = sessions.slice(0, 4);
