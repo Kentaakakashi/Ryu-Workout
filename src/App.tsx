@@ -30,6 +30,10 @@ const plans = [
   { id: 'legs', name: 'Leg day, no excuses', sub: 'Control, range and steady strength', time: '22 MIN', level: 'FOUNDATION', exercises: [starterExercises[1], starterExercises[3], { id: 'bridge', name: 'Glute bridges', detail: 'Glutes · Hamstrings', target: 3, unit: 'sets', rest: 45, done: 0 }] },
 ];
 
+function nextLevelTitle(level: number) {
+  return level >= 40 ? 'Legend' : level >= 20 ? 'Ascendant' : level >= 10 ? 'Vanguard' : level >= 5 ? 'Disciple' : level >= 3 ? 'Initiate' : 'Novice';
+}
+
 const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
 const dateLabel = (iso: string) => new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
@@ -212,6 +216,13 @@ export default function App() {
   const totalSets = exercises.reduce((sum, item) => sum + item.target, 0);
   const level = Math.floor(xp / 250) + 1;
   const levelProgress = (xp % 250) / 250 * 100;
+  const totalSetsLogged = sessions.reduce((sum, session) => sum + session.sets, 0);
+  const title = level >= 40 ? 'Legend' : level >= 20 ? 'Ascendant' : level >= 10 ? 'Vanguard' : level >= 5 ? 'Disciple' : level >= 3 ? 'Initiate' : 'Novice';
+  const nextTitle = level < 3 ? 'Initiate' : level < 5 ? 'Disciple' : level < 10 ? 'Vanguard' : level < 20 ? 'Ascendant' : level < 40 ? 'Legend' : 'Legend';
+  const strengthStat = Math.min(100, Math.round(totalSetsLogged / 2));
+  const enduranceStat = Math.min(100, Math.round(totalMinutes / 5));
+  const disciplineStat = Math.min(100, sessions.length * 5);
+  const consistencyStat = Math.min(100, streak * 12);
   const recent = sessions.slice(0, 4);
   const weeklyCount = useMemo(() => sessions.filter(s => Date.now() - new Date(s.date).getTime() < 7 * 86400000).length, [sessions]);
   const totalMinutes = Math.round(sessions.reduce((sum, s) => sum + s.duration, 0) / 60);
@@ -341,6 +352,8 @@ export default function App() {
       return;
     }
     const earned = 20 + completedSets * 8 + Math.round(elapsed / 60);
+    const previousLevel = Math.floor(xp / 250) + 1;
+    const nextLevel = Math.floor((xp + earned) / 250) + 1;
     const record: Session = { id: String(Date.now()), title: workoutName, date: new Date().toISOString(), duration: elapsed, xp: earned, sets: completedSets };
     setSessions(current => [record, ...current]);
     setXp(current => current + earned);
@@ -387,6 +400,9 @@ export default function App() {
     setActive(false);
     setShowFinish(false);
     setRestLeft(0);
+    if (nextLevel > previousLevel) {
+      pushNotice('LEVEL UP · ' + nextLevel, `You reached ${nextLevelTitle(nextLevel)}. Keep earning your next form.`, 'achievement', 7);
+    }
     pushNotice('Workout complete', `+${earned} XP · ${completedSets} sets logged`, 'achievement', 5);
     if (sessions.length === 0) window.setTimeout(() => pushNotice('Achievement unlocked', 'First session. The journey starts here.', 'achievement', 6), 700);
     setTab('progress');
@@ -469,6 +485,15 @@ export default function App() {
                   <div className="mini-stat-row"><div><span>SESSIONS</span><strong>{sessions.length}</strong></div><div><span>THIS WEEK</span><strong>{weeklyCount}<small> / 4</small></strong></div></div>
                 </div>
               </div>
+              <section className="rpg-card" aria-label="Character progression">
+                <div className="rpg-card-heading"><div><span className="micro-label">YOUR CHARACTER</span><h2>{title}</h2><p>Level {level} · {xp.toLocaleString()} lifetime XP</p></div><div className="rpg-rank-mark"><Trophy size={22} /><span>RANK</span></div></div>
+                <div className="rpg-xp-meta"><span>LEVEL {level}</span><span>{Math.max(0, 250 - (xp % 250))} XP TO LEVEL {level + 1}</span></div>
+                <div className="rpg-xp-track" role="progressbar" aria-label="Progress to next level" aria-valuenow={Math.round(levelProgress)} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${levelProgress}%` }} /></div>
+                <div className="rpg-stats-grid">
+                  {[{ label: 'STRENGTH', value: strengthStat, note: `${totalSetsLogged} sets logged` }, { label: 'ENDURANCE', value: enduranceStat, note: `${totalMinutes} training minutes` }, { label: 'DISCIPLINE', value: disciplineStat, note: `${sessions.length} sessions cleared` }, { label: 'CONSISTENCY', value: consistencyStat, note: `${streak} day streak` }].map(stat => <div className="rpg-stat" key={stat.label}><div><span>{stat.label}</span><strong>{stat.value}</strong></div><div className="rpg-stat-track"><span style={{ width: `${stat.value}%` }} /></div><small>{stat.note}</small></div>)}
+                </div>
+                <div className="rpg-card-footer"><span><Sparkles size={14} /> NEXT TITLE</span><strong>{level >= 40 ? 'Maximum title reached' : nextTitle}</strong><span className="rpg-footer-note">Stats grow as you train. No paywalls, no fake power.</span></div>
+              </section>
               <div className="section-heading"><div><span className="micro-label">THE NEXT REP</span><h2>Make today count.</h2></div><button className="text-action" onClick={() => setTab('discover')}>Explore plans <ArrowRight size={15} /></button></div>
               <div className="stats-strip">
                 <Stat icon={<Target size={17} />} label="WEEKLY TARGET" value={`${Math.min(weeklyCount, 4)} / 4`} note="sessions completed" />
@@ -497,6 +522,12 @@ export default function App() {
             {tab === 'progress' && <motion.div key="progress" className="page" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: .22 }}>
               <div className="eyebrow"><span className="live-dot" /> THE LONG GAME <span className="eyebrow-line" /> <span>YOUR RECORD</span></div><div className="page-title-row"><div><p className="kicker">PROOF OF YOUR WORK.</p><h1>Look how far.</h1><p className="page-subtitle">Every session counts. This is your progress, not somebody else's.</p></div><div className="progress-stamp"><Trophy size={22} /><span>RYU<br />RECORD</span></div></div>
               <div className="stats-strip progress-stats"><Stat icon={<Dumbbell size={17} />} label="SESSIONS" value={String(sessions.length)} note="completed" /><Stat icon={<Clock3 size={17} />} label="TRAINING TIME" value={`${totalMinutes}m`} note="total logged" /><Stat icon={<Zap size={17} />} label="EXPERIENCE" value={xp.toLocaleString()} note="lifetime XP" /></div>
+              <section className="rpg-card rpg-progress-card" aria-label="RPG character stats">
+                <div className="rpg-card-heading"><div><span className="micro-label">CHARACTER SHEET</span><h2>{title} <span className="rpg-level-inline">LVL {level}</span></h2><p>{Math.max(0, 250 - (xp % 250))} XP until your next level · {nextTitle} is your next title milestone</p></div><div className="rpg-rank-mark"><Award size={22} /><span>EVOLUTION</span></div></div>
+                <div className="rpg-stats-grid">
+                  {[{ label: 'STRENGTH', value: strengthStat, note: `${totalSetsLogged} total sets` }, { label: 'ENDURANCE', value: enduranceStat, note: `${totalMinutes} total minutes` }, { label: 'DISCIPLINE', value: disciplineStat, note: `${sessions.length} completed sessions` }, { label: 'CONSISTENCY', value: consistencyStat, note: `${streak} day streak` }].map(stat => <div className="rpg-stat" key={stat.label}><div><span>{stat.label}</span><strong>{stat.value}<small>/100</small></strong></div><div className="rpg-stat-track"><span style={{ width: `${stat.value}%` }} /></div><small>{stat.note}</small></div>)}
+                </div>
+              </section>
               <div className="progress-layout"><div className="panel progress-chart-panel"><div className="section-head-small"><div><span className="micro-label">WEEKLY CONSISTENCY</span><h3>Show up, again.</h3></div><span className="chart-range">LAST 7 DAYS</span></div><div className="week-bars">{['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => { const now = new Date(); const monday = (now.getDay() + 6) % 7; const d = new Date(now); d.setDate(now.getDate() - monday + i); const count = sessions.filter(s => new Date(s.date).toDateString() === d.toDateString()).length; return <div className="week-day" key={day + i}><div className="bar-track"><motion.span initial={{ height: 0 }} animate={{ height: count ? '100%' : '8%' }} transition={{ duration: .6, delay: i * .04 }} className={count ? 'bar-filled' : ''} /></div><span className={d.toDateString() === now.toDateString() ? 'today-label' : ''}>{day}</span></div>; })}</div><div className="chart-legend"><span className="legend-dot" /> Completed sessions <span className="legend-muted">· one bar per day</span></div></div>
                 <div className="panel achievement-panel"><div className="section-head-small"><div><span className="micro-label">MILESTONES</span><h3>Earned, not given.</h3></div><Award size={19} /></div>{[{title:'First steps', desc:'Complete your first workout', earned:sessions.length >= 1, icon:<Footprints size={18} />},{title:'In the rhythm', desc:'Complete 5 workouts', earned:sessions.length >= 5, icon:<Flame size={18} />},{title:'Century club', desc:'Log 100 sets', earned:sessions.reduce((s,x)=>s+x.sets,0) >= 100, icon:<Trophy size={18} />}].map(a => <div className={`achievement-row ${a.earned ? 'achievement-earned' : ''}`} key={a.title}><span className="achievement-icon">{a.earned ? <Check size={17} /> : a.icon}</span><div><strong>{a.title}</strong><span>{a.desc}</span></div><span className="achievement-status">{a.earned ? 'EARNED' : 'LOCKED'}</span></div>)}</div></div>
               <div className="panel history-panel"><div className="section-head-small"><div><span className="micro-label">THE ARCHIVE</span><h3>Session history</h3></div><span className="chart-range">{sessions.length} RECORDS</span></div>{sessions.length ? sessions.map(s => <div className="history-row" key={s.id}><div className="history-date"><strong>{new Date(s.date).getDate()}</strong><span>{new Date(s.date).toLocaleDateString(undefined,{month:'short'})}</span></div><div className="history-details"><strong>{s.title}</strong><span>{dateLabel(s.date)} · {formatTime(s.duration)} · {s.sets} sets</span></div><div className="history-reward">+{s.xp} XP</div></div>) : <div className="empty-history wide"><span className="empty-icon"><TrendingUp size={19} /></span><p>Your progress begins with one session.</p><span>Finish a workout and your real history will appear here.</span><button className="text-action" onClick={() => setTab('train')}>Start training <ArrowRight size={15} /></button></div>}</div>
