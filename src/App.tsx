@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './lib/supabase';
 import { RpgProgression } from './components/rpg/RpgProgression';
+import { PersonalizationFlow } from './components/onboarding/PersonalizationFlow';
 import { ClickSpark, SpotlightCard } from './components/effects/ReactBits';
 import { DailyQuestBoard, PersonalRecordBoard, type DailyQuest, type PersonalRecord } from './components/features/TrainingExtras';
 import {
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react';
 
 type Tab = 'home' | 'train' | 'progress' | 'discover' | 'meals' | 'profile' | 'auth';
+type AppAccess = 'signed_out' | 'checking' | 'profile_required' | 'onboarding' | 'active';
 type ExerciseLog = { value: number; unit: 'REPS' | 'SEC'; loadKg: number | null; completedAt: string };
 type Exercise = { id: string; name: string; detail: string; target: number; unit: string; rest: number; done: number; repTarget?: number; loadKg?: number; measure?: 'reps' | 'seconds'; setLogs?: ExerciseLog[] };
 type WorkoutPlan = { id: string; name: string; sub: string; time: string; level: string; exercises: Exercise[]; description?: string };
@@ -85,7 +87,8 @@ function readStore<T>(key: string, fallback: T): T {
 }
 
 export default function App() {
-  const [tab, setTab] = useState<Tab>('home');
+  const [tab, setTab] = useState<Tab>('auth');
+  const [appAccess, setAppAccess] = useState<AppAccess>('checking');
   const [account, setAccount] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [authBusy, setAuthBusy] = useState(false);
@@ -174,6 +177,43 @@ export default function App() {
     }).then(handle => { removeListener = () => { void handle.remove(); }; });
     return () => removeListener?.();
   }, []);
+  useEffect(() => {
+    if (!account) {
+      setAppAccess('signed_out');
+      setTab('auth');
+      return;
+    }
+    if (!profileUsername) {
+      setAppAccess('profile_required');
+      setTab('profile');
+      return;
+    }
+    let cancelled = false;
+    setAppAccess('checking');
+    (async () => {
+      const { data, error } = await supabase
+        .from('training_plans')
+        .select('id')
+        .eq('user_id', account.id)
+        .eq('status', 'active')
+        .limit(1)
+        .maybeSingle();
+      if (cancelled) return;
+      if (error) {
+        setAuthError('Your account is connected, but your active training plan could not be checked. Please retry.');
+        setAppAccess('checking');
+        return;
+      }
+      if (data) {
+        setAppAccess('active');
+        if (tab === 'auth') setTab('home');
+      } else {
+        setAppAccess('onboarding');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [account?.id, profileUsername]);
+
   useEffect(() => {
     if (!account) { setProfileUsername(''); return; }
     let cancelled = false;
@@ -817,14 +857,23 @@ export default function App() {
           <span className="ryu-brand-mark"><Waves size={20} strokeWidth={2.5} /></span>
           <span><strong>RYU<span>.</span></strong><small>TRAIN WITH INTENT</small></span>
         </button>
-        <div className="ryu-header-actions">
+        {appAccess === 'active' && <div className="ryu-header-actions">
           <div className="ryu-streak"><Flame size={15} fill="currentColor" /><strong>{streak}</strong><span>DAY STREAK</span></div>
           <button className="ryu-icon-btn" aria-label="Notifications" onClick={() => pushNotice('You’re on track', 'Small sessions build strong habits.', 'info')}><Bell size={18} /></button>
           <button className="ryu-avatar" onClick={() => setTab('profile')} aria-label="Open profile">{greetingName.slice(0, 1).toUpperCase()}<i /></button>
-        </div>
+        </div>}
       </header>
 
       <main className="ryu-main">
+        {account && appAccess === 'onboarding' ? (
+          <PersonalizationFlow
+            userId={account.id}
+            displayName={displayName || greetingName}
+            onApproved={() => { setAppAccess('active'); setTab('home'); pushNotice('Your Ryu plan is active', 'Your personalised training and nutrition blueprint is ready.', 'achievement', 6); }}
+          />
+        ) : account && appAccess === 'checking' ? (
+          <div className="ryu-personalization-loading"><span className="ryu-ai-orb"><ShieldCheck size={25} /></span><p>Checking your Ryu training plan…</p></div>
+        ) : (
         <AnimatePresence mode="wait">
           {tab === 'home' && <motion.div key="home" className="ryu-screen" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: .24 }}>
             <div className="ryu-greeting">
@@ -1075,15 +1124,16 @@ export default function App() {
             </section>
           </motion.div>}
         </AnimatePresence>
+        )}
       </main>
 
-      <nav className="ryu-bottom-nav" aria-label="Main navigation">
+      {appAccess === 'active' && <nav className="ryu-bottom-nav" aria-label="Main navigation">
         <button className={tab==='home'?'is-active':''} onClick={() => setTab('home')}><Home size={19}/><span>Home</span></button>
         <button className={tab==='train'?'is-active':''} onClick={() => setTab('train')}><Dumbbell size={19}/><span>Workout</span></button>
         <button className={'ryu-bottom-center'+(tab==='progress'?' is-active':'')} onClick={() => setTab('progress')} aria-label="Progress"><TrendingUp size={21}/></button>
         <button className={tab==='meals'?'is-active':''} onClick={() => setTab('meals')}><Utensils size={19}/><span>Meals</span></button>
         <button className={tab==='profile'?'is-active':''} onClick={() => setTab('profile')}><UserRound size={19}/><span>Profile</span></button>
-      </nav>
+      </nav>}
 
       <AnimatePresence>
         {notices.length > 0 && <motion.div className={'ryu-toast ' + (expandedNotice?'is-expanded':'')} initial={{opacity:0,y:-20,scale:.94}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:-12,scale:.96}} transition={{type:'spring',stiffness:420,damping:30}} onClick={() => setExpandedNotice(value=>!value)} role="status" aria-live="polite">
