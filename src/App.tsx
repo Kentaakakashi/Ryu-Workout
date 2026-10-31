@@ -7,13 +7,13 @@ import { AnimatePresence, motion } from 'motion/react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './lib/supabase';
 import { RpgProgression } from './components/rpg/RpgProgression';
-import { ClickSpark, FadeIn, ShinyText, SpotlightCard, TiltedCard } from './components/effects/ReactBits';
+import { ClickSpark, SpotlightCard } from './components/effects/ReactBits';
 import { DailyQuestBoard, PersonalRecordBoard, type DailyQuest, type PersonalRecord } from './components/features/TrainingExtras';
 import {
   Activity, ArrowDownRight, ArrowRight, Award, Bell, Check, CheckCheck,
-  ChevronRight, Clock3, Dumbbell, Flame, Footprints, Gauge, ArrowUpRight, UserRound,
-  Home, Leaf, Pause, Play, Plus, RotateCcw, Settings2,
-  ShieldCheck, Sparkles, Target, Timer, Trophy, TrendingUp, Waves, X, Zap
+  Clock3, Dumbbell, Flame, Footprints, Gauge, ArrowUpRight, UserRound,
+  Home, Pause, Play, Plus, RotateCcw, Settings2,
+  ShieldCheck, Sparkles, Timer, Trophy, TrendingUp, Waves, X, Zap
 } from 'lucide-react';
 
 type Tab = 'home' | 'train' | 'progress' | 'discover' | 'profile' | 'auth';
@@ -1062,12 +1062,6 @@ export default function App() {
 }
 
 
-function NavButton({ icon, label, active, onClick }: { icon: ReactNode; label: string; active: boolean; onClick: () => void }) {
-  return <button className={`side-nav-item ${active ? 'nav-active' : ''}`} onClick={onClick}>{icon}<span>{label}</span>{active && <span className="nav-active-mark" />}</button>;
-}
-function Stat({ icon, label, value, note }: { icon: ReactNode; label: string; value: string; note: string }) {
-  return <div className="stat-item"><span className="stat-icon">{icon}</span><div className="stat-copy"><span className="micro-label">{label}</span><strong>{value}</strong><small>{note}</small></div></div>;
-}
 function SettingRow({ icon, title, desc, children }: { icon: ReactNode; title: string; desc: string; children: ReactNode }) {
   return <div className="setting-row"><span className="setting-icon">{icon}</span><div className="setting-copy"><strong>{title}</strong><span>{desc}</span></div>{children}</div>;
 }
