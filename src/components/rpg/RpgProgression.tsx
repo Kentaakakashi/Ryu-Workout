@@ -181,7 +181,50 @@ export function RpgProgression({
       caption: streak >= 14 ? 'Two-week streak cleared' : `${Math.max(0, 14 - streak)} days to two-week streak`,
     },
   ];
-  const headline = variant === 'home' ? 'Built by every rep.' : 'The long game.';
+  if (variant === 'home') {
+    return (
+      <div className="ryu-rpg ryu-rpg--home">
+        <RyuMagicCard variant="home">
+          <div className="ryu-rpg__content ryu-rpg__content--compact">
+            <div className="ryu-rpg__topline">
+              <span className="ryu-rpg__system-label">PLAYER FILE / 001</span>
+              <span className="ryu-rpg__live"><span className="ryu-rpg__live-dot" /> ONLINE</span>
+            </div>
+            <div className="ryu-rpg__compact-hero">
+              <div className="ryu-rpg__compact-identity">
+                <span className="ryu-rpg__rank-pill"><Crown size={12} /> {currentRank.title}</span>
+                <h2>LEVEL <span>{String(level).padStart(2, '0')}</span></h2>
+                <p>{nextRank
+                  ? `${xpToNextRank.toLocaleString()} XP to ${nextRank.title}`
+                  : 'Highest title unlocked.'}</p>
+              </div>
+              <RyuLevelRing level={level} progress={levelProgress} />
+            </div>
+            <div className="ryu-rpg__xp-panel ryu-rpg__xp-panel--compact">
+              <div className="ryu-rpg__xp-total">
+                <small>LIFETIME EXPERIENCE</small>
+                <strong><NumberTicker value={safeXp} /> <em>XP</em></strong>
+              </div>
+              <div>
+                <div className="ryu-rpg__xp-detail"><span>LEVEL {level}</span><strong>{xpInLevel} / {LEVEL_XP}</strong></div>
+                <div className="ryu-rpg__xp-track" role="progressbar" aria-label="Experience toward next level" aria-valuemin={0} aria-valuemax={LEVEL_XP} aria-valuenow={xpInLevel}>
+                  <motion.div className="ryu-rpg__xp-fill" initial={{ width: 0 }} animate={{ width: `${levelProgress}%` }} transition={{ duration: .9, ease: [0.22, 1, 0.36, 1] }} />
+                </div>
+                <div className="ryu-rpg__xp-foot"><span>{xpToNextLevel} XP to next level</span><span>LVL {level + 1}</span></div>
+              </div>
+            </div>
+            <div className="ryu-rpg__compact-stats">
+              <div><span>SESSIONS</span><strong>{sessionsCount}</strong></div>
+              <div><span>SETS LOGGED</span><strong>{totalSets.toLocaleString()}</strong></div>
+              <div><span>STREAK</span><strong>{streak}<small>D</small></strong></div>
+            </div>
+          </div>
+        </RyuMagicCard>
+      </div>
+    );
+  }
+
+    const headline = variant === 'home' ? 'Built by every rep.' : 'The long game.';
   const topline = variant === 'home' ? 'CHARACTER SYSTEM / PLAYER FILE 001' : 'CHARACTER ARCHIVE / EVOLUTION LOG';
 
   return (
