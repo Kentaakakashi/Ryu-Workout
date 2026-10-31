@@ -46,6 +46,33 @@ const plans = [
   { id: 'legs', name: 'Leg day, no excuses', sub: 'Control, range and steady strength', time: '22 MIN', level: 'FOUNDATION', exercises: [starterExercises[1], starterExercises[3], { id: 'bridge', name: 'Glute bridges', detail: 'Glutes · Hamstrings', target: 3, unit: 'sets', rest: 45, done: 0 }] },
 ];
 
+function localDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function mergePersonalRecords(current: PersonalRecord[], incoming: PersonalRecord[]) {
+  const records = new Map(current.map(record => [record.exerciseId, record]));
+  incoming.forEach(candidate => {
+    const previous = records.get(candidate.exerciseId);
+    if (!previous || previous.unit !== candidate.unit) {
+      records.set(candidate.exerciseId, candidate);
+      return;
+    }
+    const candidateLoad = candidate.loadKg ?? 0;
+    const previousLoad = previous.loadKg ?? 0;
+    if (candidateLoad > previousLoad || (candidateLoad === previousLoad && candidate.value > previous.value)) {
+      records.set(candidate.exerciseId, candidate);
+    }
+  });
+  return [...records.values()].sort((a, b) => {
+    const byLoad = (b.loadKg ?? 0) - (a.loadKg ?? 0);
+    return byLoad || b.value - a.value;
+  });
+}
+
 function nextLevelTitle(level: number) {
   return level >= 40 ? 'Legend' : level >= 20 ? 'Ascendant' : level >= 10 ? 'Vanguard' : level >= 5 ? 'Disciple' : level >= 3 ? 'Initiate' : 'Novice';
 }
@@ -82,7 +109,7 @@ export default function App() {
   const [planSaving, setPlanSaving] = useState(false);
   const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>(() => readStore('ryu.personalRecords', []));
   const [bonusXp, setBonusXp] = useState(0);
-  const todayQuestKey = new Date().toLocaleDateString('en-CA');
+  const todayQuestKey = localDateKey(new Date());
   const [claimedQuestKeys, setClaimedQuestKeys] = useState<string[]>(() => readStore('ryu.questClaims.' + new Date().toLocaleDateString('en-CA'), []));
   const [units, setUnits] = useState<'metric' | 'imperial'>(() => readStore('ryu.units', 'metric'));
   const [restTimerSeconds, setRestTimerSeconds] = useState(() => readStore('ryu.restTimerSeconds', 60));
@@ -171,6 +198,144 @@ export default function App() {
     })();
     return () => { cancelled = true; };
   }, [account?.id]);
+  useEffect(() => {
+    if (!account) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from('user_settings')
+        .select('units,reminders_enabled,rest_timer_seconds,sound_enabled,default_plan')
+        .eq('user_id', account.id)
+        .maybeSingle();
+      if (cancelled) return;
+      if (error) {
+        pushNotice('Settings could not sync', 'Your existing on-device preferences are still available.', 'info');
+        return;
+      }
+      if (data) {
+        const settings = data as UserSettingsRow;
+        setUnits(settings.units);
+        setRemindersOn(settings.reminders_enabled);
+        setRestTimerSeconds(settings.rest_timer_seconds);
+        setSoundOn(settings.sound_enabled);
+        setSelectedPlan(settings.default_plan || 'foundation');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [account?.id]);
+
+  useEffect(() => {
+    if (!account) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from('workout_templates')
+        .select('id,name,description,exercises')
+        .eq('user_id', account.id)
+        .order('updated_at', { ascending: false });
+      if (cancelled) return;
+      if (error) {
+        pushNotice('Routines could not sync', 'Your saved routines remain available on this device.', 'info');
+        return;
+      }
+      const remotePlans: WorkoutPlan[] = (data ?? []).map(row => {
+        const savedExercises = Array.isArray(row.exercises) ? row.exercises as Exercise[] : [];
+        return {
+          id: row.id,
+          name: row.name,
+          sub: row.description || 'Your custom training sequence',
+          description: row.description,
+          time: `${Math.max(10, savedExercises.length * 5)} MIN`,
+          level: 'CUSTOM',
+          exercises: savedExercises.map(exercise => ({ ...exercise, done: 0, setLogs: [] })),
+        };
+      });
+      const localPlans = readStore<WorkoutPlan[]>('ryu.customPlans', []).filter(plan => plan.id.startsWith('local-'));
+      let syncedPlans: WorkoutPlan[] = [];
+      if (localPlans.length) {
+        const payload = localPlans.map(plan => ({
+          user_id: account.id,
+          name: plan.name,
+          description: plan.description || plan.sub,
+          exercises: plan.exercises.map(({ id, name, detail, target, unit, rest, repTarget, loadKg, measure }) => ({ id, name, detail, target, unit, rest, repTarget, loadKg, measure })),
+        }));
+        const { data: inserted, error: insertError } = await supabase
+          .from('workout_templates')
+          .insert(payload)
+          .select('id,name,description,exercises');
+        if (!cancelled && !insertError) {
+          syncedPlans = (inserted ?? []).map(row => ({
+            id: row.id,
+            name: row.name,
+            sub: row.description || 'Your custom training sequence',
+            description: row.description,
+            time: `${Math.max(10, (Array.isArray(row.exercises) ? row.exercises.length : 1) * 5)} MIN`,
+            level: 'CUSTOM',
+            exercises: (Array.isArray(row.exercises) ? row.exercises as Exercise[] : []).map(exercise => ({ ...exercise, done: 0, setLogs: [] })),
+          }));
+        }
+      }
+      if (!cancelled) setCustomPlans([...syncedPlans, ...remotePlans]);
+    })();
+    return () => { cancelled = true; };
+  }, [account?.id]);
+
+  useEffect(() => {
+    if (!account) return;
+    let cancelled = false;
+    (async () => {
+      const [{ data: claims, error: claimsError }, { data: sessionsForXp, error: xpError }] = await Promise.all([
+        supabase.from('daily_quest_claims').select('quest_date,quest_key,xp_awarded').eq('user_id', account.id),
+        supabase.from('workout_sessions').select('xp_earned').eq('user_id', account.id).not('completed_at', 'is', null),
+      ]);
+      if (cancelled) return;
+      if (claimsError || xpError) {
+        pushNotice('Bonus XP could not sync', 'Your workout history remains available; try again after reconnecting.', 'info');
+        return;
+      }
+      const totalBonus = (claims ?? []).reduce((sum, claim) => sum + claim.xp_awarded, 0);
+      setBonusXp(totalBonus);
+      const todayClaims = (claims ?? []).filter(claim => claim.quest_date === todayQuestKey).map(claim => claim.quest_key);
+      setClaimedQuestKeys(current => [...new Set([...current, ...todayClaims])]);
+      const baseXp = (sessionsForXp ?? []).reduce((sum, session) => sum + session.xp_earned, 0);
+      setXp(current => Math.max(current, baseXp + totalBonus));
+    })();
+    return () => { cancelled = true; };
+  }, [account?.id, todayQuestKey]);
+
+  useEffect(() => {
+    if (!account) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from('workout_sets')
+        .select('exercise_id,exercise_name,reps,load_kg,duration_seconds,completed_at')
+        .eq('user_id', account.id)
+        .order('completed_at', { ascending: false })
+        .limit(2000);
+      if (cancelled) return;
+      if (error) {
+        pushNotice('Personal records could not sync', 'Your local records remain available on this device.', 'info');
+        return;
+      }
+      const cloudRecords: PersonalRecord[] = (data ?? []).flatMap(row => {
+        const isTimed = row.duration_seconds !== null;
+        const value = isTimed ? row.duration_seconds : row.reps;
+        if (value === null || value === undefined) return [];
+        return [{
+          exerciseId: row.exercise_id,
+          exerciseName: row.exercise_name,
+          value,
+          unit: isTimed ? 'SEC' as const : 'REPS' as const,
+          loadKg: row.load_kg === null ? null : Number(row.load_kg),
+          completedAt: row.completed_at,
+        }];
+      });
+      setPersonalRecords(current => mergePersonalRecords(current, cloudRecords));
+    })();
+    return () => { cancelled = true; };
+  }, [account?.id]);
+
   useEffect(() => {
     if (!account) return;
     let cancelled = false;
@@ -361,6 +526,134 @@ export default function App() {
     const { error } = await supabase.auth.signOut();
     if (error) setAuthError(error.message);
     else setAuthMessage('Signed out. This device’s local progress remains available here.');
+  }
+
+  async function persistUserSettings(patch: Partial<UserSettingsRow>) {
+    const next: UserSettingsRow = {
+      units,
+      reminders_enabled: remindersOn,
+      rest_timer_seconds: restTimerSeconds,
+      sound_enabled: soundOn,
+      default_plan: selectedPlan,
+      ...patch,
+    };
+    if (patch.units !== undefined) setUnits(patch.units);
+    if (patch.reminders_enabled !== undefined) setRemindersOn(patch.reminders_enabled);
+    if (patch.rest_timer_seconds !== undefined) setRestTimerSeconds(patch.rest_timer_seconds);
+    if (patch.sound_enabled !== undefined) setSoundOn(patch.sound_enabled);
+    if (patch.default_plan !== undefined) setSelectedPlan(patch.default_plan);
+    if (!account) {
+      pushNotice('Preference saved', 'This setting is stored on this device until you sign in.', 'info');
+      return;
+    }
+    const { error } = await supabase.from('user_settings').upsert({
+      user_id: account.id,
+      ...next,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id' });
+    if (error) pushNotice('Preference not synced', 'Your on-device setting changed, but the cloud update failed.', 'info', 3);
+    else pushNotice('Preference synced', 'Your settings are saved to your Ryu account.', 'success');
+  }
+
+  async function claimDailyQuest(quest: DailyQuest) {
+    if (quest.value < quest.target || claimedQuestKeys.includes(quest.key)) return;
+    if (account) {
+      const { error } = await supabase.from('daily_quest_claims').insert({
+        user_id: account.id,
+        quest_date: todayQuestKey,
+        quest_key: quest.key,
+        xp_awarded: quest.reward,
+      });
+      if (error) {
+        if (error.code === '23505') {
+          setClaimedQuestKeys(current => [...new Set([...current, quest.key])]);
+          pushNotice('Already claimed', 'This daily contract has already paid out on another device.', 'info');
+        } else {
+          pushNotice('Reward could not be claimed', 'Ryu could not save this reward to your account. Try again.', 'info', 3);
+        }
+        return;
+      }
+    }
+    setClaimedQuestKeys(current => [...new Set([...current, quest.key])]);
+    setBonusXp(current => current + quest.reward);
+    setXp(current => current + quest.reward);
+    pushNotice('CONTRACT COMPLETE', `+${quest.reward} bonus XP · ${quest.title}`, 'achievement', 6);
+  }
+
+  async function saveCustomPlan(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (planSaving) return;
+    const name = customPlanName.trim();
+    const selectedExercises = routineExerciseLibrary
+      .filter(exercise => customExerciseIds.includes(exercise.id))
+      .slice(0, 12)
+      .map(exercise => ({ ...exercise, done: 0, setLogs: [] }));
+    if (name.length < 2 || selectedExercises.length === 0) {
+      pushNotice('Routine needs a name and movements', 'Choose at least one exercise to build your routine.', 'info');
+      return;
+    }
+    setPlanSaving(true);
+    const description = customPlanDescription.trim().slice(0, 140);
+    try {
+      let newPlan: WorkoutPlan;
+      if (account) {
+        const { data, error } = await supabase.from('workout_templates').insert({
+          user_id: account.id,
+          name,
+          description,
+          exercises: selectedExercises.map(({ id, name: exerciseName, detail, target, unit, rest, repTarget, loadKg, measure }) => ({
+            id, name: exerciseName, detail, target, unit, rest, repTarget, loadKg, measure,
+          })),
+        }).select('id,name,description,exercises').single();
+        if (error) throw error;
+        newPlan = {
+          id: data.id,
+          name: data.name,
+          sub: data.description || 'Your custom training sequence',
+          description: data.description,
+          time: `${Math.max(10, selectedExercises.length * 5)} MIN`,
+          level: 'CUSTOM',
+          exercises: selectedExercises,
+        };
+      } else {
+        newPlan = {
+          id: `local-${Date.now()}`,
+          name,
+          sub: description || 'Your custom training sequence',
+          description,
+          time: `${Math.max(10, selectedExercises.length * 5)} MIN`,
+          level: 'CUSTOM',
+          exercises: selectedExercises,
+        };
+      }
+      setCustomPlans(current => [...current, newPlan]);
+      setCustomPlanName('');
+      setCustomPlanDescription('');
+      setCustomExerciseIds(['push', 'squat', 'plank']);
+      setShowPlanBuilder(false);
+      pushNotice('Routine created', account ? 'Saved to your Ryu account. Ready when you are.' : 'Saved on this device. Sign in to sync it across devices.', 'success', 4);
+    } catch (error) {
+      pushNotice('Routine could not be saved', error instanceof Error ? error.message : 'Please try again.', 'info', 4);
+    } finally {
+      setPlanSaving(false);
+    }
+  }
+
+  async function deleteCustomPlan(plan: WorkoutPlan) {
+    if (account && !plan.id.startsWith('local-')) {
+      const { error } = await supabase.from('workout_templates').delete().eq('id', plan.id).eq('user_id', account.id);
+      if (error) { pushNotice('Routine not deleted', 'The cloud copy could not be removed.', 'info', 3); return; }
+    }
+    setCustomPlans(current => current.filter(item => item.id !== plan.id));
+    pushNotice('Routine removed', plan.name + ' was removed from your library.', 'info');
+  }
+
+  function updateExerciseMetric(index: number, field: 'repTarget' | 'loadKg', rawValue: string) {
+    const parsed = rawValue === '' ? 0 : Number(rawValue);
+    if (!Number.isFinite(parsed) || parsed < 0) return;
+    setExercises(current => current.map((exercise, i) => i === index
+      ? { ...exercise, [field]: field === 'repTarget' ? Math.max(1, Math.min(999, Math.round(parsed))) : Math.min(999, parsed) }
+      : exercise));
   }
 
   function pushNotice(title: string, subtitle: string, kind: Notice['kind'] = 'success', priority = 1) {
