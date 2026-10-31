@@ -7,6 +7,8 @@ import { AnimatePresence, motion } from 'motion/react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './lib/supabase';
 import { RpgProgression } from './components/rpg/RpgProgression';
+import { ClickSpark, FadeIn, ShinyText, SpotlightCard, TiltedCard } from './components/effects/ReactBits';
+import { DailyQuestBoard, PersonalRecordBoard, type DailyQuest, type PersonalRecord } from './components/features/TrainingExtras';
 import {
   Activity, ArrowDownRight, ArrowRight, Award, Bell, Check, CheckCheck,
   ChevronRight, Clock3, Dumbbell, Flame, Footprints, Gauge,
@@ -15,16 +17,29 @@ import {
 } from 'lucide-react';
 
 type Tab = 'home' | 'train' | 'progress' | 'discover' | 'profile' | 'auth';
-type Exercise = { id: string; name: string; detail: string; target: number; unit: string; rest: number; done: number };
+type ExerciseLog = { value: number; unit: 'REPS' | 'SEC'; loadKg: number | null; completedAt: string };
+type Exercise = { id: string; name: string; detail: string; target: number; unit: string; rest: number; done: number; repTarget?: number; loadKg?: number; measure?: 'reps' | 'seconds'; setLogs?: ExerciseLog[] };
+type WorkoutPlan = { id: string; name: string; sub: string; time: string; level: string; exercises: Exercise[]; description?: string };
 type Session = { id: string; title: string; date: string; duration: number; xp: number; sets: number };
+type UserSettingsRow = { units: 'metric' | 'imperial'; reminders_enabled: boolean; rest_timer_seconds: number; sound_enabled: boolean; default_plan: string };
 type Notice = { id: number; title: string; subtitle: string; kind: 'success' | 'achievement' | 'info'; priority: number; persistent?: boolean };
 
 const starterExercises: Exercise[] = [
-  { id: 'push', name: 'Push-ups', detail: 'Chest · Triceps', target: 4, unit: 'sets', rest: 60, done: 0 },
-  { id: 'squat', name: 'Bodyweight squats', detail: 'Quads · Glutes', target: 4, unit: 'sets', rest: 60, done: 0 },
-  { id: 'plank', name: 'Plank hold', detail: 'Core · Stability', target: 3, unit: 'sets', rest: 45, done: 0 },
-  { id: 'lunge', name: 'Reverse lunges', detail: 'Legs · Balance', target: 3, unit: 'sets', rest: 60, done: 0 },
+  { id: 'push', name: 'Push-ups', detail: 'Chest · Triceps', target: 4, unit: 'sets', rest: 60, done: 0, repTarget: 12, loadKg: 0, measure: 'reps', setLogs: [] },
+  { id: 'squat', name: 'Bodyweight squats', detail: 'Quads · Glutes', target: 4, unit: 'sets', rest: 60, done: 0, repTarget: 15, loadKg: 0, measure: 'reps', setLogs: [] },
+  { id: 'plank', name: 'Plank hold', detail: 'Core · Stability', target: 3, unit: 'sets', rest: 45, done: 0, repTarget: 30, loadKg: 0, measure: 'seconds', setLogs: [] },
+  { id: 'lunge', name: 'Reverse lunges', detail: 'Legs · Balance', target: 3, unit: 'sets', rest: 60, done: 0, repTarget: 10, loadKg: 0, measure: 'reps', setLogs: [] },
 ];
+const routineExerciseLibrary: Exercise[] = [
+  ...starterExercises,
+  { id: 'pike', name: 'Pike push-ups', detail: 'Shoulders · Triceps', target: 3, unit: 'sets', rest: 75, done: 0, repTarget: 8, loadKg: 0, measure: 'reps', setLogs: [] },
+  { id: 'diamond', name: 'Close-grip push-ups', detail: 'Triceps · Chest', target: 3, unit: 'sets', rest: 60, done: 0, repTarget: 8, loadKg: 0, measure: 'reps', setLogs: [] },
+  { id: 'bridge', name: 'Glute bridges', detail: 'Glutes · Hamstrings', target: 3, unit: 'sets', rest: 45, done: 0, repTarget: 15, loadKg: 0, measure: 'reps', setLogs: [] },
+  { id: 'mountain', name: 'Mountain climbers', detail: 'Core · Conditioning', target: 3, unit: 'sets', rest: 45, done: 0, repTarget: 30, loadKg: 0, measure: 'reps', setLogs: [] },
+  { id: 'deadbug', name: 'Dead bugs', detail: 'Core · Control', target: 3, unit: 'sets', rest: 45, done: 0, repTarget: 10, loadKg: 0, measure: 'reps', setLogs: [] },
+  { id: 'calf', name: 'Standing calf raises', detail: 'Calves · Ankles', target: 3, unit: 'sets', rest: 45, done: 0, repTarget: 20, loadKg: 0, measure: 'reps', setLogs: [] },
+];
+
 const plans = [
   { id: 'foundation', name: 'Full body foundation', sub: 'A balanced, no-equipment session', time: '25 MIN', level: 'STARTER', exercises: starterExercises },
   { id: 'upper', name: 'Upper-body focus', sub: 'Push strength and shoulder control', time: '20 MIN', level: 'FOUNDATION', exercises: [starterExercises[0], { id: 'pike', name: 'Pike push-ups', detail: 'Shoulders · Triceps', target: 3, unit: 'sets', rest: 75, done: 0 }, { id: 'diamond', name: 'Close-grip push-ups', detail: 'Triceps · Chest', target: 3, unit: 'sets', rest: 60, done: 0 }] },
@@ -59,6 +74,18 @@ export default function App() {
   const [authMessage, setAuthMessage] = useState('');
   const [authError, setAuthError] = useState('');
   const [sessions, setSessions] = useState<Session[]>(() => readStore('ryu.sessions', []));
+  const [customPlans, setCustomPlans] = useState<WorkoutPlan[]>(() => readStore('ryu.customPlans', []));
+  const [showPlanBuilder, setShowPlanBuilder] = useState(false);
+  const [customPlanName, setCustomPlanName] = useState('');
+  const [customPlanDescription, setCustomPlanDescription] = useState('');
+  const [customExerciseIds, setCustomExerciseIds] = useState<string[]>(['push', 'squat', 'plank']);
+  const [planSaving, setPlanSaving] = useState(false);
+  const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>(() => readStore('ryu.personalRecords', []));
+  const [bonusXp, setBonusXp] = useState(0);
+  const todayQuestKey = new Date().toLocaleDateString('en-CA');
+  const [claimedQuestKeys, setClaimedQuestKeys] = useState<string[]>(() => readStore('ryu.questClaims.' + new Date().toLocaleDateString('en-CA'), []));
+  const [units, setUnits] = useState<'metric' | 'imperial'>(() => readStore('ryu.units', 'metric'));
+  const [restTimerSeconds, setRestTimerSeconds] = useState(() => readStore('ryu.restTimerSeconds', 60));
   const [xp, setXp] = useState(() => readStore('ryu.xp', 0));
   const [streak, setStreak] = useState(() => readStore('ryu.streak', 0));
   const [active, setActive] = useState(false);
@@ -71,7 +98,8 @@ export default function App() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [expandedNotice, setExpandedNotice] = useState(false);
   const [showFinish, setShowFinish] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState('foundation');
+  const [selectedPlan, setSelectedPlan] = useState(() => readStore('ryu.defaultPlan', 'foundation'));
+  const allPlans: WorkoutPlan[] = [...plans, ...customPlans];
   const [soundOn, setSoundOn] = useState(false);
   const [remindersOn, setRemindersOn] = useState(false);
   const noticeId = useRef(0);
@@ -189,6 +217,12 @@ export default function App() {
   useEffect(() => { localStorage.setItem('ryu.sessions', JSON.stringify(sessions)); }, [sessions]);
   useEffect(() => { localStorage.setItem('ryu.xp', JSON.stringify(xp)); }, [xp]);
   useEffect(() => { localStorage.setItem('ryu.streak', JSON.stringify(streak)); }, [streak]);
+  useEffect(() => { localStorage.setItem('ryu.customPlans', JSON.stringify(customPlans)); }, [customPlans]);
+  useEffect(() => { localStorage.setItem('ryu.personalRecords', JSON.stringify(personalRecords)); }, [personalRecords]);
+  useEffect(() => { localStorage.setItem('ryu.questClaims.' + todayQuestKey, JSON.stringify(claimedQuestKeys)); }, [claimedQuestKeys, todayQuestKey]);
+  useEffect(() => { localStorage.setItem('ryu.units', JSON.stringify(units)); }, [units]);
+  useEffect(() => { localStorage.setItem('ryu.restTimerSeconds', JSON.stringify(restTimerSeconds)); }, [restTimerSeconds]);
+  useEffect(() => { localStorage.setItem('ryu.defaultPlan', JSON.stringify(selectedPlan)); }, [selectedPlan]);
   useEffect(() => {
     if (!active || !startedAt) return;
     const timer = window.setInterval(() => setElapsed(Math.floor((Date.now() - startedAt) / 1000)), 1000);
@@ -220,6 +254,14 @@ export default function App() {
   const recent = sessions.slice(0, 4);
   const weeklyCount = useMemo(() => sessions.filter(s => Date.now() - new Date(s.date).getTime() < 7 * 86400000).length, [sessions]);
   const totalMinutes = Math.round(sessions.reduce((sum, s) => sum + s.duration, 0) / 60);
+  const todaySessions = sessions.filter(session => new Date(session.date).toDateString() === new Date().toDateString());
+  const todaySetCount = todaySessions.reduce((sum, session) => sum + session.sets, 0);
+  const todayTrainingMinutes = Math.floor(todaySessions.reduce((sum, session) => sum + session.duration, 0) / 60);
+  const dailyQuests: DailyQuest[] = [
+    { key: 'first-session', title: 'First spark', description: 'Complete one training session today.', value: todaySessions.length, target: 1, reward: 35, unit: 'sessions', icon: 'session' },
+    { key: 'set-builder', title: 'Set builder', description: 'Log 12 honest sets across your movements.', value: todaySetCount, target: 12, reward: 25, unit: 'sets', icon: 'sets' },
+    { key: 'time-invested', title: 'Time invested', description: 'Spend at least 20 minutes training today.', value: todayTrainingMinutes, target: 20, reward: 30, unit: 'minutes', icon: 'time' },
+  ];
   const normalizedUsername = username.trim().toLowerCase();
   const usernameValid = /^[a-z0-9][a-z0-9_]{2,19}$/.test(normalizedUsername);
   const allowedPasswordSymbols = "!@#$%^&*()_+-=[]{};':\\\"|<>?,./`~";
@@ -327,9 +369,9 @@ export default function App() {
     setExpandedNotice(false);
   }
   function startWorkout(planId = selectedPlan) {
-    const plan = plans.find(p => p.id === planId) ?? plans[0];
+    const plan = allPlans.find(p => p.id === planId) ?? plans[0];
     setWorkoutName(plan.name);
-    setExercises(plan.exercises.map(e => ({ ...e, done: 0 })));
+    setExercises(plan.exercises.map(e => ({ ...e, done: 0, setLogs: [] })));
     setSelectedPlan(plan.id);
     setElapsed(0);
     setRestLeft(0);
