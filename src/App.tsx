@@ -478,8 +478,8 @@ export default function App() {
                   </div>
                   <div className="hero-panel-bottom"><div><h2>Full body foundation</h2><p>Simple movements. Serious consistency.</p></div><button className="round-arrow" onClick={() => startWorkout('foundation')} aria-label="Start today's workout"><ArrowRight size={22} /></button></div>
                 </div>
-                </div>
-              <RpgProgression variant="home" xp={xp} sessionsCount={sessions.length} totalSets={totalLoggedSets} totalMinutes={totalMinutes} streak={streak} />
+                <RpgProgression variant="home" xp={xp} sessionsCount={sessions.length} totalSets={totalLoggedSets} totalMinutes={totalMinutes} streak={streak} />
+              </div>
               <div className="section-heading"><div><span className="micro-label">THE NEXT REP</span><h2>Make today count.</h2></div><button className="text-action" onClick={() => setTab('discover')}>Explore plans <ArrowRight size={15} /></button></div>
               <div className="stats-strip">
                 <Stat icon={<Target size={17} />} label="WEEKLY TARGET" value={`${Math.min(weeklyCount, 4)} / 4`} note="sessions completed" />
