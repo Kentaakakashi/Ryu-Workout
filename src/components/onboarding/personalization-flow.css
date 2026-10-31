@@ -1,0 +1,231 @@
+/* Ryu onboarding and generated blueprint — glass, forest light, and precise hierarchy. */
+.ryu-personalization{
+  position:relative;isolation:isolate;width:min(100%,620px);min-height:calc(100dvh - 72px);margin:0 auto;padding:21px 17px 36px;color:#edf4e8;
+}
+.ryu-personalization:before{
+  content:"";position:absolute;z-index:-1;inset:-36px -18px auto;height:520px;pointer-events:none;
+  background:radial-gradient(ellipse at 82% 5%,rgba(57,140,36,.27),transparent 48%),radial-gradient(ellipse at 4% 54%,rgba(24,91,44,.17),transparent 44%);
+  filter:blur(28px);
+}
+.ryu-personalization-loading{min-height:72vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:30px;text-align:center;color:#9cac92}
+.ryu-personalization-loading p{max-width:300px;margin:0;font-size:12px;line-height:1.6}
+.ryu-ai-orb{display:grid;place-items:center;width:78px;height:78px;border:1px solid rgba(185,255,36,.46);border-radius:27px;background:radial-gradient(circle at 35% 24%,rgba(185,255,36,.2),rgba(20,46,21,.65) 54%,rgba(6,14,8,.96));color:#c4ff45;box-shadow:0 0 0 8px rgba(185,255,36,.035),0 0 48px rgba(111,218,38,.18),inset 0 1px rgba(255,255,255,.18)}
+.ryu-personalization-generating h2{margin:0;color:#f2f8eb;font:600 28px/1.05 var(--display);letter-spacing:-1px}
+.ryu-generating-steps{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+.ryu-generating-steps span{display:flex;align-items:center;gap:8px;color:#a9b99f;font:9px var(--mono);letter-spacing:.3px}
+.ryu-generating-steps svg{color:#b9ff24}
+.ryu-personal-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:27px}
+.ryu-brand-mini{display:flex;align-items:center;gap:8px;border:0;background:none;color:#f4f8ed;font:700 20px var(--display);letter-spacing:-1px}
+.ryu-brand-mini>span:last-child>span{color:#b9ff24}
+.ryu-brand-mini .ryu-brand-mark{width:34px;height:34px}
+.ryu-personal-top>.ryu-overline{font-size:8px;letter-spacing:1.3px}
+.ryu-onboarding-hero{margin:8px 0 24px}
+.ryu-onboarding-hero h1{margin:9px 0 10px;color:#f1f6ea;font:600 clamp(34px,8vw,47px)/.97 var(--display);letter-spacing:-2.2px}
+.ryu-onboarding-hero h1 span{color:#b9ff24;text-shadow:0 0 33px rgba(185,255,36,.13)}
+.ryu-onboarding-hero p{max-width:390px;margin:0;color:#98a895;font-size:12px;line-height:1.65}
+.ryu-onboarding-progress{margin:0 0 18px;padding:13px 14px;border:1px solid rgba(232,255,224,.08);border-radius:14px;background:rgba(255,255,255,.025);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.ryu-onboarding-progress__meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.ryu-onboarding-progress__meta span{color:#81927d;font:8px var(--mono);letter-spacing:.8px}
+.ryu-onboarding-progress__meta strong{color:#e9f1e3;font:600 11px var(--display)}
+.ryu-onboarding-progress__track{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.ryu-onboarding-progress__track i{height:3px;border-radius:9px;background:rgba(255,255,255,.1)}
+.ryu-onboarding-progress__track i.is-complete{background:linear-gradient(90deg,#74be25,#b9ff24);box-shadow:0 0 11px rgba(185,255,36,.18)}
+.ryu-onboarding-panel{padding:19px 16px 20px;border:1px solid rgba(197,255,174,.13);border-radius:20px;background:radial-gradient(ellipse at 100% 0%,rgba(52,104,38,.13),transparent 43%),linear-gradient(145deg,rgba(18,31,20,.9),rgba(8,14,10,.96));box-shadow:0 18px 46px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.035);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.ryu-onboarding-panel>.ryu-overline{color:#a3c47d}
+.ryu-onboarding-panel h2{margin:8px 0 7px;color:#f1f6eb;font:600 23px/1.08 var(--display);letter-spacing:-.8px}
+.ryu-onboarding-panel>p{margin:0 0 17px;color:#93a28c;font-size:10px;line-height:1.6}
+.ryu-goal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:16px 0 18px}
+.ryu-goal-option{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-height:112px;padding:12px 11px;border:1px solid rgba(231,255,224,.085);border-radius:13px;background:rgba(255,255,255,.025);color:#e9f0e3;text-align:left;transition:border-color .2s,background .2s,transform .2s}
+.ryu-goal-option>span{display:grid;place-items:center;width:31px;height:31px;border:1px solid rgba(185,255,36,.16);border-radius:10px;background:rgba(185,255,36,.055);color:#b9ff24}
+.ryu-goal-option strong{font:600 12px var(--display)}
+.ryu-goal-option small{color:#879784;font-size:9px;line-height:1.45}
+.ryu-goal-option.is-selected{border-color:rgba(185,255,36,.48);background:linear-gradient(145deg,rgba(185,255,36,.10),rgba(32,70,30,.22));box-shadow:inset 0 0 0 1px rgba(185,255,36,.06),0 8px 22px rgba(0,0,0,.14)}
+.ryu-goal-option>i{position:absolute;right:9px;top:9px;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#b9ff24;color:#16220c;font-style:normal}
+.ryu-goal-option:active,.ryu-day-picker button:active,.ryu-chip-grid button:active{transform:scale(.98)}
+.ryu-onboard-field{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.ryu-onboard-field>label,.ryu-onboard-field>label:not([for]){color:#dce7d5;font:600 11px var(--display)}
+.ryu-onboard-field>p{margin:-2px 0 2px;color:#859681;font-size:9px;line-height:1.55}
+.ryu-onboard-field>small{color:#859681;font-size:8px;line-height:1.55}
+.ryu-onboard-field input,.ryu-onboard-field select,.ryu-onboard-field textarea{
+  width:100%;min-width:0;padding:12px 12px;border:1px solid rgba(236,255,225,.1);border-radius:10px;outline:none;background:rgba(4,10,6,.62);color:#eff7e9;font:12px var(--display);transition:border-color .18s,box-shadow .18s;
+}
+.ryu-onboard-field input:focus,.ryu-onboard-field select:focus,.ryu-onboard-field textarea:focus{border-color:rgba(185,255,36,.48);box-shadow:0 0 0 3px rgba(185,255,36,.06)}
+.ryu-onboard-field input::placeholder,.ryu-onboard-field textarea::placeholder{color:#60705d}
+.ryu-chip-grid{display:flex;flex-wrap:wrap;gap:7px}
+.ryu-chip-grid button,.ryu-choice-row button{padding:9px 11px;border:1px solid rgba(233,255,224,.09);border-radius:99px;background:rgba(255,255,255,.025);color:#a8b6a1;font-size:9px;font-weight:600;transition:all .18s}
+.ryu-chip-grid button.is-selected,.ryu-choice-row button.is-selected{border-color:rgba(185,255,36,.44);background:rgba(185,255,36,.09);color:#d5ff91;box-shadow:inset 0 0 0 1px rgba(185,255,36,.03)}
+.ryu-measurement-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:17px}
+.ryu-measurement-grid label{display:flex;flex-direction:column;gap:7px;padding:11px;border:1px solid rgba(232,255,224,.09);border-radius:12px;background:rgba(255,255,255,.025)}
+.ryu-measurement-grid label>span{color:#879780;font:8px var(--mono);letter-spacing:.8px}
+.ryu-measurement-grid label>div{display:flex;align-items:baseline;gap:6px}
+.ryu-measurement-grid input{padding:2px 0;border:0;background:none;box-shadow:none!important;font:600 22px var(--display)}
+.ryu-measurement-grid b{color:#8c9a84;font:9px var(--mono)}
+.ryu-choice-row{display:flex;flex-wrap:wrap;gap:7px}
+.ryu-choice-stack{display:flex;flex-direction:column;gap:7px}
+.ryu-choice-stack button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:11px 12px;border:1px solid rgba(232,255,224,.08);border-radius:11px;background:rgba(255,255,255,.023);color:#dce8d5;text-align:left}
+.ryu-choice-stack button strong{font:600 11px var(--display)}
+.ryu-choice-stack button small{color:#879681;font-size:9px}
+.ryu-choice-stack button.is-selected{border-color:rgba(185,255,36,.43);background:rgba(185,255,36,.075)}
+.ryu-day-picker{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.ryu-day-picker button{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;padding:9px 2px;border:1px solid rgba(232,255,224,.08);border-radius:11px;background:rgba(255,255,255,.025);color:#83947d}
+.ryu-day-picker button small{font:8px var(--mono)}
+.ryu-day-picker button strong{display:grid;place-items:center;width:25px;height:25px;border-radius:50%;font:600 11px var(--display)}
+.ryu-day-picker button.is-selected{border-color:rgba(185,255,36,.4);background:rgba(185,255,36,.07);color:#cfff83}
+.ryu-day-picker button.is-selected strong{background:#b9ff24;color:#17210d}
+.ryu-equipment-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.ryu-equipment-grid button{display:grid;grid-template-columns:26px minmax(0,1fr);gap:3px 8px;align-items:center;padding:10px;border:1px solid rgba(233,255,224,.08);border-radius:11px;background:rgba(255,255,255,.025);color:#e3ecdd;text-align:left}
+.ryu-equipment-grid button>span{grid-row:1/3;display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:rgba(185,255,36,.07);color:#b9ff24}
+.ryu-equipment-grid button strong{font:600 10px var(--display)}
+.ryu-equipment-grid button small{color:#82927c;font-size:8px}
+.ryu-equipment-grid button.is-selected{border-color:rgba(185,255,36,.43);background:rgba(185,255,36,.07)}
+.ryu-review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:17px}
+.ryu-review-grid>div{display:flex;flex-direction:column;gap:5px;padding:11px;border:1px solid rgba(234,255,225,.07);border-radius:10px;background:rgba(255,255,255,.025)}
+.ryu-review-grid small{color:#80917b;font:7px var(--mono);letter-spacing:.7px}
+.ryu-review-grid strong{color:#eef5e9;font:600 12px var(--display);text-transform:capitalize}
+.ryu-review-strip{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.ryu-review-strip span{display:flex;align-items:center;gap:5px;padding:8px 9px;border:1px solid rgba(185,255,36,.12);border-radius:99px;background:rgba(185,255,36,.045);color:#b7c8ad;font:8px var(--mono)}
+.ryu-review-strip svg{color:#b9ff24}
+.ryu-onboard-safety{display:flex;gap:9px;margin-top:17px;padding:11px;border:1px solid rgba(185,255,36,.13);border-radius:11px;background:rgba(185,255,36,.045);color:#b9ff24}
+.ryu-onboard-safety svg{flex:0 0 auto;margin-top:1px}
+.ryu-onboard-safety p{margin:0;color:#a6b59c;font-size:9px;line-height:1.55}
+.ryu-onboarding-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:15px}
+.ryu-flow-back,.ryu-flow-next{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:45px;padding:0 16px;border-radius:99px;font:600 10px var(--mono);letter-spacing:.2px}
+.ryu-flow-back{border:1px solid rgba(235,255,224,.1);background:rgba(255,255,255,.035);color:#b7c6af}
+.ryu-flow-next{margin-left:auto;border:1px solid rgba(198,255,109,.65);background:linear-gradient(110deg,#d4ff75,#aaff22 58%,#84e96a);color:#17220e;box-shadow:0 9px 25px rgba(126,218,42,.14),inset 0 1px rgba(255,255,255,.75)}
+.ryu-flow-next:disabled,.ryu-flow-back:disabled{opacity:.55}
+.ryu-onboarding-foot{display:flex;align-items:center;justify-content:center;gap:6px;margin:17px 0 0;color:#697969;font:8px var(--mono)}
+.ryu-onboarding-foot svg{color:#8da17d}
+.ryu-flow-error,.ryu-flow-success{display:flex;align-items:flex-start;gap:8px;margin:12px 0 0;padding:11px 12px;border-radius:10px;font-size:9px;line-height:1.5}
+.ryu-flow-error{border:1px solid rgba(255,121,104,.24);background:rgba(255,92,77,.07);color:#ff9f91}
+.ryu-flow-success{border:1px solid rgba(185,255,36,.2);background:rgba(185,255,36,.06);color:#c9f58a}
+.ryu-plan-overview{padding-top:19px;padding-bottom:120px}
+.ryu-plan-proposal{display:flex;align-items:center;gap:5px;padding:7px 9px;border:1px solid rgba(185,255,36,.24);border-radius:99px;background:rgba(185,255,36,.08);color:#d2ff8a;font:8px var(--mono);letter-spacing:.45px}
+.ryu-plan-hero{position:relative;isolation:isolate;overflow:hidden;margin:8px 0 26px;padding:22px 18px;border:1px solid rgba(185,255,36,.22);border-radius:22px;background:radial-gradient(ellipse at 93% 8%,rgba(105,190,51,.22),transparent 48%),linear-gradient(145deg,rgba(23,44,23,.98),rgba(7,15,9,.98));box-shadow:0 20px 50px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.06)}
+.ryu-plan-hero .rb-spotlight__content{height:100%}
+.ryu-plan-hero__orbit{position:absolute;z-index:-1;right:-72px;top:-105px;width:270px;height:270px;border:1px solid rgba(185,255,36,.12);border-radius:50%;box-shadow:0 0 0 25px rgba(185,255,36,.018),0 0 0 55px rgba(185,255,36,.014),0 0 0 88px rgba(185,255,36,.01)}
+.ryu-plan-hero h1{max-width:410px;margin:10px 0;color:#f5f8ef;font:600 clamp(27px,7vw,37px)/.98 var(--display);letter-spacing:-1.5px}
+.ryu-plan-hero>p{max-width:440px;margin:0;color:#afc0a7;font-size:11px;line-height:1.7}
+.ryu-plan-hero__coach{display:flex;gap:10px;align-items:flex-start;margin-top:19px;padding:12px;border:1px solid rgba(222,255,210,.09);border-radius:13px;background:rgba(5,13,7,.46);backdrop-filter:blur(16px)}
+.ryu-plan-hero__coach>span{display:grid;place-items:center;width:30px;height:30px;flex:0 0 auto;border:1px solid rgba(185,255,36,.18);border-radius:10px;background:rgba(185,255,36,.08);color:#c6ff53}
+.ryu-plan-hero__coach>div{display:flex;flex-direction:column;gap:4px}
+.ryu-plan-hero__coach small{color:#93a78a;font:7px var(--mono);letter-spacing:.85px}
+.ryu-plan-hero__coach strong{color:#dfead7;font:500 10px/1.5 var(--display)}
+.ryu-plan-hero__meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.ryu-plan-hero__meta span{display:flex;align-items:center;gap:5px;padding:7px 9px;border:1px solid rgba(185,255,36,.13);border-radius:99px;color:#c5d5b9;background:rgba(185,255,36,.04);font:8px var(--mono)}
+.ryu-plan-hero__meta svg{color:#b9ff24}
+.ryu-assessment-section,.ryu-energy-section,.ryu-week-plan-section,.ryu-meal-plan-section,.ryu-milestones-section{margin-top:27px}
+.ryu-flow-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:13px}
+.ryu-flow-section-head h2{margin:5px 0 4px;color:#eef5e9;font:600 20px/1.08 var(--display);letter-spacing:-.7px}
+.ryu-flow-section-head p{margin:0;color:#82937d;font-size:9px;line-height:1.5}
+.ryu-flow-section-head>button{display:flex;align-items:center;gap:4px;flex:0 0 auto;padding:7px 9px;border:1px solid rgba(185,255,36,.2);border-radius:99px;background:rgba(185,255,36,.05);color:#c9f58a;font:8px var(--mono)}
+.ryu-assessment-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:9px}
+.ryu-assessment-metrics>div{display:flex;flex-direction:column;gap:5px;min-width:0;padding:11px 9px;border:1px solid rgba(238,255,228,.08);border-radius:12px;background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.014))}
+.ryu-assessment-metrics span{color:#81917b;font:7px var(--mono);letter-spacing:.8px}
+.ryu-assessment-metrics strong{overflow-wrap:anywhere;color:#f2f7ed;font:600 19px var(--display);letter-spacing:-.5px}
+.ryu-assessment-metrics strong small{color:#99ad8f;font:9px var(--mono)}
+.ryu-assessment-metrics i{color:#7d8e78;font:7px var(--mono);font-style:normal}
+.ryu-body-assessment{display:grid;grid-template-columns:39px minmax(0,1fr) auto;align-items:start;gap:10px;padding:14px;border:1px solid rgba(185,255,36,.16);border-radius:15px;background:linear-gradient(120deg,rgba(29,53,26,.8),rgba(10,19,11,.95))}
+.ryu-body-assessment__icon{display:grid;place-items:center;width:37px;height:37px;border:1px solid rgba(185,255,36,.22);border-radius:12px;background:rgba(185,255,36,.08);color:#b9ff24}
+.ryu-body-assessment h3{margin:5px 0 5px;color:#eff6e9;font:600 14px var(--display)}
+.ryu-body-assessment p{margin:0;color:#9bab94;font-size:9px;line-height:1.6}
+.ryu-body-assessment__value{align-self:center;color:#d5ff8a;font:600 18px var(--display);white-space:nowrap}
+.ryu-body-assessment__value small{color:#83967c;font:7px var(--mono)}
+.ryu-body-assessment.is-growth{border-color:rgba(128,202,139,.22);background:linear-gradient(120deg,rgba(26,55,38,.76),rgba(9,18,12,.96))}
+.ryu-energy-card{padding:17px;border:1px solid rgba(185,255,36,.18);border-radius:17px;background:radial-gradient(ellipse at 98% 0%,rgba(185,255,36,.1),transparent 48%),linear-gradient(145deg,rgba(17,36,19,.96),rgba(7,14,9,.98));box-shadow:0 16px 35px rgba(0,0,0,.18)}
+.ryu-energy-card .rb-spotlight__content{height:100%}
+.ryu-energy-card>.ryu-overline{color:#a3bf85}
+.ryu-energy-value{display:block;margin:10px 0;color:#e7ffd1;font:600 clamp(30px,8vw,40px)/1 var(--display);letter-spacing:-1.5px;text-shadow:0 0 28px rgba(185,255,36,.12)}
+.ryu-energy-value small{color:#a3b797;font:9px var(--mono);letter-spacing:0}
+.ryu-energy-guidance{display:block;margin:10px 0;color:#d9f8bc;font:600 21px/1.12 var(--display);letter-spacing:-.5px}
+.ryu-energy-card>p{margin:0;color:#9eaf96;font-size:9px;line-height:1.6}
+.ryu-energy-points{display:flex;flex-direction:column;gap:7px;margin-top:15px;padding-top:13px;border-top:1px solid rgba(235,255,224,.08)}
+.ryu-energy-points span{display:flex;gap:7px;color:#bccbb4;font-size:9px;line-height:1.5}
+.ryu-energy-points svg{flex:0 0 auto;margin-top:1px;color:#b9ff24}
+.ryu-energy-safety{display:block;margin-top:13px;padding:10px;border:1px solid rgba(185,255,36,.11);border-radius:10px;background:rgba(185,255,36,.035);color:#9daf95;font-size:8px;line-height:1.55}
+.ryu-energy-emblem{display:grid;place-items:center;width:39px;height:39px;border:1px solid rgba(185,255,36,.2);border-radius:12px;background:rgba(185,255,36,.06);color:#b9ff24}
+.ryu-week-plan-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ryu-plan-day{position:relative;overflow:hidden;min-width:0;padding:12px;border:1px solid rgba(233,255,224,.085);border-radius:14px;background:linear-gradient(145deg,rgba(25,40,25,.75),rgba(9,16,10,.94));}
+.ryu-plan-day.is-workout{border-color:rgba(185,255,36,.18)}
+.ryu-plan-day.is-rest{background:linear-gradient(145deg,rgba(22,28,22,.72),rgba(9,14,10,.94))}
+.ryu-plan-day__top{display:flex;align-items:center;justify-content:space-between;gap:7px}
+.ryu-plan-day__top>span{color:#c8d8bd;font:8px var(--mono);letter-spacing:.7px}
+.ryu-plan-day__top small{padding:4px 6px;border:1px solid rgba(185,255,36,.14);border-radius:99px;color:#b8e87b;font:6px var(--mono);letter-spacing:.65px}
+.ryu-plan-day.is-rest .ryu-plan-day__top small{border-color:rgba(220,255,220,.08);color:#83917e}
+.ryu-plan-day h3{margin:13px 0 4px;color:#eff5e9;font:600 13px/1.15 var(--display)}
+.ryu-plan-day p{min-height:27px;margin:0;color:#8e9e87;font-size:8px;line-height:1.5}
+.ryu-plan-day__meta{display:flex;gap:9px;margin-top:10px;color:#b8ce9e;font:7px var(--mono)}
+.ryu-plan-day__meta span{display:flex;align-items:center;gap:4px}
+.ryu-plan-day__meta svg{color:#b9ff24}
+.ryu-plan-day__moves{display:flex;flex-wrap:wrap;gap:4px;margin-top:9px}
+.ryu-plan-day__moves span{padding:4px 6px;border:1px solid rgba(228,255,222,.075);border-radius:5px;color:#879882;font-size:7px}
+.ryu-rest-label{display:flex;align-items:center;gap:6px;margin-top:12px;color:#81937d;font-size:8px}
+.ryu-rest-label svg{color:#91c76c}
+.ryu-schedule-editor{margin:0 0 14px;padding:13px;border:1px solid rgba(185,255,36,.2);border-radius:16px;background:linear-gradient(145deg,rgba(19,37,20,.95),rgba(7,13,9,.98))}
+.ryu-schedule-editor__intro{display:flex;align-items:flex-start;gap:9px;margin-bottom:13px}
+.ryu-schedule-editor__intro>span{display:grid;place-items:center;width:31px;height:31px;flex:0 0 auto;border:1px solid rgba(185,255,36,.18);border-radius:10px;color:#b9ff24;background:rgba(185,255,36,.06)}
+.ryu-schedule-editor__intro>div{display:flex;flex-direction:column;gap:4px}
+.ryu-schedule-editor__intro strong{color:#eef5e8;font:600 13px var(--display)}
+.ryu-schedule-editor__intro small{color:#92a28b;font-size:8px;line-height:1.55}
+.ryu-editor-day{padding:11px 0;border-top:1px solid rgba(235,255,224,.07)}
+.ryu-editor-day__head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ryu-editor-day__head>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.ryu-editor-day__head small{color:#82947c;font:7px var(--mono);letter-spacing:.7px}
+.ryu-editor-day__head strong{color:#eaf2e3;font:600 11px var(--display)}
+.ryu-editor-day__head button{display:flex;align-items:center;gap:5px;flex:0 0 auto;padding:7px 9px;border:1px solid rgba(230,255,224,.1);border-radius:99px;background:rgba(255,255,255,.025);color:#a3b29b;font:8px var(--mono)}
+.ryu-editor-day__head button.is-on{border-color:rgba(185,255,36,.3);background:rgba(185,255,36,.07);color:#d0fa91}
+.ryu-editor-fields{display:grid;grid-template-columns:1fr 95px;gap:8px;margin-top:10px}
+.ryu-editor-fields label{display:flex;flex-direction:column;gap:5px;color:#82947b;font:7px var(--mono);letter-spacing:.6px}
+.ryu-editor-fields select,.ryu-editor-fields input{width:100%;padding:9px 8px;border:1px solid rgba(235,255,224,.09);border-radius:8px;background:#0c170e;color:#e9f3e2;font:10px var(--display);outline:none}
+.ryu-editor-exercises{margin-top:10px}
+.ryu-editor-exercises>small{display:block;margin-bottom:7px;color:#7f9278;font:7px var(--mono);letter-spacing:.65px}
+.ryu-editor-exercises>div{display:flex;flex-wrap:wrap;gap:5px}
+.ryu-editor-exercises button{display:flex;align-items:center;gap:4px;padding:6px 7px;border:1px solid rgba(232,255,224,.08);border-radius:7px;background:rgba(255,255,255,.025);color:#9bad93;font-size:7px}
+.ryu-editor-exercises button.is-selected{border-color:rgba(185,255,36,.3);background:rgba(185,255,36,.07);color:#d4ff95}
+.ryu-editor-exercises button:disabled{opacity:.35}
+.ryu-editor-actions{display:flex;justify-content:space-between;gap:8px;padding-top:12px;border-top:1px solid rgba(235,255,224,.08)}
+.ryu-meal-count{padding:6px 8px;border:1px solid rgba(185,255,36,.16);border-radius:99px;background:rgba(185,255,36,.045);color:#c8ef8b;font:7px var(--mono)}
+.ryu-meal-day-tabs{display:flex;gap:6px;overflow:auto;padding:1px 0 9px;scrollbar-width:none}
+.ryu-meal-day-tabs::-webkit-scrollbar{display:none}
+.ryu-meal-day-tabs button{flex:0 0 auto;padding:8px 11px;border:1px solid rgba(235,255,224,.08);border-radius:99px;background:rgba(255,255,255,.025);color:#899b82;font:8px var(--mono)}
+.ryu-meal-day-tabs button.is-active{border-color:rgba(185,255,36,.4);background:rgba(185,255,36,.09);color:#d3ff8e}
+.ryu-plan-meals-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ryu-plan-meal{min-width:0;padding:12px;border:1px solid rgba(232,255,224,.08);border-radius:13px;background:linear-gradient(145deg,rgba(25,37,25,.75),rgba(9,15,10,.96))}
+.ryu-plan-meal__slot{color:#9ecb6b;font:7px var(--mono);letter-spacing:.75px}
+.ryu-plan-meal h3{margin:8px 0 4px;color:#eff5e9;font:600 13px/1.2 var(--display)}
+.ryu-plan-meal p{margin:0;color:#92a28b;font-size:8px;line-height:1.5}
+.ryu-plan-meal__ingredients{display:flex;flex-wrap:wrap;gap:4px;margin-top:9px}
+.ryu-plan-meal__ingredients span{padding:4px 6px;border:1px solid rgba(231,255,224,.07);border-radius:5px;color:#91a38a;font-size:7px}
+.ryu-plan-meal>small{display:block;margin-top:9px;color:#afc19e;font-size:8px;line-height:1.45}
+.ryu-plan-meal>em{display:flex;align-items:center;gap:4px;margin-top:9px;color:#81937a;font:7px var(--mono);font-style:normal}
+.ryu-plan-meal-empty{grid-column:1/-1;padding:18px;border:1px solid rgba(230,255,224,.07);border-radius:12px;color:#859580;text-align:center;font-size:9px}
+.ryu-milestone-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ryu-milestone-grid>div{padding:12px;border:1px solid rgba(185,255,36,.13);border-radius:12px;background:linear-gradient(145deg,rgba(21,37,20,.7),rgba(8,14,9,.95))}
+.ryu-milestone-grid span{color:#a0c66d;font:7px var(--mono);letter-spacing:.7px}
+.ryu-milestone-grid strong{display:block;margin-top:8px;color:#edf5e7;font:600 12px var(--display)}
+.ryu-milestone-grid p{margin:5px 0 0;color:#879982;font-size:8px;line-height:1.5}
+.ryu-plan-approve-bar{position:sticky;z-index:20;bottom:calc(73px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;gap:12px;margin:23px -4px 0;padding:12px;border:1px solid rgba(185,255,36,.25);border-radius:16px;background:rgba(9,17,10,.88);box-shadow:0 14px 38px rgba(0,0,0,.3);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.ryu-plan-approve-bar>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.ryu-plan-approve-bar>div strong{color:#f0f6e9;font:600 13px var(--display)}
+.ryu-plan-approve-bar>div small{color:#879781;font-size:8px}
+.ryu-plan-approve-bar .ryu-flow-next{min-height:42px;padding-inline:12px;white-space:nowrap}
+@media(min-width:700px){
+ .ryu-personalization{padding:30px 22px 50px}
+ .ryu-onboarding-panel{padding:24px 22px}
+ .ryu-goal-option{min-height:120px;padding:14px}
+ .ryu-plan-approve-bar{bottom:18px}
+}
+@media(max-width:390px){
+ .ryu-personalization{padding-inline:13px}
+ .ryu-goal-grid{gap:6px}
+ .ryu-goal-option{min-height:108px;padding:10px}
+ .ryu-onboarding-panel{padding:16px 13px}
+ .ryu-assessment-metrics{gap:5px}
+ .ryu-assessment-metrics>div{padding:10px 7px}
+ .ryu-assessment-metrics strong{font-size:16px}
+ .ryu-plan-meals-grid{grid-template-columns:1fr}
+ .ryu-plan-approve-bar{align-items:stretch;flex-direction:column}
+ .ryu-plan-approve-bar .ryu-flow-next{width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+ .ryu-goal-option,.ryu-day-picker button,.ryu-chip-grid button{transition:none}
+}
