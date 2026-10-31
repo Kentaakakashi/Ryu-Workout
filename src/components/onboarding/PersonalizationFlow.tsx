@@ -83,6 +83,7 @@ type PlanReview = {
   summary: string;
   status: string;
   overview: {
+    title?: string;
     coach_message?: string;
     weekly_focus?: string;
     milestones?: { week: number; title: string; description: string }[];
@@ -191,10 +192,6 @@ const GOALS: { value: Goal; title: string; description: string; icon: ReactNode 
   { value: 'athletic_fitness', title: 'Athletic performance', description: 'Improve movement and conditioning', icon: <Flame size={18} /> },
   { value: 'general_health', title: 'Feel healthier', description: 'Move more and build consistency', icon: <HeartPulse size={18} /> },
 ];
-
-function weekdayName(day: number) {
-  return WEEKDAYS.find(item => item.value === day)?.full ?? 'Day';
-}
 
 function parseList(value: string) {
   return value.split(',').map(item => item.trim()).filter(Boolean).slice(0, 12);
@@ -547,7 +544,6 @@ export function PersonalizationFlow({
     }
   }
 
-  const displayDays = useMemo(() => plan?.days ?? [], [plan]);
   const availableExercises = useMemo(() => EXERCISES.filter(exercise =>
     exercise.equipment.every(item => profile.equipment.includes(item))
   ), [profile.equipment]);
@@ -734,11 +730,11 @@ function PlanOverview({
   const [editing, setEditing] = useState(false);
   const [days, setDays] = useState<PlanDay[]>(plan.days);
   const [selectedMealDay, setSelectedMealDay] = useState(0);
-  const [expandedDay, setExpandedDay] = useState<number | null>(null);
   const [localError, setLocalError] = useState('');
+  const displayDays = plan.days;
   const weeklyTrainingDays = days.filter(day=>day.day_type!=='rest').length;
   const isMinor = profile.age_years !== null && profile.age_years < 18;
-  const name = displayName.trim().split(/\s+/)[0] || 'Athlete';
+  const coachName = displayName.trim().split(/\s+/)[0] || 'Athlete';
 
   function updateDay(weekday: number, patch: Partial<PlanDay>) {
     setDays(current=>current.map(day=>day.weekday===weekday?{...day,...patch}:day));
