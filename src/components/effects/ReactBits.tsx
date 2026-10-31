@@ -1,3 +1,4 @@
+import './react-bits.css';
 import {
   useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode,
 } from 'react';
