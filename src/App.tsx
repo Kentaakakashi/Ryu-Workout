@@ -12,11 +12,11 @@ import { DailyQuestBoard, PersonalRecordBoard, type DailyQuest, type PersonalRec
 import {
   Activity, ArrowDownRight, ArrowRight, Award, Bell, Check, CheckCheck,
   Clock3, Dumbbell, Flame, Footprints, Gauge, ArrowUpRight, UserRound,
-  Home, Pause, Play, Plus, RotateCcw, Settings2,
+  Home, Pause, Play, Plus, RotateCcw, Search, Settings2, Utensils, Leaf,
   ShieldCheck, Sparkles, Timer, Trophy, TrendingUp, Waves, X, Zap
 } from 'lucide-react';
 
-type Tab = 'home' | 'train' | 'progress' | 'discover' | 'profile' | 'auth';
+type Tab = 'home' | 'train' | 'progress' | 'discover' | 'meals' | 'profile' | 'auth';
 type ExerciseLog = { value: number; unit: 'REPS' | 'SEC'; loadKg: number | null; completedAt: string };
 type Exercise = { id: string; name: string; detail: string; target: number; unit: string; rest: number; done: number; repTarget?: number; loadKg?: number; measure?: 'reps' | 'seconds'; setLogs?: ExerciseLog[] };
 type WorkoutPlan = { id: string; name: string; sub: string; time: string; level: string; exercises: Exercise[]; description?: string };
@@ -125,6 +125,8 @@ export default function App() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [expandedNotice, setExpandedNotice] = useState(false);
   const [showFinish, setShowFinish] = useState(false);
+  const [mealQuery, setMealQuery] = useState('');
+  const [mealCategory, setMealCategory] = useState('All');
   const [selectedPlan, setSelectedPlan] = useState(() => readStore('ryu.defaultPlan', 'foundation'));
   const allPlans: WorkoutPlan[] = [...plans, ...customPlans];
   const [soundOn, setSoundOn] = useState(false);
@@ -984,6 +986,42 @@ export default function App() {
             </section>
           </motion.div>}
 
+          {tab === 'meals' && <motion.div key="meals" className="ryu-screen ryu-meals-screen" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: .24 }}>
+            <div className="ryu-page-intro"><span className="ryu-overline">FUEL YOUR TRAINING</span><h1>Eat for your <span>next level.</span></h1><p>Simple meal ideas to support your training. Nutrition values are estimates per serving.</p></div>
+            <div className="ryu-nutrition-hero" style={{ backgroundImage: 'linear-gradient(90deg,rgba(4,10,5,.96),rgba(4,10,5,.64) 58%,rgba(4,10,5,.12)),url(' + fuelHeroImage + ')' }}>
+              <span className="ryu-nutrition-kicker"><Leaf size={13}/> THE DAILY FUEL</span><h2>Train hard.<br/>Recover smarter.</h2><p>Build balanced plates with protein, carbs and colorful plants.</p>
+              <button onClick={() => setTab('discover')}>Explore workout plans <ArrowRight size={14}/></button>
+            </div>
+            <section className="ryu-nutrition-summary">
+              <div><span className="ryu-nutrition-summary__icon"><Flame size={16}/></span><small>ENERGY</small><strong>Balanced</strong><em>Fuel your session</em></div>
+              <div><span className="ryu-nutrition-summary__icon"><Dumbbell size={16}/></span><small>PROTEIN</small><strong>Include a source</strong><em>Support recovery</em></div>
+              <div><span className="ryu-nutrition-summary__icon"><Leaf size={16}/></span><small>VARIETY</small><strong>More color</strong><em>Mix up your plate</em></div>
+            </section>
+            <div className="ryu-meal-search"><Search size={17}/><input aria-label="Search meal ideas" value={mealQuery} onChange={event=>setMealQuery(event.target.value)} placeholder="Search meals or ingredients…"/>{mealQuery&&<button onClick={()=>setMealQuery('')} aria-label="Clear search"><X size={15}/></button>}</div>
+            <div className="ryu-meal-categories">{['All','Vegetarian','High-protein','Seafood','Quick'].map(category=><button key={category} className={mealCategory===category?'is-active':''} onClick={()=>setMealCategory(category)}>{category}</button>)}</div>
+            <section className="ryu-section">
+              <div className="ryu-section-heading"><div><span className="ryu-overline">THE MEAL BOARD</span><h2>Good fuel, no fuss.</h2></div><span className="ryu-count-pill">{[
+                {name:'Lemon herb chicken bowl',category:'High-protein Quick',ingredients:'chicken rice lemon herbs avocado',kcal:520,protein:42,carbs:54,fat:14,image:'photo-1547592180-85f173990554'},
+                {name:'Chickpea power bowl',category:'Vegetarian Quick',ingredients:'chickpea quinoa cucumber tomato greens',kcal:430,protein:19,carbs:62,fat:12,image:'photo-1512621776951-a57141f2eefd'},
+                {name:'Salmon and greens',category:'Seafood High-protein',ingredients:'salmon rice broccoli lemon',kcal:490,protein:38,carbs:42,fat:17,image:'photo-1467003909585-2f8a72700288'},
+                {name:'Peanut banana oats',category:'Vegetarian Quick High-protein',ingredients:'oats banana peanut butter milk',kcal:410,protein:18,carbs:55,fat:14,image:'photo-1517673132405-a56a62b18caf'},
+                {name:'Paneer grain plate',category:'Vegetarian High-protein',ingredients:'paneer brown rice peppers spinach',kcal:470,protein:27,carbs:48,fat:18,image:'photo-1547592180-85f173990554'}
+              ].filter(meal=>(mealCategory==='All'||meal.category.toLowerCase().includes(mealCategory.toLowerCase()))&&((meal.name+' '+meal.ingredients).toLowerCase().includes(mealQuery.toLowerCase()))).length} IDEAS</span></div>
+              <div className="ryu-meal-grid">{[
+                {name:'Lemon herb chicken bowl',category:'High-protein Quick',ingredients:'Chicken · rice · greens',kcal:520,protein:42,carbs:54,fat:14,image:'photo-1547592180-85f173990554',color:'meal-green'},
+                {name:'Chickpea power bowl',category:'Vegetarian Quick',ingredients:'Chickpeas · quinoa · vegetables',kcal:430,protein:19,carbs:62,fat:12,image:'photo-1512621776951-a57141f2eefd',color:'meal-citrus'},
+                {name:'Salmon and greens',category:'Seafood High-protein',ingredients:'Salmon · rice · broccoli',kcal:490,protein:38,carbs:42,fat:17,image:'photo-1467003909585-2f8a72700288',color:'meal-dark'},
+                {name:'Peanut banana oats',category:'Vegetarian Quick High-protein',ingredients:'Oats · banana · peanut butter',kcal:410,protein:18,carbs:55,fat:14,image:'photo-1517673132405-a56a62b18caf',color:'meal-oat'},
+                {name:'Paneer grain plate',category:'Vegetarian High-protein',ingredients:'Paneer · rice · peppers',kcal:470,protein:27,carbs:48,fat:18,image:'photo-1547592180-85f173990554',color:'meal-green'}
+              ].filter(meal=>(mealCategory==='All'||meal.category.toLowerCase().includes(mealCategory.toLowerCase()))&&((meal.name+' '+meal.ingredients).toLowerCase().includes(mealQuery.toLowerCase()))).map(meal=><article className="ryu-meal-card" key={meal.name}>
+                <div className={'ryu-meal-photo '+meal.color} style={{backgroundImage:'linear-gradient(0deg,rgba(4,8,5,.56),transparent 65%),url(https://images.unsplash.com/'+meal.image+'?auto=format&fit=crop&w=900&q=80)'}}><span>{meal.category.split(' ')[0]}</span><strong>{meal.kcal}<small> kcal</small></strong></div>
+                <div className="ryu-meal-card__body"><h3>{meal.name}</h3><p>{meal.ingredients}</p><div className="ryu-meal-macros"><span><b>{meal.protein}g</b><small>PROTEIN</small></span><span><b>{meal.carbs}g</b><small>CARBS</small></span><span><b>{meal.fat}g</b><small>FAT</small></span></div></div>
+              </article>)}</div>
+              {![{name:'Lemon herb chicken bowl',category:'High-protein Quick',ingredients:'Chicken rice greens'},{name:'Chickpea power bowl',category:'Vegetarian Quick',ingredients:'Chickpeas quinoa vegetables'},{name:'Salmon and greens',category:'Seafood High-protein',ingredients:'Salmon rice broccoli'},{name:'Peanut banana oats',category:'Vegetarian Quick High-protein',ingredients:'Oats banana peanut butter'},{name:'Paneer grain plate',category:'Vegetarian High-protein',ingredients:'Paneer rice peppers'}].some(meal=>(mealCategory==='All'||meal.category.toLowerCase().includes(mealCategory.toLowerCase()))&&(meal.name+' '+meal.ingredients).toLowerCase().includes(mealQuery.toLowerCase()))&&<div className="ryu-empty-card"><span><Search size={20}/></span><strong>No meal ideas found.</strong><p>Try another search or category.</p><button onClick={()=>{setMealQuery('');setMealCategory('All');}}>Clear filters <RotateCcw size={14}/></button></div>}
+            </section>
+            <p className="ryu-nutrition-note">Nutrition numbers are illustrative estimates, not personalized targets. Portion sizes and preparation change the actual values.</p>
+          </motion.div>}
+
           {tab === 'auth' && <motion.div key="auth" className="ryu-screen ryu-auth-screen" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
             <div className="ryu-page-intro"><span className="ryu-overline">RYU MEMBER ACCESS</span><h1>Your progress.<br/><span>Your account.</span></h1><p>Sign in to keep every session and milestone with you.</p></div>
             <div className="ryu-auth-card">
@@ -1043,7 +1081,7 @@ export default function App() {
         <button className={tab==='home'?'is-active':''} onClick={() => setTab('home')}><Home size={19}/><span>Home</span></button>
         <button className={tab==='train'?'is-active':''} onClick={() => setTab('train')}><Dumbbell size={19}/><span>Workout</span></button>
         <button className={'ryu-bottom-center'+(tab==='progress'?' is-active':'')} onClick={() => setTab('progress')} aria-label="Progress"><TrendingUp size={21}/></button>
-        <button className={tab==='discover'?'is-active':''} onClick={() => setTab('discover')}><Sparkles size={19}/><span>Library</span></button>
+        <button className={tab==='meals'?'is-active':''} onClick={() => setTab('meals')}><Utensils size={19}/><span>Meals</span></button>
         <button className={tab==='profile'?'is-active':''} onClick={() => setTab('profile')}><UserRound size={19}/><span>Profile</span></button>
       </nav>
 
