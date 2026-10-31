@@ -224,8 +224,8 @@ export function RpgProgression({
     );
   }
 
-    const headline = variant === 'home' ? 'Built by every rep.' : 'The long game.';
-  const topline = variant === 'home' ? 'CHARACTER SYSTEM / PLAYER FILE 001' : 'CHARACTER ARCHIVE / EVOLUTION LOG';
+  const headline = 'The long game.';
+  const topline = 'CHARACTER ARCHIVE / EVOLUTION LOG';
 
   return (
     <div className={`ryu-rpg ryu-rpg--${variant}`}>
@@ -254,9 +254,7 @@ export function RpgProgression({
               <span className="ryu-rpg__rank-number">RANK {String(currentRankIndex + 1).padStart(2, '0')} / 06</span>
             </div>
             <h2>{headline.split(' ').slice(0, -1).join(' ')} <span>{headline.split(' ').slice(-1)}</span></h2>
-            <p>{variant === 'home'
-              ? 'Your character grows through the work you actually log. Every session moves the record forward.'
-              : 'A living record of your effort. Titles unlock through experience; training attributes rise with logged activity.'}</p>
+            <p>A living record of your effort. Titles unlock through experience; training attributes rise with logged activity.</p>
             <div className="ryu-rpg__identity-meta">
               <span><Dumbbell size={13} /> {sessionsCount} {sessionsCount === 1 ? 'SESSION' : 'SESSIONS'}</span>
               <span><Zap size={13} /> {xpToNextLevel} XP TO LEVEL {level + 1}</span>
