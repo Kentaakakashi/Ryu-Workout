@@ -1,0 +1,106 @@
+/* Product-wide visual pass: layered atmosphere, confident type and tactile controls. */
+.app-shell:after{
+  content:"";position:fixed;inset:-18%;z-index:0;pointer-events:none;opacity:.34;
+  background:
+    radial-gradient(ellipse at 78% 12%,rgba(170,205,83,.09),transparent 34%),
+    radial-gradient(ellipse at 12% 65%,rgba(89,112,59,.08),transparent 31%),
+    radial-gradient(ellipse at 52% 92%,rgba(163,189,102,.045),transparent 34%);
+  animation:ryu-atmosphere-drift 24s ease-in-out infinite alternate;
+}
+@keyframes ryu-atmosphere-drift{from{transform:translate3d(-1.2%,0,0) scale(1)}to{transform:translate3d(1.4%,-1.2%,0) scale(1.04)}}
+.topbar,.main-layout,.app-footer,.mobile-nav{position:relative;z-index:2}
+.home-spotlight{height:100%;min-width:0;border-radius:12px}
+.home-spotlight .rb-spotlight__content{height:100%}
+.home-spotlight .hero-panel{height:100%;border-color:rgba(236,239,221,.10)}
+.home-stats-reveal{display:block}
+.hero-heading h1,.page-title-row h1{letter-spacing:-1.9px;text-shadow:0 10px 34px rgba(0,0,0,.23)}
+.hero-heading h1 span{background:linear-gradient(100deg,#e9eddc 0%,#d2f36b 58%,#b7d66c 100%);background-clip:text;-webkit-background-clip:text;color:transparent}
+.hero-panel{transition:border-color .35s,box-shadow .35s}
+.hero-panel:hover{border-color:rgba(210,243,107,.28);box-shadow:0 22px 55px rgba(0,0,0,.23),inset 0 1px rgba(255,255,255,.07)}
+.hero-art .orbit{animation-duration:28s}
+.hero-art .orbit-b{animation-direction:reverse;animation-duration:36s}
+.hero-art .orbit-c{animation-duration:46s}
+.level-panel,.panel,.principle-panel,.workout-main,.rest-panel,.discover-feature{transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease}
+.panel:hover,.principle-panel:hover{border-color:rgba(210,243,107,.18);box-shadow:0 18px 42px rgba(0,0,0,.17)}
+.plan-grid{align-items:stretch}
+.plan-tilt{min-width:0;height:100%;transform-style:preserve-3d}
+.plan-card{width:100%;height:100%;min-height:205px;transform:translateZ(0);transition:border-color .25s,background .25s,box-shadow .25s}
+.plan-card:hover{border-color:rgba(210,243,107,.34);box-shadow:0 18px 38px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.045)}
+.plan-card:active{transform:scale(.99)}
+.exercise-details{min-width:0}
+.exercise-metrics{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-top:10px}
+.exercise-metrics label{display:flex;align-items:center;gap:6px;padding:5px 7px;border:1px solid rgba(255,255,255,.075);border-radius:7px;background:rgba(255,255,255,.025)}
+.exercise-metrics label span{color:#818878;font:8px var(--mono);letter-spacing:.55px;white-space:nowrap}
+.exercise-metrics input{width:48px;min-width:0;padding:2px 0;border:0;outline:0;background:transparent;color:#e8edda;font:11px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.exercise-metrics input:focus{color:var(--lime)}
+.exercise-metrics input:disabled{opacity:.55}
+.exercise-metrics input::-webkit-inner-spin-button,.exercise-metrics input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.exercise-metrics input[type=number]{-moz-appearance:textfield}
+.exercise-row{align-items:center}
+.exercise-row .exercise-count{align-self:flex-start;margin-top:7px}
+.exercise-row .set-button{align-self:flex-start;margin-top:5px;overflow:visible}
+.rb-click-spark{width:100%;height:100%}
+.set-button .rb-click-spark{display:grid;place-items:center}
+.routine-builder-shell{margin:23px 0 26px;padding:20px;border:1px solid rgba(210,243,107,.15);border-radius:15px;background:radial-gradient(ellipse at 100% 0%,rgba(210,243,107,.055),transparent 42%),linear-gradient(135deg,rgba(28,30,24,.94),rgba(19,21,18,.98))}
+.routine-builder-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.routine-builder-heading h2{margin:7px 0 5px;color:#f0f3e7;font:600 21px var(--display);letter-spacing:-.7px}
+.routine-builder-heading p{margin:0;color:#969d8e;font-size:11px;line-height:1.55}
+.routine-builder-heading .lime-button{flex:0 0 auto}
+.routine-builder{margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.07)}
+.routine-builder__fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.routine-builder__fields label{display:flex;flex-direction:column;gap:7px;color:#959b8c;font:9px var(--mono);letter-spacing:.6px}
+.routine-builder__fields input{width:100%;padding:11px 12px;border:1px solid rgba(255,255,255,.09);border-radius:8px;outline:0;background:rgba(255,255,255,.035);color:#edf1e3;font:12px 'DM Sans',sans-serif;letter-spacing:0}
+.routine-builder__fields input:focus{border-color:rgba(210,243,107,.42);box-shadow:0 0 0 3px rgba(210,243,107,.055)}
+.routine-builder__exercise-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 11px}
+.routine-builder__exercise-head>div{display:flex;flex-direction:column;gap:5px}
+.routine-builder__exercise-head strong{color:#e7ecda;font:600 14px var(--display)}
+.routine-builder__exercise-head>span{color:#87907a;font:8px var(--mono);letter-spacing:.6px}
+.routine-builder__choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.routine-choice{display:flex;align-items:center;gap:9px;min-width:0;padding:10px;border:1px solid rgba(255,255,255,.075);border-radius:9px;background:rgba(255,255,255,.018);cursor:pointer;transition:background .18s,border-color .18s}
+.routine-choice:hover{border-color:rgba(210,243,107,.22)}
+.routine-choice--selected{border-color:rgba(210,243,107,.34);background:rgba(210,243,107,.055)}
+.routine-choice input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.routine-choice__check{display:grid;place-items:center;width:25px;height:25px;flex:0 0 auto;border:1px solid rgba(255,255,255,.12);border-radius:7px;color:#818978}
+.routine-choice--selected .routine-choice__check{border-color:rgba(210,243,107,.34);background:rgba(210,243,107,.13);color:var(--lime)}
+.routine-choice>span:last-child{display:flex;flex-direction:column;gap:3px;min-width:0}
+.routine-choice strong{overflow:hidden;color:#e6eadb;font:600 11px var(--display);text-overflow:ellipsis;white-space:nowrap}
+.routine-choice small{overflow:hidden;color:#868d7e;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
+.routine-choice:focus-within{outline:2px solid rgba(210,243,107,.5);outline-offset:2px}
+.routine-builder__footer{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:17px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07)}
+.routine-builder__footer>span{display:flex;align-items:center;gap:7px;color:#9ba38b;font:9px var(--mono)}
+.routine-builder__footer>span svg{color:#c6e27a}
+.routine-builder__footer button{flex:0 0 auto}
+.discover-row-custom{border-color:rgba(210,243,107,.16);background:linear-gradient(90deg,rgba(210,243,107,.035),transparent)}
+.discover-delete{display:grid;place-items:center;width:32px;height:32px;flex:0 0 auto;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:rgba(255,255,255,.025);color:#8e9586;transition:all .2s}
+.discover-delete:hover{border-color:rgba(255,110,100,.3);color:#ff9b8e;background:rgba(255,100,90,.06)}
+.setting-select{max-width:170px}
+.account-panel,.settings-panel{backdrop-filter:blur(18px)}
+.text-action,.subtle-link,.principle-link{transition:color .2s,transform .2s}
+.text-action:hover,.subtle-link:hover,.principle-link:hover{color:var(--lime);transform:translateX(2px)}
+button,select,input{ -webkit-tap-highlight-color:transparent }
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid rgba(210,243,107,.78);outline-offset:3px}
+@media(max-width:860px){
+ .routine-builder__choices{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .exercise-row{align-items:flex-start}
+}
+@media(max-width:620px){
+ .routine-builder-shell{padding:15px;margin:18px 0 22px}
+ .routine-builder-heading{align-items:flex-start;flex-direction:column}
+ .routine-builder-heading .lime-button{width:100%;justify-content:center}
+ .routine-builder__fields{grid-template-columns:1fr}
+ .routine-builder__choices{grid-template-columns:1fr}
+ .routine-builder__footer{align-items:stretch;flex-direction:column}
+ .routine-builder__footer button{width:100%;justify-content:center}
+ .exercise-metrics{gap:5px}
+ .exercise-metrics label{padding:5px}
+ .exercise-metrics label span{font-size:7px}
+ .exercise-metrics input{width:38px;font-size:10px}
+ .exercise-row .exercise-count{margin-left:auto}
+ .exercise-row .set-button{margin-left:0}
+ .home-spotlight .hero-panel{min-height:325px}
+}
+@media(prefers-reduced-motion:reduce){
+ .app-shell:after{animation:none}
+ .hero-art .orbit{animation:none}
+ .hero-panel,.panel,.principle-panel,.workout-main,.rest-panel,.discover-feature,.plan-card{transition:none}
+}
