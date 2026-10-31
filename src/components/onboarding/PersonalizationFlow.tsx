@@ -145,6 +145,7 @@ const EXERCISES: { slug: string; name: string; equipment: Equipment[]; focus: st
   { slug: 'gym_leg_press', name: 'Leg press', equipment: ['gym_access'], focus: 'Legs' },
   { slug: 'gym_chest_press', name: 'Machine chest press', equipment: ['gym_access'], focus: 'Chest' },
   { slug: 'gym_seated_row', name: 'Seated cable row', equipment: ['gym_access'], focus: 'Back' },
+  { slug: 'assisted_pull_up', name: 'Foot-assisted pull-up', equipment: ['pullup_bar'], focus: 'Back · Arms' },
 ];
 
 const INITIAL_PROFILE: FitnessProfile = {
@@ -600,7 +601,7 @@ export function PersonalizationFlow({
               {value:'resistance_bands',label:'Resistance bands',desc:'Bands and loops',icon:<Waves size={17}/>},
               {value:'pullup_bar',label:'Pull-up bar',desc:'Doorway or mounted bar',icon:<ArrowRight size={17}/>},
               {value:'gym_access',label:'Full gym',desc:'Machines and free weights',icon:<Footprints size={17}/>}
-            ].map(item=><button type="button" key={item.value} className={profile.equipment.includes(item.value as Equipment)?'is-selected':''} onClick={()=>updateProfile('equipment',toggleString(profile.equipment,item.value) as Equipment[])}><span>{item.icon}</span><strong>{item.label}</strong><small>{item.desc}</small></button>)}</div><small>Bodyweight is always available. Choose all additional equipment you can reliably access.</small></div>
+            ].map(item=><button type="button" key={item.value} className={profile.equipment.includes(item.value as Equipment)?'is-selected':''} onClick={()=>updateProfile('equipment',item.value==='bodyweight' ? (profile.equipment.includes('bodyweight') ? profile.equipment : ['bodyweight',...profile.equipment]) : toggleString(profile.equipment,item.value) as Equipment[])}><span>{item.icon}</span><strong>{item.label}</strong><small>{item.desc}</small></button>)}</div><small>Bodyweight is always available. Choose all additional equipment you can reliably access.</small></div>
             <div className="ryu-onboard-field"><label>How active are you outside workouts?</label><select value={profile.activity_level} onChange={event=>updateProfile('activity_level',event.target.value as FitnessProfile['activity_level'])}><option value="sedentary">Mostly sitting</option><option value="light">Light daily movement</option><option value="moderate">Moderately active</option><option value="very_active">Very active most days</option></select></div>
           </>}
 
