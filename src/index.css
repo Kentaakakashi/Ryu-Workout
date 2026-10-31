@@ -134,3 +134,30 @@
   .auth-card .section-head-small h3{font-size:21px}
   .password-checks{font-size:8px;gap:7px 8px}
 }
+
+
+/* RPG character progression */
+.rpg-card{position:relative;margin:24px 0 30px;padding:24px;border:1px solid rgba(210,243,107,.2);border-radius:18px;background:radial-gradient(ellipse at 100% 0%,rgba(210,243,107,.075),transparent 42%),linear-gradient(135deg,rgba(30,33,25,.96),rgba(20,22,19,.94));box-shadow:inset 0 1px rgba(255,255,255,.035),0 16px 42px rgba(0,0,0,.12);overflow:hidden}
+.rpg-card-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px}
+.rpg-card-heading h2{margin:7px 0 5px;font:600 clamp(22px,3vw,30px)/1.1 var(--display);letter-spacing:-.8px}
+.rpg-card-heading p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.rpg-rank-mark{width:62px;height:62px;flex-shrink:0;border:1px solid rgba(210,243,107,.22);border-radius:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--lime);background:rgba(210,243,107,.045)}
+.rpg-rank-mark span{font:9px var(--mono);letter-spacing:1px}
+.rpg-xp-meta{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font:10px var(--mono);letter-spacing:.5px;margin-bottom:9px}
+.rpg-xp-track,.rpg-stat-track{height:6px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.rpg-xp-track span,.rpg-stat-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#9dbd47,var(--lime));box-shadow:0 0 15px rgba(210,243,107,.16);transition:width .45s ease}
+.rpg-stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:24px}
+.rpg-stat{min-width:0;padding:14px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.018)}
+.rpg-stat>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:11px}
+.rpg-stat>div:first-child span{font:9px var(--mono);letter-spacing:.5px;color:var(--muted)}
+.rpg-stat>div:first-child strong{font:600 17px var(--display);color:var(--lime);white-space:nowrap}
+.rpg-stat>div:first-child strong small{font:10px var(--mono);color:var(--muted)}
+.rpg-stat>small{display:block;margin-top:9px;color:var(--dim);font-size:10px;line-height:1.4}
+.rpg-card-footer{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+.rpg-card-footer>span:first-child{display:flex;align-items:center;gap:6px;color:var(--lime);font:10px var(--mono);letter-spacing:.7px}
+.rpg-card-footer>strong{font-size:12px}
+.rpg-footer-note{margin-left:auto;color:var(--dim);font-size:10px}
+.rpg-level-inline{display:inline-flex;vertical-align:middle;padding:5px 8px;border:1px solid rgba(210,243,107,.25);border-radius:6px;color:var(--lime);font:10px var(--mono);letter-spacing:.5px}
+.rpg-progress-card{margin-top:24px}
+@media(max-width:900px){.rpg-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rpg-footer-note{width:100%;margin-left:0}}
+@media(max-width:480px){.rpg-card{padding:17px;margin:18px 0 24px}.rpg-card-heading{gap:10px}.rpg-rank-mark{width:50px;height:50px}.rpg-stat{padding:11px}.rpg-stat>div:first-child span{font-size:8px}.rpg-xp-meta{font-size:9px}.rpg-card-footer{align-items:flex-start}}
