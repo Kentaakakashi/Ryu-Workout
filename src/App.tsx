@@ -12,7 +12,7 @@ import { ClickSpark, FadeIn, ShinyText, SpotlightCard, TiltedCard } from './comp
 import { DailyQuestBoard, PersonalRecordBoard, type DailyQuest, type PersonalRecord } from './components/features/TrainingExtras';
 import {
   Activity, ArrowDownRight, ArrowRight, Award, Bell, Check, CheckCheck,
-  ChevronRight, Clock3, Dumbbell, Flame, Footprints, Gauge,
+  ChevronRight, Clock3, Dumbbell, Flame, Footprints, Gauge, ArrowUpRight, UserRound,
   Home, Leaf, Pause, Play, Plus, RotateCcw, Settings2,
   ShieldCheck, Sparkles, Target, Timer, Trophy, TrendingUp, Waves, X, Zap
 } from 'lucide-react';
