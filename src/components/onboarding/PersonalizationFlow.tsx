@@ -303,7 +303,11 @@ export function PersonalizationFlow({
       completed_at: completed ? new Date().toISOString() : null,
       updated_at: new Date().toISOString(),
     };
-    const { error: saveError } = await supabase.from('fitness_profiles').upsert(payload, { onConflict: 'user_id' });
+    const { error: saveError } = await withTimeout(
+      supabase.from('fitness_profiles').upsert(payload, { onConflict: 'user_id' }),
+      15000,
+      'Saving your profile is taking too long. Check your connection and try again.',
+    );
     if (saveError) throw saveError;
     setProfile(current => ({ ...current, onboarding_step: nextStep, onboarding_status: completed ? 'completed' : 'draft' }));
   }
@@ -442,7 +446,11 @@ export function PersonalizationFlow({
     setPhase('generating');
     try {
       await saveDraft(4, true);
-      const { data, error: invokeError } = await supabase.functions.invoke('generate-ryu-plan', { body: {} });
+      const { data, error: invokeError } = await withTimeout(
+        supabase.functions.invoke('generate-ryu-plan', { body: {} }),
+        60000,
+        'Ryu is taking too long to build your blueprint. Your answers are saved — retry in a moment, and check the AI key if it keeps happening.',
+      );
       if (invokeError) {
         const context = (invokeError as unknown as { context?: Response }).context;
         if (context) {
