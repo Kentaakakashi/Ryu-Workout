@@ -244,18 +244,32 @@ Deno.serve(async (req: Request) => {
     "User profile: " + JSON.stringify(profileForModel),
   ].join("\\n");
 
-  const generation = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: "You are Ryu's structured fitness-plan generator. Respect the profile exactly. Never invent measurements." }] },
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: "application/json", temperature: 0.35, maxOutputTokens: 6500 },
-      }),
-    },
-  );
+  const generationController = new AbortController();
+  const generationTimer = setTimeout(() => generationController.abort(), 45000);
+  let generation: Response;
+  try {
+    generation = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: "You are Ryu's structured fitness-plan generator. Respect the profile exactly. Never invent measurements." }] },
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          generationConfig: { responseMimeType: "application/json", temperature: 0.35, maxOutputTokens: 6500 },
+        }),
+        signal: generationController.signal,
+      },
+    );
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      return respond(504, { error: "Plan generation timed out. Your answers are saved; please retry." });
+    }
+    console.error("Plan generation request failed", error instanceof Error ? error.message : "Unknown error");
+    return respond(502, { error: "Ryu could not reach the AI provider. Please retry." });
+  } finally {
+    clearTimeout(generationTimer);
+  }
 
   if (!generation.ok) {
     const detail = await generation.text();
