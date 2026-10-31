@@ -396,7 +396,17 @@ export default function App() {
     setShowFinish(false);
     setRestLeft(0);
     if (nextLevel > previousLevel) {
-      pushNotice('LEVEL UP · ' + nextLevel, `You reached ${nextLevelTitle(nextLevel)}. Keep earning your next form.`, 'achievement', 7);
+      const previousTitle = nextLevelTitle(previousLevel);
+      const unlockedTitle = nextLevelTitle(nextLevel);
+      const titleChanged = previousTitle !== unlockedTitle;
+      pushNotice(
+        titleChanged ? 'NEW TITLE · ' + unlockedTitle : 'LEVEL UP · ' + nextLevel,
+        titleChanged
+          ? `New title unlocked at level ${nextLevel}. Keep earning your next form.`
+          : `Level ${nextLevel} reached. Your current rank is still ${unlockedTitle}.`,
+        'achievement',
+        7,
+      );
     }
     pushNotice('Workout complete', `+${earned} XP · ${completedSets} sets logged`, 'achievement', 5);
     if (sessions.length === 0) window.setTimeout(() => pushNotice('Achievement unlocked', 'First session. The journey starts here.', 'achievement', 6), 700);
