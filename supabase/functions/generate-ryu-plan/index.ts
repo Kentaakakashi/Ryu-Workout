@@ -53,6 +53,7 @@ const EXERCISES = [
   { slug: "gym_leg_press", name: "Leg press", equipment: ["gym_access"] },
   { slug: "gym_chest_press", name: "Machine chest press", equipment: ["gym_access"] },
   { slug: "gym_seated_row", name: "Seated cable row", equipment: ["gym_access"] },
+  { slug: "assisted_pull_up", name: "Foot-assisted pull-up", equipment: ["pullup_bar"] },
 ];
 
 const ACTIVITY_FACTORS: Record<string, number> = {
