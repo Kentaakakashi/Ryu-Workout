@@ -244,10 +244,10 @@ Deno.serve(async (req: Request) => {
   ].join("\\n");
 
   const generation = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(apiKey),
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: "You are Ryu's structured fitness-plan generator. Respect the profile exactly. Never invent measurements." }] },
         contents: [{ role: "user", parts: [{ text: prompt }] }],
